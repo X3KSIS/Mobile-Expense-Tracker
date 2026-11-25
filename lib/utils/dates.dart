@@ -14,4 +14,7 @@ String formatActivityTime(DateTime date, {DateTime? now}) {
 /// Full month name, e.g. `November`.
 String formatMonth(DateTime date) => DateFormat.MMMM().format(date);
 
+/// Month and year, e.g. `November 2026`.
+String formatMonthYear(DateTime date) => DateFormat('MMMM y').format(date);
+
 DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);

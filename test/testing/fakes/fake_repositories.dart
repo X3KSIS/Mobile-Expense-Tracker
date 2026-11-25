@@ -1,3 +1,4 @@
+import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
 
@@ -7,3 +8,11 @@ TransactionRepositoryLocalFake instantTransactionRepository({DateTime? now}) =>
 
 BudgetRepositoryLocalFake instantBudgetRepository() =>
     BudgetRepositoryLocalFake(delay: Duration.zero);
+
+/// Starts signed out unless [signedIn] is true. The demo account is
+/// `AuthRepositoryLocalFake.demoEmail` / `demoPassword`.
+AuthRepositoryLocalFake instantAuthRepository({
+  bool signedIn = false,
+  DateTime? now,
+}) =>
+    AuthRepositoryLocalFake(delay: Duration.zero, signedIn: signedIn, now: now);

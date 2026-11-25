@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'result.dart';
 
 typedef CommandAction0<T> = Future<Result<T>> Function();
+typedef CommandAction1<T, A> = Future<Result<T>> Function(A argument);
 
 /// Wraps an async action and exposes its running, error and completed state
 /// so views can react to it.
@@ -29,6 +30,7 @@ abstract class Command<T> extends ChangeNotifier {
 
   /// Clears the last result, e.g. after an error has been shown.
   void clearResult() {
+    if (_result == null) return;
     _result = null;
     _notify();
   }
@@ -73,4 +75,14 @@ class Command0<T> extends Command<T> {
 
   /// Runs the action. Completes when the run finishes.
   Future<void> execute() => _execute(_action);
+}
+
+/// A [Command] whose action takes one argument of type [A].
+class Command1<T, A> extends Command<T> {
+  Command1(this._action);
+
+  final CommandAction1<T, A> _action;
+
+  /// Runs the action with [argument]. Completes when the run finishes.
+  Future<void> execute(A argument) => _execute(() => _action(argument));
 }
