@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
-import '../../core/ui/form_error_banner.dart';
+import '../../core/ui/centered_scroll_body.dart';
+import '../../core/ui/form_error_slot.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../view_models/login_view_model.dart';
@@ -94,23 +95,15 @@ class _LoginScreenState extends State<LoginScreen> {
           ]),
           builder: (context, _) {
             final busy = viewModel.login.running;
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                Dimens.screenPadding,
-                Dimens.sectionGap * 2,
-                Dimens.screenPadding,
-                Dimens.screenPadding,
-              ),
+            return CenteredScrollBody(
+              padding: const EdgeInsets.all(Dimens.screenPadding),
               children: [
                 const AuthHeader(
                   title: 'Welcome back',
                   subtitle: 'Sign in to keep track of where your kwacha goes.',
                 ),
                 const SizedBox(height: Dimens.sectionGap + 10),
-                if (viewModel.errorMessage case final message?) ...[
-                  FormErrorBanner(message: message),
-                  const SizedBox(height: Dimens.sectionGap),
-                ],
+                FormErrorSlot(message: viewModel.errorMessage),
                 _LoginForm(
                   formKey: _formKey,
                   email: _email,

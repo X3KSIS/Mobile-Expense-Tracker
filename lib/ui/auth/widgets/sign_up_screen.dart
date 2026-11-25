@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
-import '../../core/ui/form_error_banner.dart';
+import '../../core/ui/centered_scroll_body.dart';
+import '../../core/ui/form_error_slot.dart';
 import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
@@ -68,52 +69,59 @@ class _SignUpScreenState extends State<SignUpScreen> {
           listenable: viewModel.signUp,
           builder: (context, _) {
             final busy = viewModel.signUp.running;
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                Dimens.screenPadding,
-                Dimens.gapL,
-                Dimens.screenPadding,
-                Dimens.screenPadding,
-              ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: HeaderIconButton(
-                    icon: Icons.arrow_back_rounded,
-                    tooltip: 'Back to sign in',
-                    onPressed: busy ? () {} : _backToLogin,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    Dimens.screenPadding,
+                    Dimens.gapL,
+                    Dimens.screenPadding,
+                    0,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: HeaderIconButton(
+                      icon: Icons.arrow_back_rounded,
+                      tooltip: 'Back to sign in',
+                      onPressed: busy ? () {} : _backToLogin,
+                    ),
                   ),
                 ),
-                const SizedBox(height: Dimens.sectionGap),
-                const AuthHeader(
-                  title: 'Create your account',
-                  subtitle: 'Track income, expenses and budgets in kwacha.',
-                ),
-                const SizedBox(height: Dimens.sectionGap + 10),
-                if (viewModel.errorMessage case final message?) ...[
-                  FormErrorBanner(message: message),
-                  const SizedBox(height: Dimens.sectionGap),
-                ],
-                _SignUpForm(
-                  formKey: _formKey,
-                  name: _name,
-                  email: _email,
-                  password: _password,
-                  confirm: _confirm,
-                  onChanged: (_) => viewModel.clearError(),
-                  onSubmit: _submit,
-                ),
-                const SizedBox(height: Dimens.sectionGap + 10),
-                PrimaryButton(
-                  label: 'Create account',
-                  loading: busy,
-                  onPressed: _submit,
-                ),
-                const SizedBox(height: Dimens.gapL),
-                AuthSwitchPrompt(
-                  question: 'Already have an account?',
-                  actionLabel: 'Sign in',
-                  onPressed: busy ? null : _backToLogin,
+                Expanded(
+                  child: CenteredScrollBody(
+                    padding: const EdgeInsets.all(Dimens.screenPadding),
+                    children: [
+                      const AuthHeader(
+                        title: 'Create your account',
+                        subtitle:
+                            'Track income, expenses and budgets in kwacha.',
+                      ),
+                      const SizedBox(height: Dimens.sectionGap + 10),
+                      FormErrorSlot(message: viewModel.errorMessage),
+                      _SignUpForm(
+                        formKey: _formKey,
+                        name: _name,
+                        email: _email,
+                        password: _password,
+                        confirm: _confirm,
+                        onChanged: (_) => viewModel.clearError(),
+                        onSubmit: _submit,
+                      ),
+                      const SizedBox(height: Dimens.sectionGap + 10),
+                      PrimaryButton(
+                        label: 'Create account',
+                        loading: busy,
+                        onPressed: _submit,
+                      ),
+                      const SizedBox(height: Dimens.gapL),
+                      AuthSwitchPrompt(
+                        question: 'Already have an account?',
+                        actionLabel: 'Sign in',
+                        onPressed: busy ? null : _backToLogin,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             );

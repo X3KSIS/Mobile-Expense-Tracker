@@ -12,6 +12,7 @@ class GradientText extends StatelessWidget {
     this.gradient = AppGradients.headline,
     this.maxLines,
     this.overflow,
+    this.textAlign,
   });
 
   final String text;
@@ -19,13 +20,20 @@ class GradientText extends StatelessWidget {
   final Gradient gradient;
   final int? maxLines;
   final TextOverflow? overflow;
+  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
     return ShaderMask(
       blendMode: BlendMode.srcIn,
       shaderCallback: (bounds) => gradient.createShader(bounds),
-      child: Text(text, style: style, maxLines: maxLines, overflow: overflow),
+      child: Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: overflow,
+        textAlign: textAlign,
+      ),
     );
   }
 }
