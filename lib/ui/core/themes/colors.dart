@@ -31,6 +31,24 @@ abstract final class AppColors {
   /// Progress track on navy cards: white at 12 % opacity.
   static const Color navyTrack = Color(0x1FFFFFFF);
 
+  // Charts
+  /// De-emphasised marks (the months that are not selected).
+  static const Color chartMuted = Color(0xFFD5D9E0);
+
+  /// Hairline gridlines.
+  static const Color chartGrid = Color(0xFFEEEEF1);
+
+  /// Sequential coral ramp for the spending heatmap, lightest to darkest.
+  /// Step 0 is a day with no spending. Steps 0–3 take dark text, step 4
+  /// takes white text.
+  static const List<Color> heatRamp = [
+    surfaceMuted,
+    Color(0xFFFFE6DF),
+    Color(0xFFFFC2B2),
+    Color(0xFFFF9478),
+    accentStrong,
+  ];
+
   /// 1px border of the floating bottom nav pill.
   static const Color navBorder = Color(0xFFECECEF);
 

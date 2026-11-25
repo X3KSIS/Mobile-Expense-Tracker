@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
 import 'package:flutter_expensetracker/main.dart';
+import 'package:flutter_expensetracker/ui/core/ui/floating_nav_bar.dart';
 import 'package:flutter_expensetracker/ui/core/ui/labeled_text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -100,6 +101,14 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Budgets'));
     await tester.pumpAndSettle();
     expect(find.text('SPENT THIS MONTH'), findsOneWidget);
+    // The active tab shows its label next to the icon.
+    expect(
+      find.descendant(
+        of: find.byType(FloatingNavBar),
+        matching: find.text('Budgets'),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byTooltip('Add transaction'));
     await tester.pumpAndSettle();
@@ -218,6 +227,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Budget deleted'), findsOneWidget);
     expect(find.text('Housing'), findsNothing);
+  });
+
+  testWidgets('Reports switches month and shows a day total', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.bySemanticsLabel('Reports'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Spending by category'), findsOneWidget);
+    expect(find.text('ZMW 7,680.00'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Previous month'));
+    await tester.pumpAndSettle();
+    expect(find.text('ZMW 7,680.00'), findsNothing);
+    await tester.tap(find.byTooltip('Next month'));
+    await tester.pumpAndSettle();
+
+    final today = find.bySemanticsLabel(RegExp(r'^Today: spent'));
+    await tester.scrollUntilVisible(
+      today,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(today);
+    await tester.pumpAndSettle();
+    await tester.tap(today);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Today', findRichText: true), findsWidgets);
   });
 
   testWidgets('the Income quick action opens Add on Income', (tester) async {

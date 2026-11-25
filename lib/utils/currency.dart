@@ -52,3 +52,14 @@ double? parseAmount(String text) {
   if (cleaned.isEmpty) return null;
   return double.tryParse(cleaned);
 }
+
+/// Short amount for chart axes: `0`, `950`, `5K`, `12.5K`, `1.2M`.
+String formatCompact(double amount) {
+  final value = amount.abs();
+  if (value >= 1000000) return '${_trim(value / 1000000)}M';
+  if (value >= 1000) return '${_trim(value / 1000)}K';
+  return value.round().toString();
+}
+
+String _trim(double v) =>
+    v == v.roundToDouble() ? v.round().toString() : v.toStringAsFixed(1);

@@ -15,13 +15,14 @@ import '../ui/auth/widgets/sign_up_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
 import '../ui/core/ui/app_shell.dart';
-import '../ui/core/ui/placeholder_screen.dart';
 import '../ui/home/view_models/home_view_model.dart';
 import '../ui/home/widgets/home_screen.dart';
 import '../ui/profile/view_models/edit_profile_view_model.dart';
 import '../ui/profile/view_models/profile_view_model.dart';
 import '../ui/profile/widgets/edit_profile_screen.dart';
 import '../ui/profile/widgets/profile_screen.dart';
+import '../ui/reports/view_models/reports_view_model.dart';
+import '../ui/reports/widgets/reports_screen.dart';
 import '../ui/splash/view_models/splash_view_model.dart';
 import '../ui/splash/widgets/splash_screen.dart';
 import 'routes.dart';
@@ -222,9 +223,13 @@ StatefulShellRoute _shell() => StatefulShellRoute.indexedStack(
       routes: [
         GoRoute(
           path: Routes.reports,
-          builder: (context, state) => const PlaceholderScreen(
-            title: 'Reports',
-            icon: Icons.insert_chart_outlined_rounded,
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (context) =>
+                ReportsViewModel(transactionRepository: context.read()),
+            child: Builder(
+              builder: (context) =>
+                  ReportsScreen(viewModel: context.read<ReportsViewModel>()),
+            ),
           ),
         ),
       ],

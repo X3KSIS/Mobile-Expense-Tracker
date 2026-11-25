@@ -43,6 +43,13 @@ abstract final class Dimens {
   static const double emptyStateTileSize = 64;
   static const double emptyStateIconSize = 28;
 
+  // Charts
+  static const double chartHeight = 150;
+  static const double columnMaxWidth = 24;
+  static const double dataEndRadius = 4;
+  static const double heatCellGap = 4;
+  static const double meterHeight = 8;
+
   // Bottom navigation
   static const double navBarHeight = 64;
   static const double navBarMargin = 18;
