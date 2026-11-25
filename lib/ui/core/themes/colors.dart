@@ -28,6 +28,9 @@ abstract final class AppColors {
   static const Color fab = Color(0xFF141A22);
   static const Color onFab = Color(0xFFFFFFFF);
 
+  /// Progress track on navy cards: white at 12 % opacity.
+  static const Color navyTrack = Color(0x1FFFFFFF);
+
   /// 1px border of the floating bottom nav pill.
   static const Color navBorder = Color(0xFFECECEF);
 

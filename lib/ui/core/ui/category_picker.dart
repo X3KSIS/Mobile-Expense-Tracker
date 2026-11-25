@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/models/transaction_category.dart';
-import '../../core/themes/colors.dart';
-import '../../core/themes/dimens.dart';
-import '../../core/themes/theme.dart';
-import '../../core/ui/category_tile.dart';
+import '../themes/colors.dart';
+import '../themes/dimens.dart';
+import '../themes/theme.dart';
+import 'category_tile.dart';
 
 /// Four-column grid of categories. The selected one gets a navy ring.
 class CategoryPicker extends StatelessWidget {

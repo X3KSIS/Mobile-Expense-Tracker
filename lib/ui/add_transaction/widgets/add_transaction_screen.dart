@@ -3,13 +3,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/models/transaction.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/ui/category_picker.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
 import '../../core/ui/segmented_toggle.dart';
 import '../view_models/add_transaction_view_model.dart';
 import 'amount_input.dart';
-import 'category_picker.dart';
 import 'date_field.dart';
 
 /// Form to record an expense or income.

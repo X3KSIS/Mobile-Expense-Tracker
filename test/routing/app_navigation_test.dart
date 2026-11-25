@@ -99,7 +99,7 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('Budgets'));
     await tester.pumpAndSettle();
-    expect(find.text('Budgets is coming soon'), findsOneWidget);
+    expect(find.text('SPENT THIS MONTH'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Add transaction'));
     await tester.pumpAndSettle();
@@ -181,6 +181,43 @@ void main() {
 
     expect(find.text('Transaction deleted'), findsOneWidget);
     expect(find.text('-ZMW 640.00'), findsNothing);
+  });
+
+  testWidgets('Budgets adds, edits and deletes a budget', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.bySemanticsLabel('Budgets'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('ZMW 3,200.00 of ZMW 3,300.00'), findsOneWidget);
+    expect(find.text('ZMW 100.00 left'), findsOneWidget);
+
+    // Add a Housing budget (ZMW 3,500 already spent this month).
+    await tester.tap(find.byTooltip('Add budget'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Housing'));
+    await tester.enterText(field('Monthly limit (ZMW)'), '3000');
+    await tester.tap(find.text('Add budget'));
+    await tester.pumpAndSettle();
+    expect(find.text('Budget added'), findsOneWidget);
+    expect(find.text('ZMW 500.00 over'), findsOneWidget);
+
+    // Raise it, then delete it.
+    await tester.tap(find.text('Housing'));
+    await tester.pumpAndSettle();
+    await tester.enterText(field('Monthly limit (ZMW)'), '4000');
+    await tester.tap(find.text('Save budget'));
+    await tester.pumpAndSettle();
+    expect(find.text('ZMW 3,500.00 of ZMW 4,000.00'), findsOneWidget);
+
+    await tester.tap(find.text('Housing'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete budget'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(find.text('Budget deleted'), findsOneWidget);
+    expect(find.text('Housing'), findsNothing);
   });
 
   testWidgets('the Income quick action opens Add on Income', (tester) async {

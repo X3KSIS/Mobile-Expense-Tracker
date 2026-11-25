@@ -39,6 +39,9 @@ abstract final class Dimens {
   static const double notificationDotSize = 9;
   static const double buttonSpinnerSize = 22;
   static const double menuRowMinHeight = 60;
+  static const double progressBarHeight = 8;
+  static const double emptyStateTileSize = 64;
+  static const double emptyStateIconSize = 28;
 
   // Bottom navigation
   static const double navBarHeight = 64;

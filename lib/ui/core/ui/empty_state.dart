@@ -34,13 +34,17 @@ class EmptyState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: Dimens.emptyStateTileSize,
+            height: Dimens.emptyStateTileSize,
             decoration: BoxDecoration(
               color: AppColors.accentSoft,
               borderRadius: BorderRadius.circular(Dimens.radiusTile),
             ),
-            child: Icon(icon, size: 28, color: AppColors.accentText),
+            child: Icon(
+              icon,
+              size: Dimens.emptyStateIconSize,
+              color: AppColors.accentText,
+            ),
           ),
           const SizedBox(height: Dimens.gapL),
           Text(

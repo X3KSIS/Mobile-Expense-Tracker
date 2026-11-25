@@ -12,6 +12,8 @@ import '../ui/auth/view_models/login_view_model.dart';
 import '../ui/auth/view_models/sign_up_view_model.dart';
 import '../ui/auth/widgets/login_screen.dart';
 import '../ui/auth/widgets/sign_up_screen.dart';
+import '../ui/budgets/view_models/budgets_view_model.dart';
+import '../ui/budgets/widgets/budgets_screen.dart';
 import '../ui/core/ui/app_shell.dart';
 import '../ui/core/ui/placeholder_screen.dart';
 import '../ui/home/view_models/home_view_model.dart';
@@ -202,9 +204,16 @@ StatefulShellRoute _shell() => StatefulShellRoute.indexedStack(
       routes: [
         GoRoute(
           path: Routes.budgets,
-          builder: (context, state) => const PlaceholderScreen(
-            title: 'Budgets',
-            icon: Icons.account_balance_wallet_outlined,
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (context) => BudgetsViewModel(
+              budgetRepository: context.read(),
+              transactionRepository: context.read(),
+              categoryRepository: context.read(),
+            ),
+            child: Builder(
+              builder: (context) =>
+                  BudgetsScreen(viewModel: context.read<BudgetsViewModel>()),
+            ),
           ),
         ),
       ],
