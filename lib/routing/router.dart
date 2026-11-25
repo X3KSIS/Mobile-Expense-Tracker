@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
 import '../domain/models/transaction.dart';
+import '../ui/activity/view_models/activity_view_model.dart';
+import '../ui/activity/widgets/activity_screen.dart';
 import '../ui/add_transaction/view_models/add_transaction_view_model.dart';
 import '../ui/add_transaction/widgets/add_transaction_screen.dart';
 import '../ui/auth/view_models/login_view_model.dart';
@@ -185,9 +187,13 @@ StatefulShellRoute _shell() => StatefulShellRoute.indexedStack(
       routes: [
         GoRoute(
           path: Routes.activity,
-          builder: (context, state) => const PlaceholderScreen(
-            title: 'Activity',
-            icon: Icons.swap_horiz_rounded,
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (context) =>
+                ActivityViewModel(transactionRepository: context.read()),
+            child: Builder(
+              builder: (context) =>
+                  ActivityScreen(viewModel: context.read<ActivityViewModel>()),
+            ),
           ),
         ),
       ],

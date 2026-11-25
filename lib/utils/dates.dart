@@ -32,6 +32,11 @@ String formatPickerDate(DateTime date, {DateTime? now}) {
   return DateFormat('EEE, d MMM y').format(date);
 }
 
+/// Full date and time, e.g. `Tuesday, 25 Nov 2026 · 14:05`.
+String formatFullDateTime(DateTime date) =>
+    '${DateFormat('EEEE, d MMM y').format(date)} · '
+    '${DateFormat.Hm().format(date)}';
+
 /// Full month name, e.g. `November`.
 String formatMonth(DateTime date) => DateFormat.MMMM().format(date);
 

@@ -24,6 +24,7 @@ class HomeViewModel extends ChangeNotifier {
     _transactionRepository.addListener(_onDataChanged);
     _budgetRepository.addListener(_onDataChanged);
     load = Command0<void>(_load)..execute();
+    delete = Command1<void, String>(_transactionRepository.deleteTransaction);
   }
 
   final DateTime Function() _clock;
@@ -37,6 +38,9 @@ class HomeViewModel extends ChangeNotifier {
 
   /// Loads (or reloads) everything on the dashboard.
   late final Command0<void> load;
+
+  /// Deletes the transaction with the given id.
+  late final Command1<void, String> delete;
 
   MonthlySummary? _summary;
   BudgetAlert? _budgetAlert;
@@ -122,6 +126,7 @@ class HomeViewModel extends ChangeNotifier {
     _transactionRepository.removeListener(_onDataChanged);
     _budgetRepository.removeListener(_onDataChanged);
     load.dispose();
+    delete.dispose();
     super.dispose();
   }
 }

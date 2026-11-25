@@ -1,0 +1,103 @@
+import 'package:flutter_expensetracker/ui/activity/view_models/activity_view_model.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../testing/fakes/failing_transaction_repository.dart';
+import '../../testing/fakes/fake_repositories.dart';
+
+void main() {
+  final now = DateTime(2026, 11, 25, 15);
+
+  group('ActivityViewModel', () {
+    test('groups every transaction by day, newest first', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: instantTransactionRepository(now: now),
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.load.execute();
+
+      final days = viewModel.days;
+      expect(days, isNotEmpty);
+      for (var i = 1; i < days.length; i++) {
+        expect(days[i - 1].day.isAfter(days[i].day), isTrue);
+      }
+      // Today: Shoprite (-640) and Salary (+12,500).
+      expect(days.first.transactions.map((t) => t.title), [
+        'Shoprite',
+        'Salary',
+      ]);
+      expect(days.first.net, 11860);
+    });
+
+    test('filters by type and updates the totals', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: instantTransactionRepository(now: now),
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+
+      viewModel.setFilter(ActivityFilter.income);
+
+      final all = viewModel.days.expand((d) => d.transactions);
+      expect(all.every((t) => t.isIncome), isTrue);
+      expect(viewModel.totalOut, 0);
+      expect(viewModel.totalIn, greaterThan(0));
+
+      viewModel.setFilter(ActivityFilter.expenses);
+      expect(
+        viewModel.days.expand((d) => d.transactions).any((t) => t.isIncome),
+        isFalse,
+      );
+    });
+
+    test('searches title, category and note, ignoring case', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: instantTransactionRepository(now: now),
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+
+      viewModel.setQuery('  zesco ');
+      expect(
+        viewModel.days
+            .expand((d) => d.transactions)
+            .every((t) => t.title == 'ZESCO units'),
+        isTrue,
+      );
+
+      viewModel.setQuery('transport');
+      expect(viewModel.visibleCount, greaterThan(0));
+
+      viewModel.setQuery('nothing matches this');
+      expect(viewModel.days, isEmpty);
+      expect(viewModel.isEmpty, isFalse);
+    });
+
+    test('reloads after a delete', () async {
+      final repository = instantTransactionRepository(now: now);
+      final viewModel = ActivityViewModel(transactionRepository: repository);
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+      final before = viewModel.visibleCount;
+
+      await viewModel.delete.execute('t1');
+      await viewModel.load.execute();
+
+      expect(viewModel.visibleCount, before - 1);
+    });
+
+    test('exposes a load error', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: FailingTransactionRepository(
+          instantTransactionRepository(now: now),
+        ),
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.load.execute();
+
+      expect(viewModel.hasError, isTrue);
+      expect(viewModel.isLoading, isFalse);
+    });
+  });
+}

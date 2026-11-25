@@ -131,6 +131,15 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
   );
 
+  /// Amount in sheets and summary cards 30 / 800.
+  static const TextStyle amountMedium = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 30,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.6,
+    color: AppColors.textPrimary,
+  );
+
   /// The smaller, grey "ZMW" prefix in front of a big amount.
   static const TextStyle amountPrefix = TextStyle(
     fontFamily: fontFamily,
@@ -350,6 +359,17 @@ abstract final class AppTheme {
         color: AppColors.textOnNavy,
       ),
       shape: _rounded(Dimens.radiusButton),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      showDragHandle: true,
+      dragHandleColor: AppColors.border,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Dimens.radiusCard),
+        ),
+      ),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.surface,

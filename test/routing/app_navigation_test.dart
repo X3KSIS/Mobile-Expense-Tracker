@@ -146,6 +146,43 @@ void main() {
     expect(find.text('-ZMW 85.00'), findsOneWidget);
   });
 
+  testWidgets('Activity searches, filters and deletes', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    await tester.tap(find.bySemanticsLabel('Activity'));
+    await tester.pumpAndSettle();
+    expect(find.text('TODAY'), findsOneWidget);
+    expect(find.text('Money in'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, 'zesco');
+    await tester.pumpAndSettle();
+    expect(find.text('ZESCO units'), findsWidgets);
+    expect(find.text('Shoprite'), findsNothing);
+
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Income').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Shoprite'), findsNothing);
+    expect(find.text('Salary'), findsWidgets);
+
+    await tester.tap(find.bySemanticsLabel('All').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Shoprite').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Delete transaction'), findsOneWidget);
+    expect(find.text('-ZMW 640.00'), findsWidgets);
+
+    await tester.tap(find.text('Delete transaction'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Transaction deleted'), findsOneWidget);
+    expect(find.text('-ZMW 640.00'), findsNothing);
+  });
+
   testWidgets('the Income quick action opens Add on Income', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);

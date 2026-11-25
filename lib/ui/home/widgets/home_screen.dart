@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/ui/transaction_details_sheet.dart';
 import '../view_models/home_view_model.dart';
 import 'balance_card.dart';
 import 'budget_alert_card.dart';
@@ -138,7 +139,11 @@ class _HomeContent extends StatelessWidget {
         RecentActivity(
           transactions: viewModel.recentTransactions,
           onSeeAll: () => context.go(Routes.activity),
-          onTransactionTap: (_) => context.go(Routes.activity),
+          onTransactionTap: (transaction) => showTransactionDetails(
+            context,
+            transaction: transaction,
+            onDelete: () => viewModel.delete.execute(transaction.id),
+          ),
         ),
       ],
     );
