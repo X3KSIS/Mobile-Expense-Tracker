@@ -20,11 +20,15 @@ abstract final class Dimens {
   static const double radiusInput = 14;
   static const double radiusIconTile = 14;
   static const double radiusTile = 18;
+  static const double radiusAvatarLarge = 22;
+  static const double radiusDialog = 24;
   static const double radiusFull = 999;
 
   // Component sizes
   static const double minTouchTarget = 44;
   static const double avatarSize = 48;
+  static const double avatarSizeLarge = 72;
+  static const double authLogoSize = 64;
   static const double headerButtonSize = 46;
   static const double iconTileSize = 44;
   static const double quickActionSize = 52;
@@ -33,6 +37,8 @@ abstract final class Dimens {
   static const double iconSize = 22;
   static const double iconSizeSmall = 18;
   static const double notificationDotSize = 9;
+  static const double buttonSpinnerSize = 22;
+  static const double menuRowMinHeight = 60;
 
   // Bottom navigation
   static const double navBarHeight = 64;
@@ -53,5 +59,14 @@ abstract final class Dimens {
 abstract final class AppShadows {
   static const List<BoxShadow> soft = [
     BoxShadow(color: AppColors.shadow, blurRadius: 24, offset: Offset(0, 8)),
+  ];
+
+  /// Soft coral glow under the primary action button.
+  static const List<BoxShadow> coral = [
+    BoxShadow(
+      color: AppColors.accentShadow,
+      blurRadius: 20,
+      offset: Offset(0, 8),
+    ),
   ];
 }

@@ -34,6 +34,9 @@ abstract final class AppColors {
   /// textPrimary at 8 % opacity, for soft shadows.
   static const Color shadow = Color(0x141B2433);
 
+  /// accentStrong at 28 % opacity, for the primary button's coral shadow.
+  static const Color accentShadow = Color(0x47D2401F);
+
   /// Opacity used for soft category tiles and decorative shapes.
   static const double softTintAlpha = 0.12;
 }

@@ -75,6 +75,38 @@ abstract final class AppTypography {
     color: AppColors.textSecondary,
   );
 
+  /// Form field label 13 / 600, shown above inputs.
+  static const TextStyle fieldLabel = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+
+  /// Primary full-width button label 16 / 700.
+  static const TextStyle primaryButton = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+  );
+
+  /// Name on the navy profile card 20 / 800, white.
+  static const TextStyle profileName = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 20,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.2,
+    color: AppColors.textOnNavy,
+  );
+
+  /// Initials inside the large avatar 26 / 800, coral text.
+  static const TextStyle avatarInitialsLarge = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 26,
+    fontWeight: FontWeight.w800,
+    color: AppColors.accentText,
+  );
+
   /// Button label 14 / 700.
   static const TextStyle button = TextStyle(
     fontFamily: fontFamily,
@@ -318,6 +350,15 @@ abstract final class AppTheme {
         color: AppColors.textOnNavy,
       ),
       shape: _rounded(Dimens.radiusButton),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: _rounded(Dimens.radiusDialog),
+      titleTextStyle: AppTypography.sectionTitle,
+      contentTextStyle: AppTypography.body.copyWith(
+        color: AppColors.textSecondary,
+      ),
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
