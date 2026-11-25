@@ -46,11 +46,15 @@ class FloatingNavBar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // Flexible lets the active pill shrink (and its label
+                  // ellipsize) on narrow phones instead of overflowing.
                   for (var i = 0; i < destinations.length; i++)
-                    _NavItem(
-                      destination: destinations[i],
-                      selected: i == currentIndex,
-                      onTap: () => onDestinationSelected(i),
+                    Flexible(
+                      child: _NavItem(
+                        destination: destinations[i],
+                        selected: i == currentIndex,
+                        onTap: () => onDestinationSelected(i),
+                      ),
                     ),
                 ],
               ),
@@ -93,9 +97,7 @@ class _NavItem extends StatelessWidget {
           curve: Curves.easeOutCubic,
           height: Dimens.navItemHeight,
           constraints: const BoxConstraints(minWidth: Dimens.minTouchTarget),
-          padding: EdgeInsets.symmetric(
-            horizontal: selected ? Dimens.gapL : 11,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: selected ? 14 : 11),
           decoration: ShapeDecoration(
             color: selected ? AppColors.surfaceMuted : AppColors.surface,
             shape: const StadiumBorder(),
@@ -109,7 +111,15 @@ class _NavItem extends StatelessWidget {
                 Icon(destination.icon, size: Dimens.iconSize, color: color),
                 if (selected) ...[
                   const SizedBox(width: 6),
-                  Text(destination.label, style: AppTypography.navLabel),
+                  Flexible(
+                    child: Text(
+                      destination.label,
+                      style: AppTypography.navLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                    ),
+                  ),
                 ],
               ],
             ),
