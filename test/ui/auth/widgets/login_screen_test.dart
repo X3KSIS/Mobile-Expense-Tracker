@@ -34,48 +34,21 @@ void main() {
   );
 
   group('LoginScreen', () {
-    testWidgets('validates empty fields without calling the repository', (
-      tester,
-    ) async {
+    testWidgets('empty fields still sign in (interface only)', (tester) async {
       await pumpLogin(tester);
 
-      await tester.tap(find.text('Sign in'));
-      await tester.pump();
-
-      expect(find.text('Enter your email'), findsOneWidget);
-      expect(find.text('Enter your password'), findsOneWidget);
-      expect(auth.isAuthenticated, isFalse);
-    });
-
-    testWidgets('shows a banner for wrong credentials', (tester) async {
-      await pumpLogin(tester);
-
-      await tester.enterText(field('Email'), 'demo@expensetrack.app');
-      await tester.enterText(field('Password'), 'wrong-password');
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
 
-      expect(
-        find.text(
-          "That email and password don't match. Check them and try again.",
-        ),
-        findsOneWidget,
-      );
-
-      // Typing again hides the banner.
-      await tester.enterText(field('Password'), 'password12');
-      await tester.pump();
-      expect(find.textContaining("don't match"), findsNothing);
+      expect(find.text('Enter your email'), findsNothing);
+      expect(auth.isAuthenticated, isTrue);
     });
 
-    testWidgets('signs in with the demo account', (tester) async {
+    testWidgets('any typed credentials sign in', (tester) async {
       await pumpLogin(tester);
 
-      await tester.enterText(field('Email'), AuthRepositoryLocalFake.demoEmail);
-      await tester.enterText(
-        field('Password'),
-        AuthRepositoryLocalFake.demoPassword,
-      );
+      await tester.enterText(field('Email'), 'anyone@example.com');
+      await tester.enterText(field('Password'), 'anything');
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
 
@@ -91,21 +64,15 @@ void main() {
       expect(find.byTooltip('Hide password'), findsOneWidget);
     });
 
-    testWidgets('forgot password needs an email, then confirms', (
-      tester,
-    ) async {
+    testWidgets('forgot password confirms with a snackbar', (tester) async {
       await pumpLogin(tester);
-
-      await tester.tap(find.text('Forgot password?'));
-      await tester.pump();
-      expect(find.textContaining('Enter your email above'), findsOneWidget);
 
       await tester.enterText(field('Email'), 'mwila@example.com');
       await tester.tap(find.text('Forgot password?'));
       await tester.pumpAndSettle();
 
       expect(
-        find.textContaining('If an account exists for mwila@example.com'),
+        find.text("We've sent a password reset link to mwila@example.com."),
         findsOneWidget,
       );
     });

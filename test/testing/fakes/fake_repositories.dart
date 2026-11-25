@@ -9,8 +9,8 @@ TransactionRepositoryLocalFake instantTransactionRepository({DateTime? now}) =>
 BudgetRepositoryLocalFake instantBudgetRepository() =>
     BudgetRepositoryLocalFake(delay: Duration.zero);
 
-/// Starts signed out unless [signedIn] is true. The demo account is
-/// `AuthRepositoryLocalFake.demoEmail` / `demoPassword`.
+/// Starts signed out unless [signedIn] is true. Any credentials sign in
+/// to the demo account.
 AuthRepositoryLocalFake instantAuthRepository({
   bool signedIn = false,
   DateTime? now,

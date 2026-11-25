@@ -20,43 +20,21 @@ void main() {
       expect(auth.currentUser, isNull);
     });
 
-    test('signs in the demo account, ignoring case and spaces', () async {
+    test('any credentials, even empty, sign in to the demo account', () async {
       final auth = instantAuthRepository();
       var notified = 0;
       auth.addListener(() => notified++);
 
-      final result = await auth.signIn(
-        email: '  DEMO@expensetrack.app ',
-        password: AuthRepositoryLocalFake.demoPassword,
-      );
+      final result = await auth.signIn(email: '', password: '');
 
       expect(result, isA<Ok<AppUser>>());
       expect(auth.isAuthenticated, isTrue);
-      expect(auth.currentUser!.name, 'Paul Mubanga');
+      expect(auth.currentUser!.name, AuthRepositoryLocalFake.demoName);
       expect(notified, 1);
-    });
 
-    test('rejects a wrong password', () async {
-      final auth = instantAuthRepository();
-
-      final result = await auth.signIn(
-        email: AuthRepositoryLocalFake.demoEmail,
-        password: 'wrong-password',
-      );
-
-      expect(_errorCode(result), AuthErrorCode.invalidCredentials);
-      expect(auth.isAuthenticated, isFalse);
-    });
-
-    test('rejects an unknown email', () async {
-      final auth = instantAuthRepository();
-
-      final result = await auth.signIn(
-        email: 'nobody@example.com',
-        password: 'password123',
-      );
-
-      expect(_errorCode(result), AuthErrorCode.invalidCredentials);
+      await auth.signOut();
+      await auth.signIn(email: 'someone@example.com', password: 'whatever');
+      expect(auth.currentUser!.email, AuthRepositoryLocalFake.demoEmail);
     });
 
     test('signs up a new account and signs it in', () async {
@@ -66,7 +44,7 @@ void main() {
       final result = await auth.signUp(
         name: ' Mwila Banda ',
         email: 'Mwila@Example.com',
-        password: 'kwacha2026',
+        password: 'x',
       );
 
       expect(result, isA<Ok<AppUser>>());
@@ -75,37 +53,19 @@ void main() {
       expect(user.email, 'mwila@example.com');
       expect(user.createdAt, now);
 
+      // Signing in again with that email opens the same account.
       await auth.signOut();
-      final again = await auth.signIn(
-        email: 'mwila@example.com',
-        password: 'kwacha2026',
-      );
-      expect(again, isA<Ok<AppUser>>());
+      await auth.signIn(email: 'mwila@example.com', password: '');
+      expect(auth.currentUser!.name, 'Mwila Banda');
     });
 
-    test('refuses to sign up an email that already exists', () async {
+    test('blank sign-up fields fall back to the demo details', () async {
       final auth = instantAuthRepository();
 
-      final result = await auth.signUp(
-        name: 'Someone',
-        email: AuthRepositoryLocalFake.demoEmail,
-        password: 'kwacha2026',
-      );
+      await auth.signUp(name: '  ', email: '', password: '');
 
-      expect(_errorCode(result), AuthErrorCode.emailAlreadyInUse);
-      expect(auth.isAuthenticated, isFalse);
-    });
-
-    test('refuses a password shorter than 8 characters', () async {
-      final auth = instantAuthRepository();
-
-      final result = await auth.signUp(
-        name: 'Someone',
-        email: 'someone@example.com',
-        password: 'short1',
-      );
-
-      expect(_errorCode(result), AuthErrorCode.weakPassword);
+      expect(auth.currentUser!.name, AuthRepositoryLocalFake.demoName);
+      expect(auth.currentUser!.email, AuthRepositoryLocalFake.demoEmail);
     });
 
     test('signs out and notifies', () async {
@@ -132,10 +92,7 @@ void main() {
       expect(auth.currentUser!.phone, '0761234567');
 
       await auth.signOut();
-      await auth.signIn(
-        email: AuthRepositoryLocalFake.demoEmail,
-        password: AuthRepositoryLocalFake.demoPassword,
-      );
+      await auth.signIn(email: AuthRepositoryLocalFake.demoEmail, password: '');
       expect(auth.currentUser!.name, 'Paul M. Mubanga');
     });
 
@@ -159,7 +116,7 @@ void main() {
     test('password reset always succeeds', () async {
       final auth = instantAuthRepository();
 
-      final result = await auth.sendPasswordResetEmail('nobody@example.com');
+      final result = await auth.sendPasswordResetEmail('');
 
       expect(result, isA<Ok<void>>());
     });

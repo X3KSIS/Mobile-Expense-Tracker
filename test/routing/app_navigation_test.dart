@@ -62,19 +62,14 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
-  testWidgets('signing in goes to Home', (tester) async {
+  testWidgets('tapping Sign in with empty fields goes to Home', (tester) async {
     await pumpApp(tester);
     await finishSplash(tester);
 
-    await tester.enterText(field('Email'), AuthRepositoryLocalFake.demoEmail);
-    await tester.enterText(
-      field('Password'),
-      AuthRepositoryLocalFake.demoPassword,
-    );
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Paul Mubanga'), findsOneWidget);
+    expect(find.text(AuthRepositoryLocalFake.demoName), findsOneWidget);
     expect(find.text('Recent activity'), findsOneWidget);
   });
 
@@ -90,8 +85,6 @@ void main() {
 
     await tester.enterText(field('Full name'), 'Mwila Banda');
     await tester.enterText(field('Email'), 'mwila@example.com');
-    await tester.enterText(field('Password'), 'kwacha2026');
-    await tester.enterText(field('Confirm password'), 'kwacha2026');
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();
 

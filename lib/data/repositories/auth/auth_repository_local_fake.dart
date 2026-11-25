@@ -3,11 +3,18 @@ import '../../../domain/models/auth_exception.dart';
 import '../../../utils/result.dart';
 import 'auth_repository.dart';
 
-/// In-memory [AuthRepository] with one demo account.
+/// In-memory [AuthRepository] for testing the interface.
 ///
-/// Sign in with [demoEmail] / [demoPassword]. New sign-ups are kept until
-/// the app restarts. Nothing is persisted, so the app always starts signed
-/// out unless [signedIn] is true.
+/// Every sign-in and sign-up succeeds, whatever is typed:
+/// - Signing in with the email of an account created this session opens
+///   that account. Any other input (even empty) opens the demo account.
+/// - Signing up creates an account from the details given, falling back to
+///   the demo name and email for blank fields.
+///
+/// Nothing is persisted, so the app starts signed out unless [signedIn] is
+/// true.
+// TODO(auth): replace with a Firebase-backed repository, which enforces
+// real credentials.
 class AuthRepositoryLocalFake extends AuthRepository {
   AuthRepositoryLocalFake({
     this.delay = const Duration(milliseconds: 600),
@@ -16,23 +23,23 @@ class AuthRepositoryLocalFake extends AuthRepository {
   }) : _now = now ?? DateTime.now() {
     final demo = AppUser(
       id: 'user-1',
-      name: 'Paul Mubanga',
+      name: demoName,
       email: demoEmail,
       phone: '0971234567',
       createdAt: DateTime(_now.year, _now.month - 3, 12),
     );
-    _accounts[demoEmail] = _Account(demo, demoPassword);
+    _accounts[demoEmail] = demo;
     if (signedIn) _currentUser = demo;
   }
 
+  static const String demoName = 'Paul Mubanga';
   static const String demoEmail = 'demo@expensetrack.app';
-  static const String demoPassword = 'password123';
 
   /// Simulated network latency.
   final Duration delay;
 
   final DateTime _now;
-  final Map<String, _Account> _accounts = {};
+  final Map<String, AppUser> _accounts = {};
   AppUser? _currentUser;
   int _nextId = 2;
 
@@ -48,14 +55,9 @@ class AuthRepositoryLocalFake extends AuthRepository {
     required String password,
   }) async {
     await Future<void>.delayed(delay);
-    final account = _accounts[_normalise(email)];
-    if (account == null || account.password != password) {
-      return const Result.error(
-        AuthException(AuthErrorCode.invalidCredentials),
-      );
-    }
-    _setUser(account.user);
-    return Result.ok(account.user);
+    final user = _accounts[_normalise(email)] ?? _accounts[demoEmail]!;
+    _setUser(user);
+    return Result.ok(user);
   }
 
   @override
@@ -65,20 +67,15 @@ class AuthRepositoryLocalFake extends AuthRepository {
     required String password,
   }) async {
     await Future<void>.delayed(delay);
-    final key = _normalise(email);
-    if (_accounts.containsKey(key)) {
-      return const Result.error(AuthException(AuthErrorCode.emailAlreadyInUse));
-    }
-    if (password.length < 8) {
-      return const Result.error(AuthException(AuthErrorCode.weakPassword));
-    }
+    final trimmedName = name.trim();
+    final key = _normalise(email).isEmpty ? demoEmail : _normalise(email);
     final user = AppUser(
       id: 'user-${_nextId++}',
-      name: name.trim(),
+      name: trimmedName.isEmpty ? demoName : trimmedName,
       email: key,
       createdAt: _now,
     );
-    _accounts[key] = _Account(user, password);
+    _accounts[key] = user;
     _setUser(user);
     return Result.ok(user);
   }
@@ -112,8 +109,7 @@ class AuthRepositoryLocalFake extends AuthRepository {
       phone: trimmedPhone.isEmpty ? null : trimmedPhone,
       clearPhone: trimmedPhone.isEmpty,
     );
-    final account = _accounts[user.email]!;
-    _accounts[user.email] = _Account(updated, account.password);
+    _accounts[user.email] = updated;
     _setUser(updated);
     return Result.ok(updated);
   }
@@ -124,11 +120,4 @@ class AuthRepositoryLocalFake extends AuthRepository {
   }
 
   static String _normalise(String email) => email.trim().toLowerCase();
-}
-
-class _Account {
-  const _Account(this.user, this.password);
-
-  final AppUser user;
-  final String password;
 }
