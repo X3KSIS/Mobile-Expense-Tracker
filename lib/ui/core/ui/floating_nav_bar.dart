@@ -1,3 +1,5 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
 
 import '../themes/colors.dart';
@@ -43,28 +45,25 @@ class FloatingNavBar extends StatelessWidget {
             ),
             child: Material(
               type: MaterialType.transparency,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Inactive items keep their 44px size; only the active
-                  // pill is Flexible, so on narrow phones it takes the space
-                  // left and ellipsizes its label instead of overflowing.
-                  for (var i = 0; i < destinations.length; i++)
-                    if (i == currentIndex)
-                      Flexible(
-                        child: _NavItem(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final maxLabelWidth = _NavItem.labelWidthLimit(
+                    constraints.maxWidth,
+                    destinations.length,
+                  );
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      for (var i = 0; i < destinations.length; i++)
+                        _NavItem(
                           destination: destinations[i],
-                          selected: true,
+                          selected: i == currentIndex,
+                          maxLabelWidth: maxLabelWidth,
                           onTap: () => onDestinationSelected(i),
                         ),
-                      )
-                    else
-                      _NavItem(
-                        destination: destinations[i],
-                        selected: false,
-                        onTap: () => onDestinationSelected(i),
-                      ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -76,22 +75,41 @@ class FloatingNavBar extends StatelessWidget {
   }
 }
 
+/// A tab that smoothly grows into a labelled pill when selected.
+///
+/// One animated value (0 = inactive, 1 = active) drives everything: the
+/// pill colour, padding and icon colour blend, the label slides open, and
+/// it fades in once there is room. The old and new tabs animate together,
+/// so the bar's total width stays within bounds throughout.
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.destination,
     required this.selected,
+    required this.maxLabelWidth,
     required this.onTap,
   });
 
   final NavDestination destination;
   final bool selected;
+  final double maxLabelWidth;
   final VoidCallback onTap;
 
-  static const Duration _duration = Duration(milliseconds: 220);
+  static const Duration _duration = Duration(milliseconds: 420);
+  static const double _paddingInactive = 11;
+  static const double _paddingActive = 14;
+  static const double _labelGap = 6;
+
+  /// The widest a label may be so the active pill plus the inactive icons
+  /// fit in [available] width. Long labels ellipsize past this.
+  static double labelWidthLimit(double available, int count) {
+    const inactive = Dimens.minTouchTarget;
+    const activeChrome = _paddingActive * 2 + Dimens.iconSize + _labelGap;
+    final width = available - (count - 1) * inactive - activeChrome;
+    return width < 0 ? 0 : width;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.textPrimary : AppColors.textSecondary;
     return Semantics(
       button: true,
       selected: selected,
@@ -100,26 +118,50 @@ class _NavItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         customBorder: const StadiumBorder(),
-        child: AnimatedContainer(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(end: selected ? 1 : 0),
           duration: _duration,
-          curve: Curves.easeOutCubic,
-          height: Dimens.navItemHeight,
-          constraints: const BoxConstraints(minWidth: Dimens.minTouchTarget),
-          padding: EdgeInsets.symmetric(horizontal: selected ? 14 : 11),
-          decoration: ShapeDecoration(
-            color: selected ? AppColors.surfaceMuted : AppColors.surface,
-            shape: const StadiumBorder(),
-          ),
-          child: AnimatedSize(
-            duration: _duration,
-            curve: Curves.easeOutCubic,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(destination.icon, size: Dimens.iconSize, color: color),
-                if (selected) ...[
-                  const SizedBox(width: 6),
-                  Flexible(
+          curve: Curves.easeInOutCubic,
+          builder: (context, t, _) => _buildPill(t),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPill(double t) {
+    final iconColor = Color.lerp(
+      AppColors.textSecondary,
+      AppColors.textPrimary,
+      t,
+    );
+    // The label fades in during the second half, once the pill has opened.
+    final labelOpacity = Curves.easeIn.transform(
+      ((t - 0.35) / 0.65).clamp(0.0, 1.0),
+    );
+    return Container(
+      height: Dimens.navItemHeight,
+      constraints: const BoxConstraints(minWidth: Dimens.minTouchTarget),
+      padding: EdgeInsets.symmetric(
+        horizontal: lerpDouble(_paddingInactive, _paddingActive, t)!,
+      ),
+      decoration: ShapeDecoration(
+        color: Color.lerp(AppColors.surface, AppColors.surfaceMuted, t),
+        shape: const StadiumBorder(),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(destination.icon, size: Dimens.iconSize, color: iconColor),
+          ClipRect(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              widthFactor: t,
+              child: Opacity(
+                opacity: labelOpacity,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: _labelGap),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxLabelWidth),
                     child: Text(
                       destination.label,
                       style: AppTypography.navLabel,
@@ -128,11 +170,11 @@ class _NavItem extends StatelessWidget {
                       softWrap: false,
                     ),
                   ),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

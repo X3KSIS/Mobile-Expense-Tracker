@@ -14,6 +14,7 @@ import '../ui/auth/widgets/login_screen.dart';
 import '../ui/auth/widgets/sign_up_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
+import '../ui/core/ui/animated_branch_container.dart';
 import '../ui/core/ui/app_shell.dart';
 import '../ui/home/view_models/home_view_model.dart';
 import '../ui/home/widgets/home_screen.dart';
@@ -164,9 +165,14 @@ class _AuthStatusListenable extends ChangeNotifier {
   }
 }
 
-StatefulShellRoute _shell() => StatefulShellRoute.indexedStack(
+StatefulShellRoute _shell() => StatefulShellRoute(
   builder: (context, state, navigationShell) =>
       AppShell(navigationShell: navigationShell),
+  navigatorContainerBuilder: (context, navigationShell, children) =>
+      AnimatedBranchContainer(
+        currentIndex: navigationShell.currentIndex,
+        children: children,
+      ),
   branches: [
     StatefulShellBranch(
       routes: [
