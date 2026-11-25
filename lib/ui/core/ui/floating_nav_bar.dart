@@ -46,16 +46,24 @@ class FloatingNavBar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Flexible lets the active pill shrink (and its label
-                  // ellipsize) on narrow phones instead of overflowing.
+                  // Inactive items keep their 44px size; only the active
+                  // pill is Flexible, so on narrow phones it takes the space
+                  // left and ellipsizes its label instead of overflowing.
                   for (var i = 0; i < destinations.length; i++)
-                    Flexible(
-                      child: _NavItem(
+                    if (i == currentIndex)
+                      Flexible(
+                        child: _NavItem(
+                          destination: destinations[i],
+                          selected: true,
+                          onTap: () => onDestinationSelected(i),
+                        ),
+                      )
+                    else
+                      _NavItem(
                         destination: destinations[i],
-                        selected: i == currentIndex,
+                        selected: false,
                         onTap: () => onDestinationSelected(i),
                       ),
-                    ),
                 ],
               ),
             ),
