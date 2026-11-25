@@ -65,7 +65,7 @@ abstract final class Dimens {
       MediaQuery.viewPaddingOf(context).bottom;
 }
 
-/// Soft shadows. No gradients anywhere.
+/// Soft shadows. Gradients live in `gradients.dart`.
 abstract final class AppShadows {
   static const List<BoxShadow> soft = [
     BoxShadow(color: AppColors.shadow, blurRadius: 24, offset: Offset(0, 8)),

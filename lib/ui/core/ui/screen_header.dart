@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../themes/dimens.dart';
+import 'gradient_text.dart';
 import 'header_icon_button.dart';
 
 /// Header for pushed screens: a 46px back button, the screen title and an
@@ -33,7 +34,7 @@ class ScreenHeader extends StatelessWidget {
         Expanded(
           child: Semantics(
             header: true,
-            child: Text(
+            child: GradientText(
               title,
               style: Theme.of(context).textTheme.headlineSmall,
               maxLines: 1,

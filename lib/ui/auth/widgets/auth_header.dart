@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/themes/dimens.dart';
 import '../../core/ui/app_logo.dart';
+import '../../core/ui/gradient_text.dart';
 
 /// Logo, title and subtitle at the top of the sign-in and sign-up screens.
 class AuthHeader extends StatelessWidget {
@@ -20,7 +21,7 @@ class AuthHeader extends StatelessWidget {
         const SizedBox(height: Dimens.sectionGap + 6),
         Semantics(
           header: true,
-          child: Text(title, style: textTheme.headlineSmall),
+          child: GradientText(title, style: textTheme.headlineSmall),
         ),
         const SizedBox(height: Dimens.gapS - 2),
         Text(subtitle, style: textTheme.labelMedium),

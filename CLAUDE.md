@@ -104,7 +104,18 @@ The coral accent (#FF6B4A) is never used for small text or as the background beh
 
 - **Radii:** big cards 26, list containers 22–24, buttons and inputs 14–18, icon tiles 14, primary full-width button and nav bar fully rounded.
 - **Spacing:** screen horizontal padding 22, gap between sections 14–20.
-- **Shadows:** soft only, e.g. `0 8 24 rgba(27,36,51,.08)`. No gradients.
+- **Shadows:** soft only, e.g. `0 8 24 rgba(27,36,51,.08)`.
+
+### Gradients
+
+Defined in `lib/ui/core/themes/gradients.dart` (`AppGradients`).
+
+1. **Hues:** stay within 60° of the colour wheel. Use neighbouring hues only, for smooth, professional gradients.
+2. **Direction:** 135° (top-left to bottom-right).
+3. **Mesh gradients:** use multiple colour points (`MeshGradientBox`) for organic, natural blends on large surfaces like the navy cards.
+4. **Text gradients:** headlines only (`GradientText` in screen titles). All other text stays solid.
+
+Text on a gradient must meet the contrast rules on every stop. Chart data marks stay solid.
 
 ### Typography
 

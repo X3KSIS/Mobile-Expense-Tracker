@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
+import '../themes/gradients.dart';
 import '../themes/theme.dart';
 
-/// Full-width, fully rounded accentStrong button (height 58) with a soft
-/// coral shadow. Shows a spinner and ignores taps while [loading].
+/// Full-width, fully rounded primary button (height 58) filled with the
+/// 135° primary gradient and a soft coral shadow. Shows a spinner and
+/// ignores taps while [loading]; greys out when [onPressed] is null.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
@@ -21,32 +23,47 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null;
+    final foreground = enabled ? AppColors.surface : AppColors.textSecondary;
     return Semantics(
       button: true,
       enabled: enabled && !loading,
       label: loading ? '$label, in progress' : label,
       excludeSemantics: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Dimens.radiusFull),
-          boxShadow: enabled ? AppShadows.coral : null,
+      child: Container(
+        height: Dimens.primaryButtonHeight,
+        decoration: ShapeDecoration(
+          shape: const StadiumBorder(),
+          shadows: enabled ? AppShadows.coral : null,
         ),
-        child: FilledButton(
-          onPressed: loading ? () {} : onPressed,
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(Dimens.primaryButtonHeight),
-            shape: const StadiumBorder(),
-            textStyle: AppTypography.primaryButton,
+        child: Material(
+          type: MaterialType.transparency,
+          shape: const StadiumBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: enabled ? AppGradients.primary : null,
+              color: enabled ? null : AppColors.surfaceMuted,
+            ),
+            child: InkWell(
+              onTap: loading ? null : onPressed,
+              child: Center(
+                child: loading
+                    ? SizedBox.square(
+                        dimension: Dimens.buttonSpinnerSize,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: foreground,
+                        ),
+                      )
+                    : Text(
+                        label,
+                        style: AppTypography.primaryButton.copyWith(
+                          color: foreground,
+                        ),
+                      ),
+              ),
+            ),
           ),
-          child: loading
-              ? const SizedBox.square(
-                  dimension: Dimens.buttonSpinnerSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.4,
-                    color: AppColors.surface,
-                  ),
-                )
-              : Text(label),
         ),
       ),
     );

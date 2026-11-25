@@ -4,9 +4,11 @@ import '../../../domain/models/budget_alert.dart';
 import '../../../utils/currency.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/gradients.dart';
 import '../../core/themes/theme.dart';
+import '../../core/ui/mesh_gradient_box.dart';
 
-/// Navy card warning about the budget closest to its limit.
+/// Navy mesh card warning about the budget closest to its limit.
 class BudgetAlertCard extends StatelessWidget {
   const BudgetAlertCard({
     super.key,
@@ -17,53 +19,23 @@ class BudgetAlertCard extends StatelessWidget {
   final BudgetAlert alert;
   final VoidCallback onViewBudget;
 
-  static const double _circleSize = 160;
-
   String get _message => alert.isOverLimit
       ? '${alert.categoryName} is over its limit.'
       : '${alert.categoryName} is almost at its limit.';
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.circular(Dimens.radiusCard),
-      ),
-      child: Stack(
+    return MeshGradientBox(
+      mesh: AppGradients.navyMesh,
+      borderRadius: BorderRadius.circular(Dimens.radiusCard),
+      padding: const EdgeInsets.all(Dimens.cardPadding),
+      child: Row(
         children: [
-          Positioned(
-            top: -_circleSize / 3,
-            right: -_circleSize / 4,
-            child: ExcludeSemantics(
-              child: Container(
-                width: _circleSize,
-                height: _circleSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.accent.withValues(
-                    alpha: AppColors.softTintAlpha,
-                  ),
-                ),
-              ),
-            ),
+          Expanded(
+            child: _AlertText(message: _message, onViewBudget: onViewBudget),
           ),
-          Padding(
-            padding: const EdgeInsets.all(Dimens.cardPadding),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _AlertText(
-                    message: _message,
-                    onViewBudget: onViewBudget,
-                  ),
-                ),
-                const SizedBox(width: Dimens.gapL),
-                _AlertFigures(alert: alert),
-              ],
-            ),
-          ),
+          const SizedBox(width: Dimens.gapL),
+          _AlertFigures(alert: alert),
         ],
       ),
     );

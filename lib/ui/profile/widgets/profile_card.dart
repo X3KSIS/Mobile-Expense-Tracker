@@ -4,8 +4,10 @@ import '../../../domain/models/app_user.dart';
 import '../../../utils/phone.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/gradients.dart';
 import '../../core/themes/theme.dart';
 import '../../core/ui/user_avatar.dart';
+import '../../core/ui/mesh_gradient_box.dart';
 
 /// Navy feature card with the avatar, name, email and membership date.
 class ProfileCard extends StatelessWidget {
@@ -20,13 +22,11 @@ class ProfileCard extends StatelessWidget {
       color: AppColors.textOnNavyMuted,
     );
     final phone = user.phone;
-    return Container(
+    return MeshGradientBox(
+      mesh: AppGradients.navyMesh,
       padding: const EdgeInsets.all(Dimens.cardPadding + 2),
-      decoration: BoxDecoration(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.circular(Dimens.radiusCard),
-        boxShadow: AppShadows.soft,
-      ),
+      borderRadius: BorderRadius.circular(Dimens.radiusCard),
+      boxShadow: AppShadows.soft,
       child: Row(
         children: [
           UserAvatar(initials: user.initials, large: true),

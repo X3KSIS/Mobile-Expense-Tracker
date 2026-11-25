@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../utils/currency.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/gradients.dart';
 import '../../core/themes/theme.dart';
 import '../../core/ui/progress_bar.dart';
+import '../../core/ui/mesh_gradient_box.dart';
 
 /// Navy card with the month's total spent against all budgets.
 class BudgetsSummaryCard extends StatelessWidget {
@@ -29,13 +31,11 @@ class BudgetsSummaryCard extends StatelessWidget {
       color: AppColors.textOnNavyMuted,
     );
     final money = splitMoney(spent);
-    return Container(
+    return MeshGradientBox(
+      mesh: AppGradients.navyMesh,
       padding: const EdgeInsets.all(Dimens.cardPadding + 2),
-      decoration: BoxDecoration(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.circular(Dimens.radiusCard),
-        boxShadow: AppShadows.soft,
-      ),
+      borderRadius: BorderRadius.circular(Dimens.radiusCard),
+      boxShadow: AppShadows.soft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

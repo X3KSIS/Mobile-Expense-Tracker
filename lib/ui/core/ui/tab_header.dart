@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../themes/dimens.dart';
+import 'gradient_text.dart';
 
 /// Title row at the top of the main tab screens, with an optional subtitle
 /// and trailing action.
@@ -28,7 +29,7 @@ class TabHeader extends StatelessWidget {
             children: [
               Semantics(
                 header: true,
-                child: Text(title, style: textTheme.headlineSmall),
+                child: GradientText(title, style: textTheme.headlineSmall),
               ),
               if (sub != null) ...[
                 const SizedBox(height: 2),
