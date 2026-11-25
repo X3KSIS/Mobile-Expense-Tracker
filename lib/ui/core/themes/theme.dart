@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
@@ -263,6 +264,16 @@ abstract final class AppTheme {
     fontFamily: AppTypography.fontFamily,
     textTheme: _textTheme,
     scaffoldBackgroundColor: AppColors.background,
+    // Pushed screens fade and drift forward instead of sliding abruptly.
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
     canvasColor: AppColors.background,
     dividerTheme: const DividerThemeData(
       color: AppColors.border,

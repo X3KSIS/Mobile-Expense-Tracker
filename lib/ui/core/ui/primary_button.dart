@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/gradients.dart';
+import '../themes/motion.dart';
 import '../themes/theme.dart';
 
 /// Full-width, fully rounded primary button (height 58) filled with the
@@ -47,20 +48,25 @@ class PrimaryButton extends StatelessWidget {
             child: InkWell(
               onTap: loading ? null : onPressed,
               child: Center(
-                child: loading
-                    ? SizedBox.square(
-                        dimension: Dimens.buttonSpinnerSize,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.4,
-                          color: foreground,
+                child: AnimatedSwitcher(
+                  duration: AppMotion.short,
+                  child: loading
+                      ? SizedBox.square(
+                          key: const ValueKey('spinner'),
+                          dimension: Dimens.buttonSpinnerSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: foreground,
+                          ),
+                        )
+                      : Text(
+                          label,
+                          key: ValueKey(label),
+                          style: AppTypography.primaryButton.copyWith(
+                            color: foreground,
+                          ),
                         ),
-                      )
-                    : Text(
-                        label,
-                        style: AppTypography.primaryButton.copyWith(
-                          color: foreground,
-                        ),
-                      ),
+                ),
               ),
             ),
           ),

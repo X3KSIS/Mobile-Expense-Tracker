@@ -31,6 +31,9 @@ abstract final class AppColors {
   /// Progress track on navy cards: white at 12 % opacity.
   static const Color navyTrack = Color(0x1FFFFFFF);
 
+  /// Highlight band that sweeps across skeleton placeholders.
+  static const Color skeletonHighlight = Color(0xFFFAFAFB);
+
   // Charts
   /// De-emphasised marks (the months that are not selected).
   static const Color chartMuted = Color(0xFFD5D9E0);

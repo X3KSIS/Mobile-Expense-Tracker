@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/models/transaction_category.dart';
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
+import '../themes/motion.dart';
 import '../themes/theme.dart';
 import 'category_tile.dart';
 
@@ -74,7 +75,8 @@ class _CategoryOption extends StatelessWidget {
           child: Column(
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 160),
+                duration: AppMotion.short,
+                curve: AppMotion.enter,
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Dimens.radiusTile),
@@ -90,17 +92,20 @@ class _CategoryOption extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Dimens.gapXs + 2),
-              Text(
-                category.name,
+              AnimatedDefaultTextStyle(
+                duration: AppMotion.short,
                 style: AppTypography.caption.copyWith(
                   color: selected
                       ? AppColors.textPrimary
                       : AppColors.textSecondary,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
+                child: Text(
+                  category.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),

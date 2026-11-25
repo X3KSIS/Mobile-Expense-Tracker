@@ -4,6 +4,7 @@ import '../../../utils/dates.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/theme.dart';
+import '../../core/ui/fade_switcher.dart';
 
 /// "‹ November 2026 ›" control that scopes every report below it.
 class MonthSwitcher extends StatelessWidget {
@@ -39,10 +40,14 @@ class MonthSwitcher extends StatelessWidget {
           Expanded(
             child: Semantics(
               liveRegion: true,
-              child: Text(
-                formatMonthYear(month),
-                style: AppTypography.listTitle,
-                textAlign: TextAlign.center,
+              child: FadeSwitcher(
+                alignment: Alignment.center,
+                child: Text(
+                  formatMonthYear(month),
+                  key: ValueKey(month),
+                  style: AppTypography.listTitle,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),

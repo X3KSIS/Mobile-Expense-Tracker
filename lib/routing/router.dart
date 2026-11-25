@@ -14,6 +14,7 @@ import '../ui/auth/widgets/login_screen.dart';
 import '../ui/auth/widgets/sign_up_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
+import '../ui/core/themes/motion.dart';
 import '../ui/core/ui/animated_branch_container.dart';
 import '../ui/core/ui/app_shell.dart';
 import '../ui/home/view_models/home_view_model.dart';
@@ -44,31 +45,42 @@ GoRouter router(AuthRepository authRepository) {
     routes: [
       GoRoute(
         path: Routes.splash,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => SplashViewModel(authRepository: context.read()),
-          child: Builder(
-            builder: (context) =>
-                SplashScreen(viewModel: context.read<SplashViewModel>()),
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          ChangeNotifierProvider(
+            create: (context) =>
+                SplashViewModel(authRepository: context.read()),
+            child: Builder(
+              builder: (context) =>
+                  SplashScreen(viewModel: context.read<SplashViewModel>()),
+            ),
           ),
         ),
       ),
       GoRoute(
         path: Routes.login,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => LoginViewModel(authRepository: context.read()),
-          child: Builder(
-            builder: (context) =>
-                LoginScreen(viewModel: context.read<LoginViewModel>()),
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          ChangeNotifierProvider(
+            create: (context) => LoginViewModel(authRepository: context.read()),
+            child: Builder(
+              builder: (context) =>
+                  LoginScreen(viewModel: context.read<LoginViewModel>()),
+            ),
           ),
         ),
       ),
       GoRoute(
         path: Routes.signUp,
-        builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => SignUpViewModel(authRepository: context.read()),
-          child: Builder(
-            builder: (context) =>
-                SignUpScreen(viewModel: context.read<SignUpViewModel>()),
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          ChangeNotifierProvider(
+            create: (context) =>
+                SignUpViewModel(authRepository: context.read()),
+            child: Builder(
+              builder: (context) =>
+                  SignUpScreen(viewModel: context.read<SignUpViewModel>()),
+            ),
           ),
         ),
       ),
@@ -125,6 +137,22 @@ GoRouter router(AuthRepository authRepository) {
   );
 }
 
+/// Fades a full-screen page in. Used where go_router replaces the whole
+/// stack (splash, sign-in, sign-up, the main shell) so the hand-off is a
+/// soft cross-fade rather than a hard cut.
+Page<void> _fadePage(GoRouterState state, Widget child) =>
+    CustomTransitionPage<void>(
+      key: state.pageKey,
+      transitionDuration: AppMotion.long,
+      reverseTransitionDuration: AppMotion.medium,
+      child: child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: AppMotion.enter),
+            child: child,
+          ),
+    );
+
 /// Keeps signed-out users on the auth screens and signed-in users off them.
 /// The splash screen decides for itself once it has finished.
 String? _redirect(AuthRepository authRepository, GoRouterState state) {
@@ -166,8 +194,8 @@ class _AuthStatusListenable extends ChangeNotifier {
 }
 
 StatefulShellRoute _shell() => StatefulShellRoute(
-  builder: (context, state, navigationShell) =>
-      AppShell(navigationShell: navigationShell),
+  pageBuilder: (context, state, navigationShell) =>
+      _fadePage(state, AppShell(navigationShell: navigationShell)),
   navigatorContainerBuilder: (context, navigationShell, children) =>
       AnimatedBranchContainer(
         currentIndex: navigationShell.currentIndex,

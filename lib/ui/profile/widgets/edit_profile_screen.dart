@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../utils/phone.dart';
 import '../../../utils/validators.dart';
 import '../../core/themes/dimens.dart';
-import '../../core/ui/form_error_banner.dart';
+import '../../core/ui/form_error_slot.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
@@ -89,10 +89,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               const ScreenHeader(title: 'Personal details'),
               const SizedBox(height: Dimens.sectionGap + 6),
-              if (viewModel.errorMessage case final message?) ...[
-                FormErrorBanner(message: message),
-                const SizedBox(height: Dimens.sectionGap),
-              ],
+              FormErrorSlot(message: viewModel.errorMessage),
               _EditProfileForm(
                 formKey: _formKey,
                 name: _name,

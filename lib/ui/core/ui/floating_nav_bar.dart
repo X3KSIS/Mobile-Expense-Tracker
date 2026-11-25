@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
+import '../themes/motion.dart';
 import '../themes/theme.dart';
 
 /// One tab in the [FloatingNavBar].
@@ -94,7 +95,6 @@ class _NavItem extends StatelessWidget {
   final double maxLabelWidth;
   final VoidCallback onTap;
 
-  static const Duration _duration = Duration(milliseconds: 420);
   static const double _paddingInactive = 11;
   static const double _paddingActive = 14;
   static const double _labelGap = 6;
@@ -120,8 +120,8 @@ class _NavItem extends StatelessWidget {
         customBorder: const StadiumBorder(),
         child: TweenAnimationBuilder<double>(
           tween: Tween(end: selected ? 1 : 0),
-          duration: _duration,
-          curve: Curves.easeInOutCubic,
+          duration: AppMotion.long,
+          curve: AppMotion.move,
           builder: (context, t, _) => _buildPill(t),
         ),
       ),

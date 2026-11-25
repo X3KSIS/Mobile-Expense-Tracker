@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/motion.dart';
 
 /// Full-width outlined "Sign out" button. Asks for confirmation first.
 class SignOutButton extends StatelessWidget {
@@ -47,15 +48,23 @@ class SignOutButton extends StatelessWidget {
         minimumSize: const Size.fromHeight(Dimens.primaryButtonHeight),
         shape: const StadiumBorder(),
       ),
-      icon: loading
-          ? const SizedBox.square(
-              dimension: Dimens.iconSizeSmall,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.accentText,
+      icon: AnimatedSwitcher(
+        duration: AppMotion.short,
+        child: loading
+            ? const SizedBox.square(
+                key: ValueKey('spinner'),
+                dimension: Dimens.iconSizeSmall,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.accentText,
+                ),
+              )
+            : const Icon(
+                Icons.logout_rounded,
+                key: ValueKey('icon'),
+                size: Dimens.iconSizeSmall + 2,
               ),
-            )
-          : const Icon(Icons.logout_rounded, size: Dimens.iconSizeSmall + 2),
+      ),
       label: const Text('Sign out'),
     );
   }

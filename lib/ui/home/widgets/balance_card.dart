@@ -5,7 +5,9 @@ import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/motion.dart';
 import '../../core/themes/theme.dart';
+import '../../core/ui/fade_switcher.dart';
 
 /// Net balance for the month with income and expense tiles.
 class BalanceCard extends StatelessWidget {
@@ -44,15 +46,30 @@ class BalanceCard extends StatelessWidget {
                   tooltip: hideAmounts ? 'Show amounts' : 'Hide amounts',
                   color: AppColors.textSecondary,
                   iconSize: Dimens.iconSize,
-                  icon: Icon(
-                    hideAmounts
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
+                  icon: AnimatedSwitcher(
+                    duration: AppMotion.short,
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: ScaleTransition(scale: animation, child: child),
+                    ),
+                    child: Icon(
+                      hideAmounts
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      key: ValueKey(hideAmounts),
+                    ),
                   ),
                 ),
               ],
             ),
-            _NetAmount(amount: summary.net, hidden: hideAmounts),
+            FadeSwitcher(
+              alignment: Alignment.centerLeft,
+              child: _NetAmount(
+                key: ValueKey((summary.net, hideAmounts)),
+                amount: summary.net,
+                hidden: hideAmounts,
+              ),
+            ),
             const SizedBox(height: Dimens.gapL),
             Row(
               children: [
@@ -86,7 +103,7 @@ class BalanceCard extends StatelessWidget {
 
 /// "ZMW 4,820.00" with a small grey prefix and smaller, lighter decimals.
 class _NetAmount extends StatelessWidget {
-  const _NetAmount({required this.amount, required this.hidden});
+  const _NetAmount({super.key, required this.amount, required this.hidden});
 
   final double amount;
   final bool hidden;
@@ -149,11 +166,16 @@ class _StatTile extends StatelessWidget {
         children: [
           Text(label, style: AppTypography.overline),
           const SizedBox(height: Dimens.gapXs),
-          Text(
-            value,
-            style: AppTypography.statValue.copyWith(color: valueColor),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          FadeSwitcher(
+            alignment: Alignment.centerLeft,
+            duration: AppMotion.short,
+            child: Text(
+              value,
+              key: ValueKey(value),
+              style: AppTypography.statValue.copyWith(color: valueColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

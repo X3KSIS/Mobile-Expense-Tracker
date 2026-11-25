@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Holds the main tabs' navigators and cross-fades between them, with a
-/// slight upward slide, instead of switching instantly.
+import '../themes/motion.dart';
+
+/// Holds the main tabs' navigators and fades through between them (old
+/// tab out, then new tab in with a slight upward slide) instead of
+/// switching instantly.
 ///
 /// Every branch stays mounted so its state survives tab switches. The tab
 /// being left stays visible only until its fade-out ends, then goes
@@ -16,7 +19,7 @@ class AnimatedBranchContainer extends StatefulWidget {
   final int currentIndex;
   final List<Widget> children;
 
-  static const Duration duration = Duration(milliseconds: 280);
+  static const Duration duration = Duration(milliseconds: 340);
 
   @override
   State<AnimatedBranchContainer> createState() =>
@@ -57,7 +60,9 @@ class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> {
             child: AnimatedOpacity(
               opacity: active ? 1 : 0,
               duration: AnimatedBranchContainer.duration,
-              curve: Curves.easeOutCubic,
+              curve: active
+                  ? AppMotion.fadeThroughIn
+                  : AppMotion.fadeThroughOutForward,
               onEnd: () {
                 if (!active && mounted) {
                   setState(() => _leaving.remove(index));
@@ -66,7 +71,7 @@ class _AnimatedBranchContainerState extends State<AnimatedBranchContainer> {
               child: AnimatedSlide(
                 offset: active ? Offset.zero : const Offset(0, 0.015),
                 duration: AnimatedBranchContainer.duration,
-                curve: Curves.easeOutCubic,
+                curve: AppMotion.enter,
                 child: widget.children[index],
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
+import '../themes/motion.dart';
 
 /// White rounded list container (radius 22, 1px border) with inset
 /// dividers between [children].
@@ -27,14 +28,22 @@ class ListCard extends StatelessWidget {
         borderRadius: radius,
         child: Material(
           type: MaterialType.transparency,
-          child: Column(
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0)
-                  const Divider(indent: dividerIndent, endIndent: Dimens.gapL),
-                children[i],
+          child: AnimatedSize(
+            duration: AppMotion.medium,
+            curve: AppMotion.move,
+            alignment: Alignment.topCenter,
+            child: Column(
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    const Divider(
+                      indent: dividerIndent,
+                      endIndent: Dimens.gapL,
+                    ),
+                  children[i],
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

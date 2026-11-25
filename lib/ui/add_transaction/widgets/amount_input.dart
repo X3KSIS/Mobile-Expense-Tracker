@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import '../../../utils/currency.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/motion.dart';
 import '../../core/themes/theme.dart';
+import '../../core/ui/fade_switcher.dart';
 
 /// Big amount entry: a white card with a grey "ZMW" prefix and the number
 /// in the large amount style.
@@ -44,7 +46,15 @@ class AmountInput extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label.toUpperCase(), style: AppTypography.overline),
+          FadeSwitcher(
+            alignment: Alignment.centerLeft,
+            duration: AppMotion.short,
+            child: Text(
+              label.toUpperCase(),
+              key: ValueKey(label),
+              style: AppTypography.overline,
+            ),
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

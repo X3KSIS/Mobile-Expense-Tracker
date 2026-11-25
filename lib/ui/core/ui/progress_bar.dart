@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
+import '../themes/motion.dart';
 
 /// Rounded horizontal progress bar. [value] is a fraction and is clamped
 /// to 0–1 for drawing.
@@ -21,7 +22,7 @@ class ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fraction = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
+    final target = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
     return Semantics(
       label: semanticLabel,
       value: '${(value * 100).round()}%',
@@ -32,10 +33,18 @@ class ProgressBar extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(child: ColoredBox(color: trackColor)),
-              FractionallySizedBox(
-                widthFactor: fraction,
-                heightFactor: 1,
-                child: DecoratedBox(
+              // Grows from empty on first show, then eases to new values.
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: target),
+                duration: AppMotion.long,
+                curve: AppMotion.move,
+                builder: (context, fraction, child) => FractionallySizedBox(
+                  widthFactor: fraction,
+                  heightFactor: 1,
+                  child: child,
+                ),
+                child: AnimatedContainer(
+                  duration: AppMotion.medium,
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(Dimens.radiusFull),

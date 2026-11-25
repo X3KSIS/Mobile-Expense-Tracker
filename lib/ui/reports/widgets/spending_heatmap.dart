@@ -4,7 +4,9 @@ import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/themes/motion.dart';
 import '../../core/themes/theme.dart';
+import '../../core/ui/fade_switcher.dart';
 import '../view_models/reports_view_model.dart';
 
 /// Calendar of the month with each day shaded by how much was spent, on a
@@ -126,7 +128,9 @@ class _DayCell extends StatelessWidget {
         onTap: future ? null : onTap,
         child: AspectRatio(
           aspectRatio: 1,
-          child: Container(
+          child: AnimatedContainer(
+            duration: AppMotion.short,
+            curve: AppMotion.enter,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: fill,
@@ -162,25 +166,31 @@ class _Readout extends StatelessWidget {
     final day = selected;
     return Semantics(
       liveRegion: true,
-      child: day == null
-          ? const Text(
-              'Tap a day to see what you spent.',
-              style: AppTypography.caption,
-            )
-          : Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: formatZmw(day.amount),
-                    style: AppTypography.listAmount,
-                  ),
-                  TextSpan(
-                    text: '  ${formatPickerDate(day.day)}',
-                    style: AppTypography.caption,
-                  ),
-                ],
+      child: FadeSwitcher(
+        alignment: Alignment.centerLeft,
+        duration: AppMotion.short,
+        child: day == null
+            ? const Text(
+                'Tap a day to see what you spent.',
+                key: ValueKey('hint'),
+                style: AppTypography.caption,
+              )
+            : Text.rich(
+                key: ValueKey(day.day),
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: formatZmw(day.amount),
+                      style: AppTypography.listAmount,
+                    ),
+                    TextSpan(
+                      text: '  ${formatPickerDate(day.day)}',
+                      style: AppTypography.caption,
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

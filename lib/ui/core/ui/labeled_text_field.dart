@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
+import '../themes/motion.dart';
 import '../themes/theme.dart';
 
 /// A label above a themed [TextFormField].
@@ -138,10 +139,20 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
       suffix: IconButton(
         tooltip: _obscured ? 'Show password' : 'Hide password',
         onPressed: () => setState(() => _obscured = !_obscured),
-        icon: Icon(
-          _obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-          size: Dimens.iconSizeSmall + 2,
-          color: AppColors.textSecondary,
+        icon: AnimatedSwitcher(
+          duration: AppMotion.short,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: Icon(
+            _obscured
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            key: ValueKey(_obscured),
+            size: Dimens.iconSizeSmall + 2,
+            color: AppColors.textSecondary,
+          ),
         ),
       ),
     );
