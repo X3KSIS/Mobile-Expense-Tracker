@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/auth/auth_repository.dart';
 import '../../../data/repositories/budget/budget_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../domain/models/budget_alert.dart';
@@ -14,22 +15,22 @@ class HomeViewModel extends ChangeNotifier {
   HomeViewModel({
     required this._transactionRepository,
     required this._budgetRepository,
+    required this._authRepository,
     this.recentLimit = 5,
   }) {
+    _authRepository.addListener(_onAuthChanged);
     load = Command0<void>(_load)..execute();
   }
 
   final TransactionRepository _transactionRepository;
   final BudgetRepository _budgetRepository;
+  final AuthRepository _authRepository;
 
   /// How many recent transactions to show.
   final int recentLimit;
 
   /// Loads (or reloads) everything on the dashboard.
   late final Command0<void> load;
-
-  // TODO(auth): read the name from the signed-in user's profile.
-  final String userName = 'Paul Mubanga';
 
   MonthlySummary? _summary;
   BudgetAlert? _budgetAlert;
@@ -56,13 +57,16 @@ class HomeViewModel extends ChangeNotifier {
   /// True once data has loaded at least once.
   bool get hasData => _summary != null;
 
+  /// The signed-in user's name, shown in the header.
+  String get userName => _authRepository.currentUser?.name ?? '';
+
   /// Up to two initials from [userName], e.g. "PM".
-  String get userInitials => userName
-      .split(RegExp(r'\s+'))
-      .where((part) => part.isNotEmpty)
-      .take(2)
-      .map((part) => part[0].toUpperCase())
-      .join();
+  String get userInitials => _authRepository.currentUser?.initials ?? '';
+
+  /// Rebuilds the header when the profile changes.
+  void _onAuthChanged() {
+    if (!_disposed) notifyListeners();
+  }
 
   void toggleHideAmounts() {
     _hideAmounts = !_hideAmounts;
@@ -100,6 +104,7 @@ class HomeViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _authRepository.removeListener(_onAuthChanged);
     load.dispose();
     super.dispose();
   }

@@ -1,14 +1,21 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/auth/auth_repository.dart';
 import '../../../routing/routes.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
-/// Holds the splash screen briefly, then decides where the app starts.
+/// Holds the splash screen briefly, then decides where the app starts:
+/// Home when signed in, otherwise the sign-in screen.
 class SplashViewModel extends ChangeNotifier {
-  SplashViewModel({this.holdDuration = const Duration(milliseconds: 1500)}) {
+  SplashViewModel({
+    required this._authRepository,
+    this.holdDuration = const Duration(milliseconds: 1500),
+  }) {
     start = Command0<String>(_start);
   }
+
+  final AuthRepository _authRepository;
 
   /// How long the splash stays on screen.
   final Duration holdDuration;
@@ -18,10 +25,9 @@ class SplashViewModel extends ChangeNotifier {
 
   Future<Result<String>> _start() async {
     await Future<void>.delayed(holdDuration);
-    // TODO(auth): check the Firebase Auth state through an AuthRepository
-    // and return a sign-in route when the user is signed out. For now the
-    // user is assumed to be signed in.
-    return const Result.ok(Routes.home);
+    return Result.ok(
+      _authRepository.isAuthenticated ? Routes.home : Routes.login,
+    );
   }
 
   @override

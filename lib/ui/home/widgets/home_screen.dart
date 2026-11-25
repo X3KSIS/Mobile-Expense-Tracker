@@ -114,6 +114,7 @@ class _HomeContent extends StatelessWidget {
         HomeHeader(
           userName: viewModel.userName,
           initials: viewModel.userInitials,
+          onProfilePressed: () => context.push(Routes.profile),
           onNotificationsPressed: onNotificationsPressed,
         ),
         const SizedBox(height: Dimens.sectionGap),

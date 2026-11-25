@@ -22,6 +22,7 @@ void main() {
     final viewModel = HomeViewModel(
       transactionRepository: transactions ?? instantTransactionRepository(),
       budgetRepository: instantBudgetRepository(),
+      authRepository: instantAuthRepository(signedIn: true),
     );
     addTearDown(viewModel.dispose);
 

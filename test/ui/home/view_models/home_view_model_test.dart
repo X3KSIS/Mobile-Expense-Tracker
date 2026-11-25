@@ -10,6 +10,7 @@ void main() {
     final viewModel = HomeViewModel(
       transactionRepository: transactions ?? instantTransactionRepository(),
       budgetRepository: instantBudgetRepository(),
+      authRepository: instantAuthRepository(signedIn: true),
     );
     addTearDown(viewModel.dispose);
     return viewModel;
@@ -129,11 +130,30 @@ void main() {
       expect(notified, 2);
     });
 
-    test('derives initials from the user name', () {
+    test('reads the name and initials from the signed-in user', () {
       final viewModel = buildViewModel();
 
       expect(viewModel.userName, 'Paul Mubanga');
       expect(viewModel.userInitials, 'PM');
+    });
+
+    test('updates the name when the profile changes', () async {
+      final auth = instantAuthRepository(signedIn: true);
+      final viewModel = HomeViewModel(
+        transactionRepository: instantTransactionRepository(),
+        budgetRepository: instantBudgetRepository(),
+        authRepository: auth,
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+      var notified = 0;
+      viewModel.addListener(() => notified++);
+
+      await auth.updateProfile(name: 'Mwila Banda', phone: '');
+
+      expect(viewModel.userName, 'Mwila Banda');
+      expect(viewModel.userInitials, 'MB');
+      expect(notified, greaterThan(0));
     });
   });
 }

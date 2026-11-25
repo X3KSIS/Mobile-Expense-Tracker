@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'config/dependencies.dart';
+import 'data/repositories/auth/auth_repository.dart';
 import 'routing/router.dart';
 import 'ui/core/themes/theme.dart';
 
@@ -21,7 +22,7 @@ class ExpenseTrackApp extends StatefulWidget {
 }
 
 class _ExpenseTrackAppState extends State<ExpenseTrackApp> {
-  late final GoRouter _router = router();
+  late final GoRouter _router = router(context.read<AuthRepository>());
 
   @override
   void dispose() {
