@@ -3,6 +3,8 @@ import 'package:flutter_expensetracker/data/repositories/transaction/transaction
 import 'package:flutter_expensetracker/ui/core/themes/theme.dart';
 import 'package:flutter_expensetracker/ui/home/view_models/home_view_model.dart';
 import 'package:flutter_expensetracker/ui/home/widgets/home_screen.dart';
+import 'package:flutter_expensetracker/ui/core/ui/skeleton.dart';
+import 'package:flutter_expensetracker/ui/core/ui/skeleton_screens.dart';
 import 'package:flutter_expensetracker/ui/core/ui/transaction_row.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -36,13 +38,17 @@ void main() {
   }
 
   group('HomeScreen', () {
-    testWidgets('shows a spinner while loading', (tester) async {
+    testWidgets('shows a skeleton while loading, then fades in', (
+      tester,
+    ) async {
       await pumpHome(tester);
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(HomeSkeleton), findsOneWidget);
+      expect(find.byType(Shimmer), findsOneWidget);
 
       await tester.pumpAndSettle();
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(HomeSkeleton), findsNothing);
+      expect(find.text('Welcome back'), findsOneWidget);
     });
 
     testWidgets('renders the balance and the recent transactions', (
@@ -84,14 +90,14 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.tap(find.byTooltip('Hide amounts'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('ZMW 4,820.00', findRichText: true), findsNothing);
       expect(find.text('+12,500'), findsNothing);
       expect(find.byTooltip('Show amounts'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Show amounts'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('ZMW 4,820.00', findRichText: true), findsOneWidget);
     });

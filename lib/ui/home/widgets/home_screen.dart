@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/transaction_details_sheet.dart';
 import '../view_models/home_view_model.dart';
 import 'balance_card.dart';
@@ -70,19 +72,26 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListenableBuilder(
           listenable: Listenable.merge([viewModel, viewModel.load]),
           builder: (context, _) {
+            final Widget content;
             if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              content = const HomeSkeleton(key: ValueKey('loading'));
+            } else if (!viewModel.hasData) {
+              content = HomeErrorView(
+                key: const ValueKey('error'),
+                onRetry: viewModel.load.execute,
+              );
+            } else {
+              content = RefreshIndicator(
+                key: const ValueKey('content'),
+                onRefresh: viewModel.load.execute,
+                child: _HomeContent(
+                  viewModel: viewModel,
+                  onNotificationsPressed: () =>
+                      _showComingSoon('Notifications'),
+                ),
+              );
             }
-            if (!viewModel.hasData) {
-              return HomeErrorView(onRetry: viewModel.load.execute);
-            }
-            return RefreshIndicator(
-              onRefresh: viewModel.load.execute,
-              child: _HomeContent(
-                viewModel: viewModel,
-                onNotificationsPressed: () => _showComingSoon('Notifications'),
-              ),
-            );
+            return FadeSwitcher(animateSize: false, child: content);
           },
         ),
       ),
@@ -124,13 +133,18 @@ class _HomeContent extends StatelessWidget {
           hideAmounts: viewModel.hideAmounts,
           onToggleHideAmounts: viewModel.toggleHideAmounts,
         ),
-        if (alert != null) ...[
-          const SizedBox(height: Dimens.gapL),
-          BudgetAlertCard(
-            alert: alert,
-            onViewBudget: () => context.go(Routes.budgets),
-          ),
-        ],
+        FadeSwitcher(
+          child: alert == null
+              ? const SizedBox(width: double.infinity, key: ValueKey('none'))
+              : Padding(
+                  key: const ValueKey('alert'),
+                  padding: const EdgeInsets.only(top: Dimens.gapL),
+                  child: BudgetAlertCard(
+                    alert: alert,
+                    onViewBudget: () => context.go(Routes.budgets),
+                  ),
+                ),
+        ),
         const SizedBox(height: Dimens.sectionGap),
         QuickActions(
           onSelected: (action) => context.push(_addRouteFor(action)),

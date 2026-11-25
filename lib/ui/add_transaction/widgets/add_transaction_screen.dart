@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/models/transaction.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/category_picker.dart';
+import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
 import '../../core/ui/segmented_toggle.dart';
+import '../../core/ui/skeleton_screens.dart';
 import '../view_models/add_transaction_view_model.dart';
 import 'amount_input.dart';
 import 'date_field.dart';
@@ -159,30 +161,37 @@ class _CategorySection extends StatelessWidget {
       children: [
         Text('Category', style: textTheme.titleMedium),
         const SizedBox(height: Dimens.gapM),
-        if (viewModel.loadCategories.running && viewModel.categories.isEmpty)
-          const Center(child: CircularProgressIndicator())
-        else if (viewModel.categories.isEmpty)
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  "Couldn't load categories.",
-                  style: textTheme.bodySmall,
-                ),
-              ),
-              TextButton(
-                onPressed: viewModel.loadCategories.execute,
-                child: const Text('Try again'),
-              ),
-            ],
-          )
-        else
-          CategoryPicker(
-            categories: viewModel.categories,
-            selected: viewModel.selectedCategory,
-            onSelected: viewModel.selectCategory,
-          ),
+        FadeSwitcher(child: _categoryBody(textTheme)),
       ],
+    );
+  }
+
+  Widget _categoryBody(TextTheme textTheme) {
+    if (viewModel.loadCategories.running && viewModel.categories.isEmpty) {
+      return const CategoryGridSkeleton(key: ValueKey('loading'));
+    }
+    if (viewModel.categories.isEmpty) {
+      return Row(
+        key: const ValueKey('error'),
+        children: [
+          Expanded(
+            child: Text(
+              "Couldn't load categories.",
+              style: textTheme.bodySmall,
+            ),
+          ),
+          TextButton(
+            onPressed: viewModel.loadCategories.execute,
+            child: const Text('Try again'),
+          ),
+        ],
+      );
+    }
+    return CategoryPicker(
+      key: ValueKey(viewModel.type),
+      categories: viewModel.categories,
+      selected: viewModel.selectedCategory,
+      onSelected: viewModel.selectCategory,
     );
   }
 }

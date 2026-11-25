@@ -7,6 +7,8 @@ import '../../../utils/currency.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/empty_state.dart';
+import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/segmented_toggle.dart';
 import '../../core/ui/stat_tile.dart';
 import '../../core/ui/tab_header.dart';
@@ -75,28 +77,40 @@ class _ActivityScreenState extends State<ActivityScreen> {
         bottom: false,
         child: ListenableBuilder(
           listenable: Listenable.merge([viewModel, viewModel.load]),
-          builder: (context, _) {
-            if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return RefreshIndicator(
-              onRefresh: viewModel.load.execute,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  Dimens.screenPadding,
-                  Dimens.gapL,
-                  Dimens.screenPadding,
-                  Dimens.navBarClearance(context),
-                ),
-                children: [
-                  _ActivityHeader(viewModel: viewModel),
-                  const SizedBox(height: Dimens.sectionGap),
-                  ..._body(viewModel),
-                ],
-              ),
-            );
-          },
+          builder: (context, _) => FadeSwitcher(
+            animateSize: false,
+            child: viewModel.isLoading
+                ? const ActivitySkeleton(key: ValueKey('loading'))
+                : RefreshIndicator(
+                    key: const ValueKey('content'),
+                    onRefresh: viewModel.load.execute,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(
+                        Dimens.screenPadding,
+                        Dimens.gapL,
+                        Dimens.screenPadding,
+                        Dimens.navBarClearance(context),
+                      ),
+                      children: [
+                        _ActivityHeader(viewModel: viewModel),
+                        const SizedBox(height: Dimens.sectionGap),
+                        FadeSwitcher(
+                          child: Column(
+                            key: ValueKey((
+                              viewModel.filter,
+                              viewModel.hasError,
+                              viewModel.isEmpty,
+                              viewModel.days.isEmpty,
+                            )),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: _body(viewModel),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
         ),
       ),
     );

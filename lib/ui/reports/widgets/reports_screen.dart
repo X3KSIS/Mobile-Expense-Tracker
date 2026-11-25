@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../utils/dates.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/empty_state.dart';
+import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/tab_header.dart';
 import '../view_models/reports_view_model.dart';
 import 'category_breakdown.dart';
@@ -26,39 +28,49 @@ class ReportsScreen extends StatelessWidget {
         bottom: false,
         child: ListenableBuilder(
           listenable: Listenable.merge([viewModel, viewModel.load]),
-          builder: (context, _) {
-            if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return RefreshIndicator(
-              onRefresh: viewModel.load.execute,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  Dimens.screenPadding,
-                  Dimens.gapL,
-                  Dimens.screenPadding,
-                  Dimens.navBarClearance(context),
-                ),
-                children: [
-                  const TabHeader(
-                    title: 'Reports',
-                    subtitle: 'Where your kwacha went',
+          builder: (context, _) => FadeSwitcher(
+            animateSize: false,
+            child: viewModel.isLoading
+                ? const ReportsSkeleton(key: ValueKey('loading'))
+                : RefreshIndicator(
+                    key: const ValueKey('content'),
+                    onRefresh: viewModel.load.execute,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(
+                        Dimens.screenPadding,
+                        Dimens.gapL,
+                        Dimens.screenPadding,
+                        Dimens.navBarClearance(context),
+                      ),
+                      children: [
+                        const TabHeader(
+                          title: 'Reports',
+                          subtitle: 'Where your kwacha went',
+                        ),
+                        const SizedBox(height: Dimens.gapL),
+                        MonthSwitcher(
+                          month: viewModel.month,
+                          onBack: viewModel.canGoBack ? viewModel.goBack : null,
+                          onForward: viewModel.canGoForward
+                              ? viewModel.goForward
+                              : null,
+                        ),
+                        const SizedBox(height: Dimens.sectionGap),
+                        FadeSwitcher(
+                          child: Column(
+                            key: ValueKey((
+                              viewModel.month,
+                              viewModel.hasError,
+                            )),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: _body(),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: Dimens.gapL),
-                  MonthSwitcher(
-                    month: viewModel.month,
-                    onBack: viewModel.canGoBack ? viewModel.goBack : null,
-                    onForward: viewModel.canGoForward
-                        ? viewModel.goForward
-                        : null,
-                  ),
-                  const SizedBox(height: Dimens.sectionGap),
-                  ..._body(),
-                ],
-              ),
-            );
-          },
+          ),
         ),
       ),
     );

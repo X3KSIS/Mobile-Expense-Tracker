@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../utils/dates.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/empty_state.dart';
+import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/tab_header.dart';
 import '../view_models/budgets_view_model.dart';
@@ -23,28 +25,38 @@ class BudgetsScreen extends StatelessWidget {
         bottom: false,
         child: ListenableBuilder(
           listenable: Listenable.merge([viewModel, viewModel.load]),
-          builder: (context, _) {
-            if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return RefreshIndicator(
-              onRefresh: viewModel.load.execute,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  Dimens.screenPadding,
-                  Dimens.gapL,
-                  Dimens.screenPadding,
-                  Dimens.navBarClearance(context),
-                ),
-                children: [
-                  _Header(viewModel: viewModel),
-                  const SizedBox(height: Dimens.sectionGap),
-                  ..._body(context),
-                ],
-              ),
-            );
-          },
+          builder: (context, _) => FadeSwitcher(
+            animateSize: false,
+            child: viewModel.isLoading
+                ? const BudgetsSkeleton(key: ValueKey('loading'))
+                : RefreshIndicator(
+                    key: const ValueKey('content'),
+                    onRefresh: viewModel.load.execute,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(
+                        Dimens.screenPadding,
+                        Dimens.gapL,
+                        Dimens.screenPadding,
+                        Dimens.navBarClearance(context),
+                      ),
+                      children: [
+                        _Header(viewModel: viewModel),
+                        const SizedBox(height: Dimens.sectionGap),
+                        FadeSwitcher(
+                          child: Column(
+                            key: ValueKey((
+                              viewModel.hasError,
+                              viewModel.isEmpty,
+                            )),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: _body(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
         ),
       ),
     );
