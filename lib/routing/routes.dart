@@ -12,6 +12,17 @@ abstract final class Routes {
   static const String editProfileSegment = 'edit';
   static const String editProfile = '$profile/$editProfileSegment';
 
+  /// Query parameters for [add].
+  static const String typeParam = 'type';
+  static const String categoryParam = 'category';
+
+  /// [add] with an optional preset type (`expense` or `income`) and
+  /// category id.
+  static String addWith({String? type, String? categoryId}) => Uri(
+    path: add,
+    queryParameters: {typeParam: ?type, categoryParam: ?categoryId},
+  ).toString();
+
   /// Routes a signed-out user may visit.
   static const Set<String> signedOut = {login, signUp};
 }

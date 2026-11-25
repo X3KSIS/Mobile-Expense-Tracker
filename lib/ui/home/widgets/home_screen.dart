@@ -131,13 +131,28 @@ class _HomeContent extends StatelessWidget {
           ),
         ],
         const SizedBox(height: Dimens.sectionGap),
-        QuickActions(onSelected: (_) => context.push(Routes.add)),
+        QuickActions(
+          onSelected: (action) => context.push(_addRouteFor(action)),
+        ),
         const SizedBox(height: Dimens.sectionGap),
         RecentActivity(
           transactions: viewModel.recentTransactions,
           onSeeAll: () => context.go(Routes.activity),
+          onTransactionTap: (_) => context.go(Routes.activity),
         ),
       ],
     );
   }
 }
+
+/// Where each quick action leads. Receipts and grocery lists are later
+/// features, so for now they open an expense (grocery preselects the
+/// Groceries category).
+String _addRouteFor(QuickAction action) => switch (action) {
+  QuickAction.expense || QuickAction.receipt => Routes.addWith(type: 'expense'),
+  QuickAction.income => Routes.addWith(type: 'income'),
+  QuickAction.grocery => Routes.addWith(
+    type: 'expense',
+    categoryId: 'c-groceries',
+  ),
+};

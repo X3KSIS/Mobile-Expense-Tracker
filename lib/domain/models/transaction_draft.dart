@@ -1,4 +1,4 @@
-import 'category.dart';
+import 'transaction_category.dart';
 import 'transaction.dart';
 
 /// What the user entered for a new transaction, before it has an id.
@@ -16,7 +16,7 @@ class TransactionDraft {
 
   /// Always positive.
   final double amount;
-  final Category category;
+  final TransactionCategory category;
   final DateTime date;
   final String? note;
 

@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
+import '../domain/models/transaction.dart';
+import '../ui/add_transaction/view_models/add_transaction_view_model.dart';
+import '../ui/add_transaction/widgets/add_transaction_screen.dart';
 import '../ui/auth/view_models/login_view_model.dart';
 import '../ui/auth/view_models/sign_up_view_model.dart';
 import '../ui/auth/widgets/login_screen.dart';
@@ -67,11 +70,24 @@ GoRouter router(AuthRepository authRepository) {
       GoRoute(
         path: Routes.add,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Add transaction',
-          icon: Icons.add_rounded,
-          showBackButton: true,
-        ),
+        builder: (context, state) {
+          final query = state.uri.queryParameters;
+          return ChangeNotifierProvider(
+            create: (context) => AddTransactionViewModel(
+              transactionRepository: context.read(),
+              categoryRepository: context.read(),
+              initialType: query[Routes.typeParam] == 'income'
+                  ? TransactionType.income
+                  : TransactionType.expense,
+              initialCategoryId: query[Routes.categoryParam],
+            ),
+            child: Builder(
+              builder: (context) => AddTransactionScreen(
+                viewModel: context.read<AddTransactionViewModel>(),
+              ),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: Routes.profile,

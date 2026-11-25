@@ -25,6 +25,7 @@ class LabeledTextField extends StatelessWidget {
     this.inputFormatters,
     this.obscureText = false,
     this.enabled = true,
+    this.maxLines = 1,
   });
 
   final String label;
@@ -43,6 +44,7 @@ class LabeledTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool obscureText;
   final bool enabled;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,7 @@ class LabeledTextField extends StatelessWidget {
           inputFormatters: inputFormatters,
           obscureText: obscureText,
           enabled: enabled,
+          maxLines: maxLines,
           style: AppTypography.body.copyWith(
             color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
           ),

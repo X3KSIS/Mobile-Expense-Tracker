@@ -1,5 +1,5 @@
 import '../../../domain/models/budget.dart';
-import '../../../domain/models/category.dart';
+import '../../../domain/models/transaction_category.dart';
 import '../../../utils/result.dart';
 import '../category/fake_categories.dart';
 import 'budget_repository.dart';
@@ -23,7 +23,7 @@ class BudgetRepositoryLocalFake extends BudgetRepository {
   ];
   int _nextId = 1;
 
-  static Budget _budget(Category category, double limit) => Budget(
+  static Budget _budget(TransactionCategory category, double limit) => Budget(
     id: 'b-${category.id}',
     categoryName: category.name,
     categoryIcon: category.icon,

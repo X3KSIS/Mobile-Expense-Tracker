@@ -44,3 +44,11 @@ MoneyParts splitMoney(double amount) {
     decimals: formatted.substring(point),
   );
 }
+
+/// Parses what the user typed in an amount field, e.g. `1,250.50`.
+/// Returns null when it is empty or not a number.
+double? parseAmount(String text) {
+  final cleaned = text.trim().replaceAll(',', '').replaceAll(' ', '');
+  if (cleaned.isEmpty) return null;
+  return double.tryParse(cleaned);
+}

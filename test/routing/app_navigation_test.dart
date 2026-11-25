@@ -103,7 +103,58 @@ void main() {
 
     await tester.tap(find.byTooltip('Add transaction'));
     await tester.pumpAndSettle();
-    expect(find.text('Add transaction is coming soon'), findsOneWidget);
+    expect(find.text('Add transaction'), findsOneWidget);
+    expect(find.text('AMOUNT SPENT'), findsOneWidget);
+  });
+
+  testWidgets('an expense added with + shows on Home', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    await tester.tap(find.byTooltip('Add transaction'));
+    await tester.pumpAndSettle();
+
+    Future<void> tapSave() async {
+      // Unfocus so the focused field stops scrolling itself into view, then
+      // drag to the bottom of the form.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save expense'));
+    }
+
+    await tester.enterText(field('Title (optional)'), 'Hungry Lion');
+    await tester.tap(find.bySemanticsLabel('Eating out'));
+
+    // Saving without an amount shows a validation error.
+    await tapSave();
+    await tester.pump();
+    await tester.scrollUntilVisible(
+      find.text('Enter an amount'),
+      -300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Enter an amount'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).first, '85');
+    await tapSave();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Expense saved'), findsOneWidget);
+    expect(find.text('Hungry Lion'), findsOneWidget);
+    expect(find.text('-ZMW 85.00'), findsOneWidget);
+  });
+
+  testWidgets('the Income quick action opens Add on Income', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    await tester.tap(find.bySemanticsLabel('Income'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('AMOUNT RECEIVED'), findsOneWidget);
+    expect(find.bySemanticsLabel('Salary'), findsOneWidget);
   });
 
   testWidgets('avatar opens Profile, where details can be edited', (

@@ -1,4 +1,4 @@
-import '../../../domain/models/category.dart';
+import '../../../domain/models/transaction_category.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../utils/result.dart';
 import 'category_repository.dart';
@@ -12,7 +12,9 @@ class CategoryRepositoryLocalFake implements CategoryRepository {
   final Duration delay;
 
   @override
-  Future<Result<List<Category>>> getCategories({TransactionType? type}) async {
+  Future<Result<List<TransactionCategory>>> getCategories({
+    TransactionType? type,
+  }) async {
     await Future<void>.delayed(delay);
     return Result.ok(
       List.unmodifiable(

@@ -4,8 +4,8 @@ import 'transaction.dart';
 ///
 /// [icon] is an icon key and [color] an ARGB value, so the model stays free
 /// of Flutter types. The UI resolves both.
-class Category {
-  const Category({
+class TransactionCategory {
+  const TransactionCategory({
     required this.id,
     required this.name,
     required this.icon,
@@ -23,7 +23,7 @@ class Category {
 
   @override
   bool operator ==(Object other) =>
-      other is Category &&
+      other is TransactionCategory &&
       other.id == id &&
       other.name == name &&
       other.icon == icon &&

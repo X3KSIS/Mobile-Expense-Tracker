@@ -3,7 +3,7 @@ import 'package:flutter_expensetracker/data/repositories/transaction/transaction
 import 'package:flutter_expensetracker/ui/core/themes/theme.dart';
 import 'package:flutter_expensetracker/ui/home/view_models/home_view_model.dart';
 import 'package:flutter_expensetracker/ui/home/widgets/home_screen.dart';
-import 'package:flutter_expensetracker/ui/home/widgets/transaction_row.dart';
+import 'package:flutter_expensetracker/ui/core/ui/transaction_row.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../testing/fakes/failing_transaction_repository.dart';

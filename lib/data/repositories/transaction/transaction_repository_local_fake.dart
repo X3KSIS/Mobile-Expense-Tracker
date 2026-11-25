@@ -1,4 +1,4 @@
-import '../../../domain/models/category.dart';
+import '../../../domain/models/transaction_category.dart';
 import '../../../domain/models/monthly_summary.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../domain/models/transaction_draft.dart';
@@ -89,7 +89,7 @@ class TransactionRepositoryLocalFake extends TransactionRepository {
 Transaction _make(
   String id,
   String title,
-  Category category,
+  TransactionCategory category,
   double amount,
   DateTime date,
 ) => Transaction(
@@ -108,7 +108,7 @@ Transaction _make(
 /// order, so the month's totals never change with the date.
 List<Transaction> _currentMonth(DateTime now) {
   const c = FakeCategories.groceries;
-  final entries = <(String, String, Category, double, Duration)>[
+  final entries = <(String, String, TransactionCategory, double, Duration)>[
     ('t1', 'Shoprite', c, 640, const Duration(hours: 1)),
     ('t2', 'Salary', FakeCategories.salary, 12500, const Duration(hours: 3)),
     ('t3', 'Fuel', FakeCategories.transport, 450, const Duration(days: 1)),
