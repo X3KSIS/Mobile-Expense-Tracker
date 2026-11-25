@@ -1,14 +1,17 @@
+import '../../../domain/models/category.dart';
 import '../../../domain/models/monthly_summary.dart';
 import '../../../domain/models/transaction.dart';
+import '../../../domain/models/transaction_draft.dart';
 import '../../../utils/result.dart';
+import '../category/fake_categories.dart';
 import 'transaction_repository.dart';
 
 /// In-memory [TransactionRepository] with realistic ZMW mock data.
 ///
 /// Dates are relative to [now] so "today" and "yesterday" labels look right.
-/// All mock transactions count towards the current month's summary:
-/// income 12,500, expenses 7,680, net 4,820.
-class TransactionRepositoryLocalFake implements TransactionRepository {
+/// The current month always totals income 12,500, expenses 7,680 and net
+/// 4,820. Five earlier months of history feed the reports.
+class TransactionRepositoryLocalFake extends TransactionRepository {
   TransactionRepositoryLocalFake({
     DateTime? now,
     this.delay = const Duration(milliseconds: 400),
@@ -19,23 +22,36 @@ class TransactionRepositoryLocalFake implements TransactionRepository {
   /// Simulated network latency.
   final Duration delay;
 
-  late final List<Transaction> _transactions = _buildTransactions(_now);
+  late final List<Transaction> _transactions = [
+    ..._currentMonth(_now),
+    ..._history(_now),
+  ];
+  int _nextId = 1;
+
+  List<Transaction> get _sorted =>
+      [..._transactions]..sort((a, b) => b.date.compareTo(a.date));
+
+  @override
+  Future<Result<List<Transaction>>> getTransactions() async {
+    await Future<void>.delayed(delay);
+    return Result.ok(List.unmodifiable(_sorted));
+  }
 
   @override
   Future<Result<List<Transaction>>> getRecentTransactions({
     int limit = 5,
   }) async {
     await Future<void>.delayed(delay);
-    final sorted = [..._transactions]..sort((a, b) => b.date.compareTo(a.date));
-    return Result.ok(List.unmodifiable(sorted.take(limit)));
+    return Result.ok(List.unmodifiable(_sorted.take(limit)));
   }
 
   @override
-  Future<Result<MonthlySummary>> getMonthlySummary() async {
+  Future<Result<MonthlySummary>> getMonthlySummary({DateTime? month}) async {
     await Future<void>.delayed(delay);
+    final target = month ?? _now;
     var income = 0.0;
     var expenses = 0.0;
-    for (final t in _transactions) {
+    for (final t in _transactions.where((t) => t.isInMonth(target))) {
       if (t.isIncome) {
         income += t.amount;
       } else {
@@ -44,116 +60,126 @@ class TransactionRepositoryLocalFake implements TransactionRepository {
     }
     return Result.ok(
       MonthlySummary(
-        month: _now,
+        month: target,
         income: income,
         expenses: expenses,
         net: income - expenses,
       ),
     );
   }
+
+  @override
+  Future<Result<Transaction>> addTransaction(TransactionDraft draft) async {
+    await Future<void>.delayed(delay);
+    final transaction = draft.toTransaction('new-${_nextId++}');
+    _transactions.add(transaction);
+    notifyListeners();
+    return Result.ok(transaction);
+  }
+
+  @override
+  Future<Result<void>> deleteTransaction(String id) async {
+    await Future<void>.delayed(delay);
+    _transactions.removeWhere((t) => t.id == id);
+    notifyListeners();
+    return const Result.ok(null);
+  }
 }
 
-const int _groceriesColor = 0xFFE4572E;
-const int _salaryColor = 0xFF177A4B;
-const int _transportColor = 0xFF2F6FDB;
-const int _utilitiesColor = 0xFFB7791F;
-const int _airtimeColor = 0xFF7A4CD9;
-const int _housingColor = 0xFF1B2A38;
+Transaction _make(
+  String id,
+  String title,
+  Category category,
+  double amount,
+  DateTime date,
+) => Transaction(
+  id: id,
+  title: title,
+  categoryName: category.name,
+  categoryIcon: category.icon,
+  categoryColor: category.color,
+  amount: amount,
+  type: category.type,
+  date: date,
+);
 
-List<Transaction> _buildTransactions(DateTime now) {
-  DateTime ago({int days = 0, int hours = 0}) =>
-      now.subtract(Duration(days: days, hours: hours));
-
-  return [
-    Transaction(
-      id: 't1',
-      title: 'Shoprite',
-      categoryName: 'Groceries',
-      categoryIcon: 'groceries',
-      categoryColor: _groceriesColor,
-      amount: 640,
-      type: TransactionType.expense,
-      date: ago(hours: 1),
+/// This month's transactions, newest first. Entries that would fall before
+/// the 1st are pulled forward to the start of the month, keeping their
+/// order, so the month's totals never change with the date.
+List<Transaction> _currentMonth(DateTime now) {
+  const c = FakeCategories.groceries;
+  final entries = <(String, String, Category, double, Duration)>[
+    ('t1', 'Shoprite', c, 640, const Duration(hours: 1)),
+    ('t2', 'Salary', FakeCategories.salary, 12500, const Duration(hours: 3)),
+    ('t3', 'Fuel', FakeCategories.transport, 450, const Duration(days: 1)),
+    (
+      't4',
+      'ZESCO units',
+      FakeCategories.utilities,
+      300,
+      const Duration(days: 2),
     ),
-    Transaction(
-      id: 't2',
-      title: 'Salary',
-      categoryName: 'Income',
-      categoryIcon: 'salary',
-      categoryColor: _salaryColor,
-      amount: 12500,
-      type: TransactionType.income,
-      date: ago(hours: 3),
-    ),
-    Transaction(
-      id: 't3',
-      title: 'Fuel',
-      categoryName: 'Transport',
-      categoryIcon: 'fuel',
-      categoryColor: _transportColor,
-      amount: 450,
-      type: TransactionType.expense,
-      date: ago(days: 1),
-    ),
-    Transaction(
-      id: 't4',
-      title: 'ZESCO units',
-      categoryName: 'Utilities',
-      categoryIcon: 'electricity',
-      categoryColor: _utilitiesColor,
-      amount: 300,
-      type: TransactionType.expense,
-      date: ago(days: 2),
-    ),
-    Transaction(
-      id: 't5',
-      title: 'MTN airtime',
-      categoryName: 'Airtime',
-      categoryIcon: 'airtime',
-      categoryColor: _airtimeColor,
-      amount: 150,
-      type: TransactionType.expense,
-      date: ago(days: 3),
-    ),
-    Transaction(
-      id: 't6',
-      title: 'Bus fare',
-      categoryName: 'Transport',
-      categoryIcon: 'bus',
-      categoryColor: _transportColor,
-      amount: 80,
-      type: TransactionType.expense,
-      date: ago(days: 4),
-    ),
-    Transaction(
-      id: 't7',
-      title: 'Pick n Pay',
-      categoryName: 'Groceries',
-      categoryIcon: 'groceries',
-      categoryColor: _groceriesColor,
-      amount: 1560,
-      type: TransactionType.expense,
-      date: ago(days: 7),
-    ),
-    Transaction(
-      id: 't8',
-      title: 'Shoprite',
-      categoryName: 'Groceries',
-      categoryIcon: 'groceries',
-      categoryColor: _groceriesColor,
-      amount: 1000,
-      type: TransactionType.expense,
-      date: ago(days: 12),
-    ),
-    Transaction(
-      id: 't9',
-      title: 'Rent',
-      categoryName: 'Housing',
-      categoryIcon: 'housing',
-      categoryColor: _housingColor,
-      amount: 3500,
-      type: TransactionType.expense,
-      date: ago(days: 18),
-    ),
+    ('t5', 'MTN airtime', FakeCategories.airtime, 150, const Duration(days: 3)),
+    ('t6', 'Bus fare', FakeCategories.transport, 80, const Duration(days: 4)),
+    ('t7', 'Pick n Pay', c, 1560, const Duration(days: 7)),
+    ('t8', 'Shoprite', c, 1000, const Duration(days: 12)),
+    ('t9', 'Rent', FakeCategories.housing, 3500, const Duration(days: 18)),
   ];
+  final monthStart = DateTime(now.year, now.month);
+  return [
+    for (var i = 0; i < entries.length; i++)
+      _make(
+        entries[i].$1,
+        entries[i].$2,
+        entries[i].$3,
+        entries[i].$4,
+        _clamp(now.subtract(entries[i].$5), monthStart, entries.length - i),
+      ),
+  ];
+}
+
+DateTime _clamp(DateTime date, DateTime monthStart, int order) =>
+    date.isBefore(monthStart) ? monthStart.add(Duration(minutes: order)) : date;
+
+/// Five earlier months with a realistic, slightly varying pattern.
+List<Transaction> _history(DateTime now) {
+  const groceries = FakeCategories.groceries;
+  const transport = FakeCategories.transport;
+  final result = <Transaction>[];
+  for (var back = 1; back <= 5; back++) {
+    final m = DateTime(now.year, now.month - back);
+    DateTime day(int d) => DateTime(m.year, m.month, d, 12);
+    // Spending drifts a little from month to month.
+    final f = 1 + ((back * 7) % 5 - 2) / 20;
+    final id = 'h$back';
+    result.addAll([
+      _make('$id-1', 'Salary', FakeCategories.salary, 12500, day(25)),
+      _make('$id-2', 'Rent', FakeCategories.housing, 3500, day(1)),
+      _make('$id-3', 'Shoprite', groceries, (1250 * f).roundToDouble(), day(4)),
+      _make(
+        '$id-4',
+        'Pick n Pay',
+        groceries,
+        (980 * f).roundToDouble(),
+        day(17),
+      ),
+      _make('$id-5', 'Fuel', transport, (900 * f).roundToDouble(), day(9)),
+      _make('$id-6', 'ZESCO units', FakeCategories.utilities, 300, day(6)),
+      _make('$id-7', 'MTN airtime', FakeCategories.airtime, 150, day(2)),
+      _make(
+        '$id-8',
+        'Dinner out',
+        FakeCategories.eatingOut,
+        (420 * f).roundToDouble(),
+        day(20),
+      ),
+      if (back.isOdd)
+        _make('$id-9', 'Side job', FakeCategories.business, 1800, day(14)),
+      if (back == 2)
+        _make('$id-10', 'Clinic visit', FakeCategories.health, 350, day(11)),
+      if (back == 4)
+        _make('$id-11', 'School fees', FakeCategories.education, 2400, day(8)),
+    ]);
+  }
+  return result;
 }

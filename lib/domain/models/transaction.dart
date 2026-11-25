@@ -16,6 +16,7 @@ class Transaction {
     required this.amount,
     required this.type,
     required this.date,
+    this.note,
   });
 
   final String id;
@@ -29,10 +30,17 @@ class Transaction {
   final TransactionType type;
   final DateTime date;
 
+  /// Optional free-text note.
+  final String? note;
+
   bool get isIncome => type == TransactionType.income;
 
   /// Amount with sign applied: positive for income, negative for expenses.
   double get signedAmount => isIncome ? amount : -amount;
+
+  /// Whether [date] falls in the same calendar month as [month].
+  bool isInMonth(DateTime month) =>
+      date.year == month.year && date.month == month.month;
 
   @override
   bool operator ==(Object other) =>
@@ -44,7 +52,8 @@ class Transaction {
       other.categoryColor == categoryColor &&
       other.amount == amount &&
       other.type == type &&
-      other.date == date;
+      other.date == date &&
+      other.note == note;
 
   @override
   int get hashCode => Object.hash(
@@ -56,6 +65,7 @@ class Transaction {
     amount,
     type,
     date,
+    note,
   );
 
   @override

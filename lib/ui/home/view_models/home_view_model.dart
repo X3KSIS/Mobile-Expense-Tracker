@@ -4,23 +4,29 @@ import '../../../data/repositories/auth/auth_repository.dart';
 import '../../../data/repositories/budget/budget_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../domain/models/budget_alert.dart';
+import '../../../domain/models/budget_progress.dart';
 import '../../../domain/models/monthly_summary.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
 /// State for the Home dashboard: monthly summary, top budget alert and the
-/// most recent transactions.
+/// most recent transactions. Reloads when transactions or budgets change.
 class HomeViewModel extends ChangeNotifier {
   HomeViewModel({
     required this._transactionRepository,
     required this._budgetRepository,
     required this._authRepository,
     this.recentLimit = 5,
-  }) {
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now {
     _authRepository.addListener(_onAuthChanged);
+    _transactionRepository.addListener(_onDataChanged);
+    _budgetRepository.addListener(_onDataChanged);
     load = Command0<void>(_load)..execute();
   }
+
+  final DateTime Function() _clock;
 
   final TransactionRepository _transactionRepository;
   final BudgetRepository _budgetRepository;
@@ -68,6 +74,10 @@ class HomeViewModel extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
+  void _onDataChanged() {
+    if (!_disposed) load.execute();
+  }
+
   void toggleHideAmounts() {
     _hideAmounts = !_hideAmounts;
     notifyListeners();
@@ -77,23 +87,27 @@ class HomeViewModel extends ChangeNotifier {
     try {
       final results = await (
         _transactionRepository.getMonthlySummary(),
-        _budgetRepository.getTopAlert(),
+        _budgetRepository.getBudgets(),
+        _transactionRepository.getTransactions(),
         _transactionRepository.getRecentTransactions(limit: recentLimit),
       ).wait;
 
       switch (results) {
         case (
           Ok(value: final summary),
-          Ok(value: final alert),
+          Ok(value: final budgets),
+          Ok(value: final all),
           Ok(value: final recent),
         ):
+          final progress = BudgetProgress.forMonth(budgets, all, _clock());
           _summary = summary;
-          _budgetAlert = alert;
+          _budgetAlert = BudgetProgress.topAlert(progress)?.toAlert();
           _recentTransactions = recent;
           return const Result.ok(null);
-        case (Error(:final error), _, _) ||
-            (_, Error(:final error), _) ||
-            (_, _, Error(:final error)):
+        case (Error(:final error), _, _, _) ||
+            (_, Error(:final error), _, _) ||
+            (_, _, Error(:final error), _) ||
+            (_, _, _, Error(:final error)):
           return Result.error(error);
       }
     } finally {
@@ -105,6 +119,8 @@ class HomeViewModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _authRepository.removeListener(_onAuthChanged);
+    _transactionRepository.removeListener(_onDataChanged);
+    _budgetRepository.removeListener(_onDataChanged);
     load.dispose();
     super.dispose();
   }

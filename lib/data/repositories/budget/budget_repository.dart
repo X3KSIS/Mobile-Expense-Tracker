@@ -1,9 +1,17 @@
-import '../../../domain/models/budget_alert.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../../domain/models/budget.dart';
 import '../../../utils/result.dart';
 
-/// Source of truth for budgets.
-abstract class BudgetRepository {
-  /// The budget closest to (or furthest over) its limit, or null when no
-  /// budget has reached the alert threshold.
-  Future<Result<BudgetAlert?>> getTopAlert();
+/// Source of truth for monthly budgets.
+///
+/// Extends [ChangeNotifier] and notifies after every save or delete.
+/// Progress is worked out from transactions with `BudgetProgress.forMonth`.
+abstract class BudgetRepository extends ChangeNotifier {
+  Future<Result<List<Budget>>> getBudgets();
+
+  /// Adds [budget], or replaces the budget with the same id.
+  Future<Result<Budget>> saveBudget(Budget budget);
+
+  Future<Result<void>> deleteBudget(String id);
 }

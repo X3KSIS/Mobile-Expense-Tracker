@@ -10,6 +10,13 @@ abstract final class CategoryIcons {
     'electricity': Icons.bolt_outlined,
     'airtime': Icons.phone_android_outlined,
     'housing': Icons.home_outlined,
+    'eating_out': Icons.restaurant_outlined,
+    'health': Icons.medical_services_outlined,
+    'education': Icons.school_outlined,
+    'entertainment': Icons.movie_outlined,
+    'business': Icons.storefront_outlined,
+    'gift': Icons.card_giftcard_outlined,
+    'other': Icons.category_outlined,
   };
 
   static const IconData fallback = Icons.category_outlined;

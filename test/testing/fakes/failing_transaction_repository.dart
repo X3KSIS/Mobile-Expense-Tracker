@@ -1,10 +1,11 @@
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/domain/models/monthly_summary.dart';
 import 'package:flutter_expensetracker/domain/models/transaction.dart';
+import 'package:flutter_expensetracker/domain/models/transaction_draft.dart';
 import 'package:flutter_expensetracker/utils/result.dart';
 
 /// A [TransactionRepository] whose calls fail while [shouldFail] is true.
-class FailingTransactionRepository implements TransactionRepository {
+class FailingTransactionRepository extends TransactionRepository {
   FailingTransactionRepository(this._delegate, {this.shouldFail = true});
 
   final TransactionRepository _delegate;
@@ -15,8 +16,14 @@ class FailingTransactionRepository implements TransactionRepository {
   static final Exception failure = Exception('Network unavailable');
 
   @override
-  Future<Result<MonthlySummary>> getMonthlySummary() async =>
-      shouldFail ? Result.error(failure) : _delegate.getMonthlySummary();
+  Future<Result<List<Transaction>>> getTransactions() async =>
+      shouldFail ? Result.error(failure) : _delegate.getTransactions();
+
+  @override
+  Future<Result<MonthlySummary>> getMonthlySummary({DateTime? month}) async =>
+      shouldFail
+      ? Result.error(failure)
+      : _delegate.getMonthlySummary(month: month);
 
   @override
   Future<Result<List<Transaction>>> getRecentTransactions({
@@ -24,4 +31,12 @@ class FailingTransactionRepository implements TransactionRepository {
   }) async => shouldFail
       ? Result.error(failure)
       : _delegate.getRecentTransactions(limit: limit);
+
+  @override
+  Future<Result<Transaction>> addTransaction(TransactionDraft draft) async =>
+      shouldFail ? Result.error(failure) : _delegate.addTransaction(draft);
+
+  @override
+  Future<Result<void>> deleteTransaction(String id) async =>
+      shouldFail ? Result.error(failure) : _delegate.deleteTransaction(id);
 }

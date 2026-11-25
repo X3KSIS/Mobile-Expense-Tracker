@@ -5,6 +5,8 @@ import '../data/repositories/auth/auth_repository.dart';
 import '../data/repositories/auth/auth_repository_local_fake.dart';
 import '../data/repositories/budget/budget_repository.dart';
 import '../data/repositories/budget/budget_repository_local_fake.dart';
+import '../data/repositories/category/category_repository.dart';
+import '../data/repositories/category/category_repository_local_fake.dart';
 import '../data/repositories/transaction/transaction_repository.dart';
 import '../data/repositories/transaction/transaction_repository_local_fake.dart';
 
@@ -17,8 +19,11 @@ List<SingleChildWidget> get providersLocal => [
   ChangeNotifierProvider<AuthRepository>(
     create: (_) => AuthRepositoryLocalFake(),
   ),
-  Provider<TransactionRepository>(
+  ChangeNotifierProvider<TransactionRepository>(
     create: (_) => TransactionRepositoryLocalFake(),
   ),
-  Provider<BudgetRepository>(create: (_) => BudgetRepositoryLocalFake()),
+  ChangeNotifierProvider<BudgetRepository>(
+    create: (_) => BudgetRepositoryLocalFake(),
+  ),
+  Provider<CategoryRepository>(create: (_) => CategoryRepositoryLocalFake()),
 ];

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_expensetracker/data/repositories/auth/auth_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
-import 'package:flutter_expensetracker/data/repositories/budget/budget_repository.dart';
-import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/main.dart';
 import 'package:flutter_expensetracker/ui/core/ui/labeled_text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,15 +15,7 @@ void main() {
 
     await tester.pumpWidget(
       MultiProvider(
-        providers: [
-          ChangeNotifierProvider<AuthRepository>(
-            create: (_) => instantAuthRepository(signedIn: signedIn),
-          ),
-          Provider<TransactionRepository>(
-            create: (_) => instantTransactionRepository(),
-          ),
-          Provider<BudgetRepository>(create: (_) => instantBudgetRepository()),
-        ],
+        providers: instantAppProviders(signedIn: signedIn),
         child: const ExpenseTrackApp(),
       ),
     );
