@@ -222,6 +222,20 @@ void main() {
     expect(find.text('Money in'), findsOneWidget);
   });
 
+  testWidgets('Home shows a spending habit and opens the rest in Reports', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    expect(find.text('YOUR SPENDING HABITS'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'See all').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your habits'), findsOneWidget);
+    expect(find.text('What stands out so far this month'), findsOneWidget);
+  });
+
   testWidgets('Activity shows the week and opens the full History', (
     tester,
   ) async {

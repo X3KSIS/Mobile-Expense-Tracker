@@ -9,14 +9,16 @@ import '../../core/ui/tab_header.dart';
 import '../../core/ui/slow_refresh.dart';
 import '../view_models/reports_view_model.dart';
 import 'category_breakdown.dart';
+import 'habit_list.dart';
 import 'month_switcher.dart';
 import 'report_kpis.dart';
 import 'report_section.dart';
 import 'spending_heatmap.dart';
 import 'spending_trend_chart.dart';
 
-/// Monthly reports: totals, spending by category, the spending trend and a
-/// daily heatmap. The month switcher scopes everything.
+/// Monthly reports: totals, spending habits, spending by category, the
+/// spending trend and a daily heatmap. The month switcher scopes
+/// everything.
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key, required this.viewModel});
 
@@ -92,6 +94,18 @@ class ReportsScreen extends StatelessWidget {
     final month = formatMonth(viewModel.month);
     return [
       ReportKpis(current: viewModel.totals, previous: viewModel.previousTotals),
+      const SizedBox(height: Dimens.sectionGap + 4),
+      ReportSection(
+        title: 'Your habits',
+        subtitle: viewModel.isCurrentMonth
+            ? 'What stands out so far this month'
+            : 'What stood out in $month',
+        child: HabitList(
+          insights: viewModel.insights,
+          month: viewModel.month,
+          monthToDate: viewModel.isCurrentMonth,
+        ),
+      ),
       const SizedBox(height: Dimens.sectionGap + 4),
       ReportSection(
         title: 'Spending by category',

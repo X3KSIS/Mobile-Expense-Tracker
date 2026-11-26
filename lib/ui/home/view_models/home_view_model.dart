@@ -10,6 +10,7 @@ import '../../../domain/models/budget.dart';
 import '../../../domain/models/budget_alert.dart';
 import '../../../domain/models/budget_progress.dart';
 import '../../../domain/models/cycle_forecast.dart';
+import '../../../domain/models/spending_insight.dart';
 import '../../../domain/models/monthly_summary.dart';
 import '../../../domain/models/pay_cycle.dart';
 import '../../../domain/models/theme_preference.dart';
@@ -88,6 +89,14 @@ class HomeViewModel extends ChangeNotifier {
     final progress = BudgetProgress.forPeriod(_budgets, _all, c.start, c.end);
     return BudgetProgress.topAlert(progress)?.toAlert();
   }
+
+  /// The spending habit most worth knowing about this month, or null when
+  /// there isn't enough spending to tell.
+  SpendingInsight? get topInsight => SpendingInsights.compute(
+    transactions: _all,
+    month: _clock(),
+    now: _clock(),
+  ).firstOrNull;
 
   /// What can be spent each day until payday, and whether the money lasts.
   /// Null until wallets have loaded.

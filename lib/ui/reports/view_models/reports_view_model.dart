@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/transaction/transaction_repository.dart';
+import '../../../domain/models/spending_insight.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../utils/command.dart';
 import '../../../utils/dates.dart';
@@ -81,6 +82,17 @@ class ReportsViewModel extends ChangeNotifier {
   DateTime get month => _month;
 
   DateTime get currentMonth => monthOf(_clock());
+
+  /// True while the selected month is still running, so comparisons are
+  /// "so far" against the same point last month.
+  bool get isCurrentMonth => _month == currentMonth;
+
+  /// Spending habits for the selected month, most worth acting on first.
+  List<SpendingInsight> get insights => SpendingInsights.compute(
+    transactions: _all,
+    month: _month,
+    now: _clock(),
+  );
 
   DateTime get previousMonth => DateTime(_month.year, _month.month - 1);
 

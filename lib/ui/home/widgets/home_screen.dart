@@ -14,6 +14,7 @@ import '../view_models/home_view_model.dart';
 import 'balance_card.dart';
 import 'budget_alert_card.dart';
 import 'detected_payments_banner.dart';
+import 'habit_card.dart';
 import 'home_error_view.dart';
 import 'home_header.dart';
 import 'quick_actions.dart';
@@ -157,6 +158,14 @@ class _HomeContent extends StatelessWidget {
           hideAmounts: viewModel.hideAmounts,
           onToggleHideAmounts: viewModel.toggleHideAmounts,
         ),
+        if (viewModel.topInsight case final insight?) ...[
+          const SizedBox(height: Dimens.gapL),
+          HabitCard(
+            insight: insight,
+            month: summary.month,
+            onSeeAll: () => context.go(Routes.reports),
+          ),
+        ],
         if (viewModel.forecast case final forecast?) ...[
           const SizedBox(height: Dimens.gapL),
           SafeToSpendCard(
