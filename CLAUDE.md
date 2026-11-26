@@ -70,7 +70,7 @@ test/
 
 ## Packages
 
-`provider`, `go_router`, `intl`, `flutter_native_splash` (dev), `flutter_lints` (dev).
+`provider`, `go_router`, `intl`, `notification_listener_service` (Android notification access for payment messages), `flutter_native_splash` (dev), `flutter_lints` (dev).
 
 Added in later phases: `drift`, `firebase_auth`, `dio`, `fl_chart`, `connectivity_plus`, `flutter_local_notifications`.
 

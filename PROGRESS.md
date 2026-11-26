@@ -11,12 +11,13 @@ Running log of what has been built and what comes next. Newest session first.
 - **Wallets:** `Wallet` (cash, mobile money, bank) and `Transfer` models; every transaction has a `walletId`. Balances are computed (`WalletBalance.compute`) from opening balance, transactions and transfers. `WalletRepository` with fake Cash, MTN MoMo and Zanaco wallets and monthly top-ups and withdrawals. Wallets page (`/wallets`): money held across wallets, each balance, add or edit a wallet, Move money (with an optional charge saved as a Fees & charges expense), recent transfers. Home has a wallet strip; Add transaction has a Paid from / Received into picker. New Fees & charges category.
 - **Payday budgeting:** `PayCycle` (payday to the day before the next; payday 1 = calendar month) and `CycleForecast` (money held spread over the days to payday, the spending pace, the day it runs out, and on track / tight / runs short / empty). Home shows a Safe to spend today card; budgets and the budget alert are measured per pay cycle. Payday is set from the Home card or Profile (`SettingsRepository.payday`, default 1).
 - **Mobile money messages:** `MoneyMessageParser` reads MTN MoMo, Airtel Money, Zamtel Kwacha and bank SMS: amount, direction (received, spent, cash withdrawal), provider, other party, charge, balance, reference, date (day first) and a category guess. Add transaction has Fill from a message: paste (or tap Paste), check the preview, fill the form. The matching wallet is picked, and a charge is saved separately unless dropped. Withdrawals point to Move money.
-- **Quality:** `flutter analyze` clean; 153 tests pass. Light and dark screens rendered and reviewed; not yet on the phone.
+- **Automatic capture (approved package `notification_listener_service`):** Android notification access, explained and requested on a From your messages screen (`/detected`, also from Profile). Payment notifications (parsed, and naming a provider) wait there to be added or dismissed; nothing is saved automatically. Add opens Add transaction pre-filled and clears the item once saved. Home shows a banner while payments wait. Notifications arrive only while the app runs, so the tray is re-scanned on start and every return to the foreground. `android/build.gradle.kts` compiles plugins against SDK 36 (the plugin asked for 34).
+- **Quality:** `flutter analyze` clean; 160 tests pass. Screens rendered and reviewed. The APK build could not finish from Claude's sandbox (network downloads failed), so it is not yet verified on the phone.
 
 ### Next
 
-1. Test the parser against real messages from your phone; the sample formats in the tests are made up to look like real ones.
-2. Automatic capture: reading messages as they arrive needs a notification-listener plugin (Google Play only lets the default SMS app read SMS). This needs package approval.
+1. Run on the phone (`flutter run -d 1519137578004351`), allow notification access, and check real MoMo, Airtel and bank messages are picked up; tune the parser with them (the test samples are made up).
+2. Capture while the app is closed would need a background isolate; for now the tray catch-up covers it.
 3. Edit or delete wallets that have transactions; show the wallet on transaction details; filter Activity by wallet.
 4. Persist settings, wallets and transfers once Drift lands.
 
