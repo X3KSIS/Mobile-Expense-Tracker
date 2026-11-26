@@ -4,11 +4,13 @@ import '../../../data/repositories/auth/auth_repository.dart';
 import '../../../data/repositories/budget/budget_repository.dart';
 import '../../../data/repositories/settings/settings_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
+import '../../../data/repositories/wallet/wallet_repository.dart';
 import '../../../domain/models/budget_alert.dart';
 import '../../../domain/models/budget_progress.dart';
 import '../../../domain/models/monthly_summary.dart';
 import '../../../domain/models/theme_preference.dart';
 import '../../../domain/models/transaction.dart';
+import '../../../domain/models/wallet_balances.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
@@ -20,6 +22,7 @@ class HomeViewModel extends ChangeNotifier {
     required this._budgetRepository,
     required this._authRepository,
     required this._settingsRepository,
+    required this._walletRepository,
     this.recentLimit = 5,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
@@ -27,6 +30,7 @@ class HomeViewModel extends ChangeNotifier {
     _settingsRepository.addListener(_onHeaderChanged);
     _transactionRepository.addListener(_onDataChanged);
     _budgetRepository.addListener(_onDataChanged);
+    _walletRepository.addListener(_onDataChanged);
     load = Command0<void>(_load)..execute();
     delete = Command1<void, String>(_transactionRepository.deleteTransaction);
   }
@@ -37,6 +41,7 @@ class HomeViewModel extends ChangeNotifier {
   final BudgetRepository _budgetRepository;
   final AuthRepository _authRepository;
   final SettingsRepository _settingsRepository;
+  final WalletRepository _walletRepository;
 
   /// How many recent transactions to show.
   final int recentLimit;
@@ -50,6 +55,7 @@ class HomeViewModel extends ChangeNotifier {
   MonthlySummary? _summary;
   BudgetAlert? _budgetAlert;
   List<Transaction> _recentTransactions = const [];
+  List<WalletBalance> _wallets = const [];
   bool _hideAmounts = false;
   bool _disposed = false;
 
@@ -59,6 +65,9 @@ class HomeViewModel extends ChangeNotifier {
   BudgetAlert? get budgetAlert => _budgetAlert;
 
   List<Transaction> get recentTransactions => _recentTransactions;
+
+  /// Each wallet with its balance.
+  List<WalletBalance> get wallets => _wallets;
 
   /// Whether balance amounts are masked.
   bool get hideAmounts => _hideAmounts;
@@ -109,6 +118,8 @@ class HomeViewModel extends ChangeNotifier {
         _budgetRepository.getBudgets(),
         _transactionRepository.getTransactions(),
         _transactionRepository.getRecentTransactions(limit: recentLimit),
+        _walletRepository.getWallets(),
+        _walletRepository.getTransfers(),
       ).wait;
 
       switch (results) {
@@ -117,16 +128,21 @@ class HomeViewModel extends ChangeNotifier {
           Ok(value: final budgets),
           Ok(value: final all),
           Ok(value: final recent),
+          Ok(value: final wallets),
+          Ok(value: final transfers),
         ):
           final progress = BudgetProgress.forMonth(budgets, all, _clock());
           _summary = summary;
           _budgetAlert = BudgetProgress.topAlert(progress)?.toAlert();
           _recentTransactions = recent;
+          _wallets = WalletBalance.compute(wallets, all, transfers);
           return const Result.ok(null);
-        case (Error(:final error), _, _, _) ||
-            (_, Error(:final error), _, _) ||
-            (_, _, Error(:final error), _) ||
-            (_, _, _, Error(:final error)):
+        case (Error(:final error), _, _, _, _, _) ||
+            (_, Error(:final error), _, _, _, _) ||
+            (_, _, Error(:final error), _, _, _) ||
+            (_, _, _, Error(:final error), _, _) ||
+            (_, _, _, _, Error(:final error), _) ||
+            (_, _, _, _, _, Error(:final error)):
           return Result.error(error);
       }
     } finally {
@@ -141,6 +157,7 @@ class HomeViewModel extends ChangeNotifier {
     _settingsRepository.removeListener(_onHeaderChanged);
     _transactionRepository.removeListener(_onDataChanged);
     _budgetRepository.removeListener(_onDataChanged);
+    _walletRepository.removeListener(_onDataChanged);
     load.dispose();
     delete.dispose();
     super.dispose();

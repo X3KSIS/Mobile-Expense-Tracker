@@ -3,6 +3,7 @@ import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_lo
 import 'package:flutter_expensetracker/main.dart';
 import 'package:flutter_expensetracker/ui/core/ui/floating_nav_bar.dart';
 import 'package:flutter_expensetracker/ui/core/ui/labeled_text_field.dart';
+import 'package:flutter_expensetracker/ui/core/ui/primary_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +25,15 @@ void main() {
 
   Future<void> finishSplash(WidgetTester tester) async {
     await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> scrollTo(WidgetTester tester, Finder finder) async {
+    await tester.scrollUntilVisible(
+      finder,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
   }
 
@@ -78,6 +88,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(AuthRepositoryLocalFake.demoName), findsOneWidget);
+    await scrollTo(tester, find.text('Recent activity'));
     expect(find.text('Recent activity'), findsOneWidget);
   });
 
@@ -169,6 +180,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Expense saved'), findsOneWidget);
+    await scrollTo(tester, find.text('Hungry Lion'));
     expect(find.text('Hungry Lion'), findsOneWidget);
     expect(find.text('-ZMW 85.00'), findsOneWidget);
   });
@@ -291,6 +303,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Budget deleted'), findsOneWidget);
     expect(find.text('Housing'), findsNothing);
+  });
+
+  testWidgets('Home opens Wallets, where money moves between wallets', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    expect(find.text('MTN MoMo'), findsOneWidget);
+    await tester.tap(find.text('Manage'));
+    await tester.pumpAndSettle();
+    expect(find.text('MONEY YOU HAVE'), findsOneWidget);
+
+    await tester.tap(find.text('Move money'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('MTN MoMo').first);
+    await tester.enterText(field('Amount (ZMW)'), '200');
+    await tester.enterText(field('Charge (optional)'), '5');
+    await tester.tap(find.widgetWithText(PrimaryButton, 'Move money').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Money moved'), findsOneWidget);
+    expect(find.text('MTN MoMo → Cash'), findsOneWidget);
   });
 
   testWidgets('Reports switches month and shows a day total', (tester) async {

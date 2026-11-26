@@ -15,6 +15,7 @@ import 'home_error_view.dart';
 import 'home_header.dart';
 import 'quick_actions.dart';
 import 'recent_activity.dart';
+import 'wallet_strip.dart';
 
 /// Dashboard: header, balance, budget alert, quick actions and recent
 /// activity. Pull down to refresh.
@@ -154,6 +155,14 @@ class _HomeContent extends StatelessWidget {
                   ),
                 ),
         ),
+        if (viewModel.wallets.isNotEmpty) ...[
+          const SizedBox(height: Dimens.sectionGap),
+          WalletStrip(
+            wallets: viewModel.wallets,
+            hideAmounts: viewModel.hideAmounts,
+            onOpen: () => context.push(Routes.wallets),
+          ),
+        ],
         const SizedBox(height: Dimens.sectionGap),
         QuickActions(
           onSelected: (action) => context.push(_addRouteFor(action)),

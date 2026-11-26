@@ -29,6 +29,8 @@ import '../ui/search/view_models/search_view_model.dart';
 import '../ui/search/widgets/search_screen.dart';
 import '../ui/splash/view_models/splash_view_model.dart';
 import '../ui/splash/widgets/splash_screen.dart';
+import '../ui/wallets/view_models/wallets_view_model.dart';
+import '../ui/wallets/widgets/wallets_screen.dart';
 import 'routes.dart';
 
 /// Builds the app router. ViewModels are created here, in the route
@@ -122,6 +124,21 @@ GoRouter router(AuthRepository authRepository) {
               builder: (context) =>
                   SearchScreen(viewModel: context.read<SearchViewModel>()),
             ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.wallets,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => WalletsViewModel(
+            walletRepository: context.read(),
+            transactionRepository: context.read(),
+            categoryRepository: context.read(),
+          ),
+          child: Builder(
+            builder: (context) =>
+                WalletsScreen(viewModel: context.read<WalletsViewModel>()),
           ),
         ),
       ),
@@ -230,6 +247,7 @@ StatefulShellRoute _shell() => StatefulShellRoute(
               budgetRepository: context.read(),
               authRepository: context.read(),
               settingsRepository: context.read(),
+              walletRepository: context.read(),
             ),
             child: Builder(
               builder: (context) =>

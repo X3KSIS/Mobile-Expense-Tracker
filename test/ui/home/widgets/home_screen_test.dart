@@ -27,6 +27,7 @@ void main() {
       budgetRepository: instantBudgetRepository(),
       authRepository: instantAuthRepository(signedIn: true),
       settingsRepository: SettingsRepositoryLocalFake(),
+      walletRepository: instantWalletRepository(),
     );
     addTearDown(viewModel.dispose);
 

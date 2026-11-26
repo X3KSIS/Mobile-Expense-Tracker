@@ -13,6 +13,7 @@ void main() {
       budgetRepository: instantBudgetRepository(),
       authRepository: instantAuthRepository(signedIn: true),
       settingsRepository: SettingsRepositoryLocalFake(),
+      walletRepository: instantWalletRepository(),
     );
     addTearDown(viewModel.dispose);
     return viewModel;
@@ -146,6 +147,7 @@ void main() {
         budgetRepository: instantBudgetRepository(),
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
+        walletRepository: instantWalletRepository(),
       );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();
