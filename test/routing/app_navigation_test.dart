@@ -52,6 +52,24 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
   });
 
+  testWidgets('the Home toggle switches between light and dark', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    Brightness brightness() =>
+        Theme.of(tester.element(find.text('Paul Mubanga'))).brightness;
+    expect(brightness(), Brightness.light);
+
+    await tester.tap(find.byTooltip('Switch to dark mode'));
+    await tester.pumpAndSettle();
+    expect(brightness(), Brightness.dark);
+
+    await tester.tap(find.byTooltip('Switch to light mode'));
+    await tester.pumpAndSettle();
+    expect(brightness(), Brightness.light);
+  });
+
   testWidgets('tapping Sign in with empty fields goes to Home', (tester) async {
     await pumpApp(tester);
     await finishSplash(tester);

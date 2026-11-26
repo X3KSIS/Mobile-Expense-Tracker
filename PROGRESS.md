@@ -2,6 +2,29 @@
 
 Running log of what has been built and what comes next. Newest session first.
 
+## Session 3 — 26 Nov 2026
+
+**Scope:** the UI/UX spec: smooth navigation, status colours with unique icons and shapes, morphing icons with dark mode, skeletons and a slow-motion pull-to-refresh, drag to reorder, card expansion, springy buttons and a focused full-screen search.
+
+### Done
+
+- **Dark mode:** colour, text, gradient and shadow tokens moved into an `AppPalette` theme extension with light and dark palettes; every widget reads `context.colors` / `context.text`. Switching blends every colour over 500 ms. Theme preference (system, light, dark) in a new `SettingsRepository` (in-memory fake). Category icons are lightened on dark surfaces so dark ones (Housing) stay visible.
+- **Sun-to-moon toggle** in the Home header: rays swirl and retract, a crescent is cut in, a star twinkles in.
+- **Status system:** success, warning, danger and neutral, each with its own colour, shape (circle, triangle, octagon, dashed ring) and glyph. Budgets show On track, Near limit, Over budget or Not started.
+- **Budget cards** expand on tap (350 ms ease-out) to show left per day, spent per day and Edit. Long-press to drag them into a new order: the lifted card grows 5% and the others slide aside. Order is saved through `BudgetRepository.reorderBudgets` (budgets are no longer sorted by percentage).
+- **Buttons** (primary, header icons, "+", quick actions, search chips) shrink to 95% and spring back.
+- **Pull to refresh** on every tab is a slow-motion indicator (`SlowRefresh`): a coral ring fills as you pull, the arrow flips past the trigger, it spins slowly while refreshing and glides back.
+- **Full-screen search** (`/search`): the Activity search box glides into a focused page above the tabs, with category suggestions and results by day. Search moved out of the Activity view model.
+- **Docs:** `CLAUDE.md` has the dark palette, status table and motion rules.
+- **Quality:** `flutter analyze` clean; 115 tests pass. Light and dark screens rendered to PNG and reviewed; not yet checked on the phone.
+
+### Next
+
+1. Run on the phone: check dark mode, reorder, pull-to-refresh and search feel.
+2. Use the status badges for transactions once they have states (pending, failed, draft), e.g. with recurring payments.
+3. Persist the theme preference once Drift lands.
+4. Carry-overs from session 2: notifications, receipts, grocery lists, price tracker, reminders, category management.
+
 ## Session 2 — 25 Nov 2026
 
 **Scope:** sign-in, sign-up and Profile, then every main feature: Add transaction, Activity, Budgets and Reports. All on fake repositories; no Firebase, database or new packages.

@@ -94,11 +94,36 @@ The font is **Plus Jakarta Sans**, bundled in `assets/fonts/` with weights 400, 
 | accentStrong | #D2401F | primary buttons (white text passes contrast) |
 | accentText | #C2391A | coral text or links on light backgrounds |
 | accentSoft | #FFE6DF | soft coral backgrounds, badges |
-| success | #177A4B | income amounts |
+| success | #177A4B | income amounts, success status |
 | successSoft | #E4F4EB | success badges |
+| warning | #9A5800 | warning / pending status |
+| warningSoft | #FFF1D6 | warning badges |
+| error | #B3261E | danger / failed status, form errors |
+| errorSoft | #FDE8E6 | danger badges |
+| neutral | #5B6472 | draft / neutral status |
+| neutralSoft | #EEF0F3 | neutral badges |
 | fab | #141A22 | black "+" button |
 
 The coral accent (#FF6B4A) is never used for small text or as the background behind white text, because it fails contrast. Use accentStrong or accentText instead.
+
+### Light and dark
+
+Tokens live in `AppPalette` (`lib/ui/core/themes/colors.dart`), a `ThemeExtension` with `AppPalette.light` (the table above) and `AppPalette.dark` (deep navy surfaces, lighter text and status colours, a light "+" button). Widgets read the active theme through `context.colors`, `context.text`, `context.gradients` and `context.shadows`, never through constants, so a theme switch blends every colour. `AppTypography` holds sizes and weights only.
+
+- Every new colour gets a value in both palettes, and every text pairing keeps 4.5:1 in both.
+- Category colours are data; `CategoryTile` adjusts their lightness until the icon keeps 3:1 on the surface.
+- The theme preference (system, light, dark) lives in `SettingsRepository`. The Home header toggle morphs a sun into a moon (`SunMoonIcon`).
+
+### Status
+
+Four meanings, each with its own colour, shape and glyph, so status never relies on colour alone (`StatusBadge`, `StatusMark` in `lib/ui/core/ui/status_badge.dart`):
+
+| Tone | Means | Shape | Glyph |
+|---|---|---|---|
+| success | active, paid, on track | circle | check |
+| warning | pending, near limit | triangle | ! |
+| danger | failed, over budget | octagon | × |
+| neutral | draft, not started | dashed ring | – |
 
 ### Shape and spacing
 
@@ -136,6 +161,21 @@ Big amounts show the "ZMW" prefix smaller and grey, and the decimals smaller and
 - **Header icon buttons:** 46px rounded squares (radius 16), white with a 1px border.
 - **Primary action:** a full-width fully rounded button (height 58), accentStrong, with a soft coral shadow.
 - **Icons:** outline style, stroke ~1.8. Use Material Symbols Rounded or custom outline icons. Never emoji.
+
+### Motion
+
+Nothing appears, disappears or changes suddenly. Durations and curves come from `AppMotion` (`lib/ui/core/themes/motion.dart`).
+
+- **Swaps:** fade-through (`FadeSwitcher`); loading shows shimmer skeletons, never spinners.
+- **Navigation:** the nav pill grows into the active tab; tabs fade through; pushed pages fade forwards.
+- **Buttons:** wrap in `Pressable`: scale to 95% on press, spring back on release.
+- **Expanding cards:** `ExpandableSection`, 350 ms ease-out, chevron rotates with it.
+- **Drag to reorder:** the lifted item grows by 5% onto a soft shadow; the others slide aside.
+- **Pull to refresh:** `SlowRefresh`, a slow-motion indicator, instead of `RefreshIndicator`.
+- **Icons:** morph between states (`SunMoonIcon`) rather than swapping.
+- **Theme:** light and dark blend over `AppMotion.theme`.
+- **Focus:** one task per screen. Search opens full screen (`/search`) over the tabs.
+- Respect reduced motion (`MediaQuery.disableAnimations`).
 
 ### Accessibility
 

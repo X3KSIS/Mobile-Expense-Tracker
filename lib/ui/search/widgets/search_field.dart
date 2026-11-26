@@ -62,12 +62,20 @@ class SearchField extends StatelessWidget {
             onChanged: onChanged,
             textInputAction: TextInputAction.search,
             style: context.text.body,
-            decoration: InputDecoration.collapsed(
-              hintText: 'Search transactions',
-              hintStyle: context.text.body.copyWith(
-                color: colors.textSecondary,
-              ),
-            ).copyWith(filled: false),
+            decoration:
+                InputDecoration.collapsed(
+                  hintText: 'Search transactions',
+                  hintStyle: context.text.body.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ).copyWith(
+                  filled: false,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
           ),
         ),
       ),
