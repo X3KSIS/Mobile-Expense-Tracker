@@ -15,8 +15,10 @@ Running log of what has been built and what comes next. Newest session first.
 - **Buttons** (primary, header icons, "+", quick actions, search chips) shrink to 95% and spring back.
 - **Pull to refresh** on every tab is a slow-motion indicator (`SlowRefresh`): a coral ring fills as you pull, the arrow flips past the trigger, it spins slowly while refreshing and glides back.
 - **Full-screen search** (`/search`): the Activity search box glides into a focused page above the tabs, with category suggestions and results by day. Search moved out of the Activity view model.
+- **App icon and name:** launcher icons on every platform (Android legacy, adaptive and themed; iOS; macOS; web; Windows) are drawn from one vector copy of the splash wallet. Regenerate with `flutter test tool/app_icon/generate_app_icons_test.dart`. The app is called Expense Tracker everywhere (the in-app wordmark still says ExpenseTrack).
+- **Activity filters:** switching All, Expenses and Income folds rows in and out in place instead of swapping the list, and the count and totals roll to their new values. Fixed `FadeSwitcher` throwing tall content about 110px (its drift was 2% of the child's height; now a fixed 8px).
 - **Docs:** `CLAUDE.md` has the dark palette, status table and motion rules.
-- **Quality:** `flutter analyze` clean; 115 tests pass. Light and dark screens rendered to PNG and reviewed; not yet checked on the phone.
+- **Quality:** `flutter analyze` clean; 116 tests pass. Light and dark screens rendered to PNG and reviewed; not yet checked on the phone.
 
 ### Next
 
