@@ -10,12 +10,13 @@ Running log of what has been built and what comes next. Newest session first.
 - **History:** the Activity tab shows the last 7 days (filter, totals and search kept) and ends with a See all activity card. The new History page (`/history`) groups every transaction by month (with each month's money in and out) and day, with the same All / Expenses / Income filter folding rows and months in place.
 - **Core objective** added to `CLAUDE.md`: expense tracking and spending habits.
 - **Habit insights:** `SpendingInsights.compute` (domain) compares this month so far with the same days last month (whole months for past months): overall pace, biggest category rise and fall, categories rising 3+ months running, top place visited more than once, small spends (ZMW 100 or less) adding up, and the busiest weekday over 90 days. Shown as a Your habits section on Reports (per selected month) and a Your spending habits card on Home with the top insight. Wording lives in `describeInsight` (`insight_row.dart`).
-- **Quality:** `flutter analyze` clean; 182 tests pass; screens rendered in light and dark and reviewed.
+- **Regular payments:** `RecurringPayments.detect` (domain) groups expenses by place and finds weekly, fortnightly and monthly rhythms (3+ payments, 70% of gaps on rhythm, last 200 days). Each gets a usual amount, fixed or varying, a kind (subscription, bill, regular spending), monthly cost, next due date and status (upcoming, due soon within 5 days, late); stopped ones drop out. Reports has a Regular payments section; `/recurring` shows the monthly and yearly total, Coming up, and each kind. Demo data gained a monthly DStv Compact (history only).
+- **Quality:** `flutter analyze` clean; 189 tests pass; screens rendered and reviewed.
 
 ### Next
 
-1. Recurring and subscription spotting (DStv, rent, bundles) from transaction history.
-2. Category trends over time and personal inflation with the price tracker.
+1. Category trends over time and personal inflation with the price tracker.
+2. Remind before a regular payment is due (needs `flutter_local_notifications`, a planned package).
 
 ## Session 4: 26 Nov 2026 (continued)
 
