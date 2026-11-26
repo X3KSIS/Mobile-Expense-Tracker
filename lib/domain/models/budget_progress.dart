@@ -63,10 +63,24 @@ class BudgetProgress {
     List<Budget> budgets,
     List<Transaction> transactions,
     DateTime month,
+  ) => forPeriod(
+    budgets,
+    transactions,
+    DateTime(month.year, month.month),
+    DateTime(month.year, month.month + 1),
+  );
+
+  /// Progress for each budget from the expenses on or after [start] and
+  /// before [end], e.g. one pay cycle.
+  static List<BudgetProgress> forPeriod(
+    List<Budget> budgets,
+    List<Transaction> transactions,
+    DateTime start,
+    DateTime end,
   ) {
     final spentByCategory = <String, double>{};
     for (final t in transactions) {
-      if (t.isIncome || !t.isInMonth(month)) continue;
+      if (t.isIncome || !t.isBetween(start, end)) continue;
       spentByCategory.update(
         t.categoryName,
         (total) => total + t.amount,
