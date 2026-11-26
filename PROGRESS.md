@@ -2,6 +2,23 @@
 
 Running log of what has been built and what comes next. Newest session first.
 
+## Where things stand (end of 26 Nov 2026)
+
+**Core objective:** expense tracking and spending habits (see `CLAUDE.md`).
+
+**Built, on fake repositories:** auth screens (interface only), Home, Activity (last 7 days) and History, full-screen search, Add transaction (with wallet, fill from an SMS), budgets per pay cycle (expand, reorder), Reports (habits, regular payments, categories, trend, heatmap), wallets and transfers, payday and safe to spend, payment capture from notifications, Profile, dark mode, one coral icon style, motion throughout. Launcher icon and the name Expense Tracker on every platform. Everything is pushed to `origin/main`; `flutter analyze` is clean and 189 tests pass.
+
+**Not yet verified on the phone:** everything since session 3. The APK build could not finish from Claude's sandbox, so run it from a terminal: `flutter run -d 1519137578004351`.
+
+**Pick up next time:**
+
+1. Run on the phone; turn on notification access (Profile → Payment messages) and check real MoMo, Airtel and bank messages are read. Share a few real messages (details changed) to tune the parser.
+2. Category trends over time, then personal inflation with the price tracker.
+3. Reminders before regular payments are due (needs `flutter_local_notifications`; ask first).
+4. Wallet follow-ups: edit or delete wallets with transactions, show the wallet on transaction details, filter by wallet.
+5. Later phases: Drift storage (nothing persists yet: settings, wallets, payday, detected payments), Firebase Auth (restore form validation), Django REST sync.
+6. Still open from earlier: visual corrections for Home, splash and the nav bar; notifications screen, receipts, grocery lists, price tracker, categories management.
+
 ## Session 5: 26 Nov 2026 (continued)
 
 ### Done
