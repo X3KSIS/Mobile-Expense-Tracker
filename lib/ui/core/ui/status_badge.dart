@@ -78,7 +78,15 @@ class StatusBadge extends StatelessWidget {
             children: [
               StatusMark(tone: tone),
               const SizedBox(width: Dimens.gapXs + 2),
-              Text(label, style: context.text.badge.copyWith(color: strong)),
+              // Shrinks with an ellipsis when space is tight.
+              Flexible(
+                child: Text(
+                  label,
+                  style: context.text.badge.copyWith(color: strong),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
         ),

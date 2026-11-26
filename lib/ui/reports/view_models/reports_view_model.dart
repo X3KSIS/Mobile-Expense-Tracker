@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/transaction/transaction_repository.dart';
+import '../../../domain/models/recurring_payment.dart';
 import '../../../domain/models/spending_insight.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../utils/command.dart';
@@ -86,6 +87,17 @@ class ReportsViewModel extends ChangeNotifier {
   /// True while the selected month is still running, so comparisons are
   /// "so far" against the same point last month.
   bool get isCurrentMonth => _month == currentMonth;
+
+  /// Today, for due dates.
+  DateTime get now => _clock();
+
+  /// Repeat payments as of today (not tied to the selected month),
+  /// largest monthly cost first.
+  List<RecurringPayment> get recurring =>
+      RecurringPayments.detect(_all, _clock());
+
+  /// What [recurring] costs in an average month.
+  double get recurringMonthlyTotal => RecurringPayments.monthlyTotal(recurring);
 
   /// Spending habits for the selected month, most worth acting on first.
   List<SpendingInsight> get insights => SpendingInsights.compute(

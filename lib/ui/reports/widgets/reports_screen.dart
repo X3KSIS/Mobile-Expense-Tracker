@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/empty_state.dart';
@@ -10,6 +11,7 @@ import '../../core/ui/slow_refresh.dart';
 import '../view_models/reports_view_model.dart';
 import 'category_breakdown.dart';
 import 'habit_list.dart';
+import 'regular_payments_summary.dart';
 import 'month_switcher.dart';
 import 'report_kpis.dart';
 import 'report_section.dart';
@@ -104,6 +106,17 @@ class ReportsScreen extends StatelessWidget {
           insights: viewModel.insights,
           month: viewModel.month,
           monthToDate: viewModel.isCurrentMonth,
+        ),
+      ),
+      const SizedBox(height: Dimens.sectionGap + 4),
+      ReportSection(
+        title: 'Regular payments',
+        subtitle:
+            'About ${formatZmw(viewModel.recurringMonthlyTotal)} goes out '
+            'every month on these',
+        child: RegularPaymentsSummary(
+          payments: viewModel.recurring,
+          now: viewModel.now,
         ),
       ),
       const SizedBox(height: Dimens.sectionGap + 4),

@@ -28,6 +28,8 @@ import '../ui/profile/widgets/edit_profile_screen.dart';
 import '../ui/history/view_models/history_view_model.dart';
 import '../ui/history/widgets/history_screen.dart';
 import '../ui/profile/widgets/profile_screen.dart';
+import '../ui/recurring/view_models/recurring_view_model.dart';
+import '../ui/recurring/widgets/recurring_screen.dart';
 import '../ui/reports/view_models/reports_view_model.dart';
 import '../ui/reports/widgets/reports_screen.dart';
 import '../ui/search/view_models/search_view_model.dart';
@@ -146,6 +148,18 @@ GoRouter router(AuthRepository authRepository) {
           child: Builder(
             builder: (context) =>
                 HistoryScreen(viewModel: context.read<HistoryViewModel>()),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.recurring,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              RecurringViewModel(transactionRepository: context.read()),
+          child: Builder(
+            builder: (context) =>
+                RecurringScreen(viewModel: context.read<RecurringViewModel>()),
           ),
         ),
       ),

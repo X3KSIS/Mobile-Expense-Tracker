@@ -236,6 +236,25 @@ void main() {
     expect(find.text('What stands out so far this month'), findsOneWidget);
   });
 
+  testWidgets('Reports lists regular payments and opens them all', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.bySemanticsLabel('Reports'));
+    await tester.pumpAndSettle();
+
+    await scrollTo(tester, find.text('Regular payments'));
+    final seeAll = find.textContaining('regular payments').last;
+    await scrollTo(tester, seeAll);
+    await tester.tap(seeAll);
+    await tester.pumpAndSettle();
+
+    expect(find.text('GOES OUT EVERY MONTH'), findsOneWidget);
+    expect(find.text('Coming up'), findsOneWidget);
+    expect(find.text('DStv Compact'), findsWidgets);
+  });
+
   testWidgets('Activity shows the week and opens the full History', (
     tester,
   ) async {
