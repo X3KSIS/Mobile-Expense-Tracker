@@ -2,6 +2,24 @@
 
 Running log of what has been built and what comes next. Newest session first.
 
+## Session 4: 26 Nov 2026 (continued)
+
+**Scope:** the three features that set the app apart for Zambian users: wallets, payday-to-payday budgeting and reading mobile money messages. No new packages.
+
+### Done
+
+- **Wallets:** `Wallet` (cash, mobile money, bank) and `Transfer` models; every transaction has a `walletId`. Balances are computed (`WalletBalance.compute`) from opening balance, transactions and transfers. `WalletRepository` with fake Cash, MTN MoMo and Zanaco wallets and monthly top-ups and withdrawals. Wallets page (`/wallets`): money held across wallets, each balance, add or edit a wallet, Move money (with an optional charge saved as a Fees & charges expense), recent transfers. Home has a wallet strip; Add transaction has a Paid from / Received into picker. New Fees & charges category.
+- **Payday budgeting:** `PayCycle` (payday to the day before the next; payday 1 = calendar month) and `CycleForecast` (money held spread over the days to payday, the spending pace, the day it runs out, and on track / tight / runs short / empty). Home shows a Safe to spend today card; budgets and the budget alert are measured per pay cycle. Payday is set from the Home card or Profile (`SettingsRepository.payday`, default 1).
+- **Mobile money messages:** `MoneyMessageParser` reads MTN MoMo, Airtel Money, Zamtel Kwacha and bank SMS: amount, direction (received, spent, cash withdrawal), provider, other party, charge, balance, reference, date (day first) and a category guess. Add transaction has Fill from a message: paste (or tap Paste), check the preview, fill the form. The matching wallet is picked, and a charge is saved separately unless dropped. Withdrawals point to Move money.
+- **Quality:** `flutter analyze` clean; 153 tests pass. Light and dark screens rendered and reviewed; not yet on the phone.
+
+### Next
+
+1. Test the parser against real messages from your phone; the sample formats in the tests are made up to look like real ones.
+2. Automatic capture: reading messages as they arrive needs a notification-listener plugin (Google Play only lets the default SMS app read SMS). This needs package approval.
+3. Edit or delete wallets that have transactions; show the wallet on transaction details; filter Activity by wallet.
+4. Persist settings, wallets and transfers once Drift lands.
+
 ## Session 3 — 26 Nov 2026
 
 **Scope:** the UI/UX spec: smooth navigation, status colours with unique icons and shapes, morphing icons with dark mode, skeletons and a slow-motion pull-to-refresh, drag to reorder, card expansion, springy buttons and a focused full-screen search.

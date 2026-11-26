@@ -2,7 +2,7 @@
 
 Personal finance app for tracking income and expenses in Zambian Kwacha (ZMW). Mobile companion to an existing Django web app.
 
-Features, now and planned: dashboard, transactions (recurring, receipts, tags), categories with colours, budgets, reports and charts, spending heatmap, grocery lists, price tracker, reminders.
+Features, now and planned: dashboard, transactions (recurring, receipts, tags), wallets (cash, mobile money, bank) with transfers, payday-to-payday budgeting with a safe-to-spend forecast, filling transactions from mobile money and bank SMS, categories with colours, budgets, reports and charts, spending heatmap, grocery lists, price tracker, reminders.
 
 Later phases will add Firebase Auth, offline-first storage with Drift (SQLite), and sync to a Django REST API. Until then, all data comes from fake repositories.
 
