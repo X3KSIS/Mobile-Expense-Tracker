@@ -8,6 +8,7 @@ import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/empty_state.dart';
 import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/search_box.dart';
 import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/segmented_toggle.dart';
 import '../../core/ui/stat_tile.dart';
@@ -16,9 +17,9 @@ import '../../core/ui/transaction_details_sheet.dart';
 import '../../core/ui/slow_refresh.dart';
 import '../view_models/activity_view_model.dart';
 import 'activity_day_section.dart';
-import 'activity_search_field.dart';
 
-/// Every transaction, searchable and filterable, grouped by day.
+/// Every transaction, filterable and grouped by day. The search box opens
+/// the full-screen search.
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key, required this.viewModel});
 
@@ -174,9 +175,9 @@ class _ActivityHeader extends StatelessWidget {
           subtitle: '$count transaction${count == 1 ? '' : 's'}',
         ),
         const SizedBox(height: Dimens.gapL),
-        ActivitySearchField(
-          initialQuery: viewModel.query,
-          onChanged: viewModel.setQuery,
+        SearchLauncher(
+          hint: 'Search transactions',
+          onTap: () => context.push(Routes.search),
         ),
         const SizedBox(height: Dimens.gapM),
         SegmentedToggle<ActivityFilter>(

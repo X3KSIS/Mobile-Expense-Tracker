@@ -21,10 +21,25 @@ class ActivityDay {
 
   /// Income minus expenses for the day.
   double get net => transactions.fold(0, (sum, t) => sum + t.signedAmount);
+
+  /// Groups [transactions] by calendar day, newest day first.
+  static List<ActivityDay> group(List<Transaction> transactions) {
+    final groups = <DateTime, List<Transaction>>{};
+    for (final t in transactions) {
+      groups.putIfAbsent(dateOnly(t.date), () => []).add(t);
+    }
+    return [
+      for (final entry in groups.entries)
+        ActivityDay(
+          day: entry.key,
+          transactions: List.unmodifiable(entry.value),
+        ),
+    ]..sort((a, b) => b.day.compareTo(a.day));
+  }
 }
 
-/// State for the Activity tab: every transaction, searchable, filterable
-/// and grouped by day. Reloads when transactions change.
+/// State for the Activity tab: every transaction, filterable and grouped
+/// by day. Searching happens on its own full-screen page. Reloads when transactions change.
 class ActivityViewModel extends ChangeNotifier {
   ActivityViewModel({required this._transactionRepository}) {
     _transactionRepository.addListener(_onTransactionsChanged);
@@ -43,18 +58,15 @@ class ActivityViewModel extends ChangeNotifier {
   List<Transaction> _visible = const [];
   List<ActivityDay> _days = const [];
   ActivityFilter _filter = ActivityFilter.all;
-  String _query = '';
   bool _loaded = false;
   bool _disposed = false;
 
   ActivityFilter get filter => _filter;
 
-  String get query => _query;
-
-  /// Transactions matching the filter and search, grouped by day.
+  /// Transactions matching the filter, grouped by day.
   List<ActivityDay> get days => _days;
 
-  /// Number of transactions matching the filter and search.
+  /// Number of transactions matching the filter.
   int get visibleCount => _visible.length;
 
   /// Total income among the visible transactions.
@@ -78,12 +90,6 @@ class ActivityViewModel extends ChangeNotifier {
     _rebuild();
   }
 
-  void setQuery(String query) {
-    if (query == _query) return;
-    _query = query;
-    _rebuild();
-  }
-
   void _onTransactionsChanged() {
     if (!_disposed) load.execute();
   }
@@ -103,7 +109,6 @@ class ActivityViewModel extends ChangeNotifier {
   }
 
   void _rebuild() {
-    final needle = _query.trim().toLowerCase();
     _visible = _all
         .where(
           (t) => switch (_filter) {
@@ -112,26 +117,8 @@ class ActivityViewModel extends ChangeNotifier {
             ActivityFilter.income => t.isIncome,
           },
         )
-        .where(
-          (t) =>
-              needle.isEmpty ||
-              t.title.toLowerCase().contains(needle) ||
-              t.categoryName.toLowerCase().contains(needle) ||
-              (t.note?.toLowerCase().contains(needle) ?? false),
-        )
         .toList(growable: false);
-
-    final groups = <DateTime, List<Transaction>>{};
-    for (final t in _visible) {
-      groups.putIfAbsent(dateOnly(t.date), () => []).add(t);
-    }
-    _days = [
-      for (final entry in groups.entries)
-        ActivityDay(
-          day: entry.key,
-          transactions: List.unmodifiable(entry.value),
-        ),
-    ]..sort((a, b) => b.day.compareTo(a.day));
+    _days = ActivityDay.group(_visible);
     _notify();
   }
 

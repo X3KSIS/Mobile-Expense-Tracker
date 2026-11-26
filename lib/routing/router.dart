@@ -25,6 +25,8 @@ import '../ui/profile/widgets/edit_profile_screen.dart';
 import '../ui/profile/widgets/profile_screen.dart';
 import '../ui/reports/view_models/reports_view_model.dart';
 import '../ui/reports/widgets/reports_screen.dart';
+import '../ui/search/view_models/search_view_model.dart';
+import '../ui/search/widgets/search_screen.dart';
 import '../ui/splash/view_models/splash_view_model.dart';
 import '../ui/splash/widgets/splash_screen.dart';
 import 'routes.dart';
@@ -106,6 +108,22 @@ GoRouter router(AuthRepository authRepository) {
             ),
           );
         },
+      ),
+      GoRoute(
+        path: Routes.search,
+        parentNavigatorKey: rootNavigatorKey,
+        // A plain fade, so the search box's hero flight is the one movement.
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          ChangeNotifierProvider(
+            create: (context) =>
+                SearchViewModel(transactionRepository: context.read()),
+            child: Builder(
+              builder: (context) =>
+                  SearchScreen(viewModel: context.read<SearchViewModel>()),
+            ),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.profile,

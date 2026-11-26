@@ -8,6 +8,7 @@ abstract final class Routes {
   static const String budgets = '/budgets';
   static const String reports = '/reports';
   static const String add = '/add';
+  static const String search = '/search';
   static const String profile = '/profile';
   static const String editProfileSegment = 'edit';
   static const String editProfile = '$profile/$editProfileSegment';

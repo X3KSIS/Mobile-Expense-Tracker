@@ -50,29 +50,6 @@ void main() {
       );
     });
 
-    test('searches title, category and note, ignoring case', () async {
-      final viewModel = ActivityViewModel(
-        transactionRepository: instantTransactionRepository(now: now),
-      );
-      addTearDown(viewModel.dispose);
-      await viewModel.load.execute();
-
-      viewModel.setQuery('  zesco ');
-      expect(
-        viewModel.days
-            .expand((d) => d.transactions)
-            .every((t) => t.title == 'ZESCO units'),
-        isTrue,
-      );
-
-      viewModel.setQuery('transport');
-      expect(viewModel.visibleCount, greaterThan(0));
-
-      viewModel.setQuery('nothing matches this');
-      expect(viewModel.days, isEmpty);
-      expect(viewModel.isEmpty, isFalse);
-    });
-
     test('reloads after a delete', () async {
       final repository = instantTransactionRepository(now: now);
       final viewModel = ActivityViewModel(transactionRepository: repository);

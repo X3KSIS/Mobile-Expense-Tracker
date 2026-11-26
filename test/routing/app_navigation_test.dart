@@ -155,7 +155,42 @@ void main() {
     expect(find.text('-ZMW 85.00'), findsOneWidget);
   });
 
-  testWidgets('Activity searches, filters and deletes', (tester) async {
+  testWidgets('Activity opens a full-screen search', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    await tester.tap(find.bySemanticsLabel('Activity'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Search transactions'));
+    await tester.pumpAndSettle();
+
+    // Only the search is on screen: no tabs, no totals.
+    expect(find.byType(FloatingNavBar), findsNothing);
+    expect(find.text('Money in'), findsNothing);
+    expect(find.text('POPULAR CATEGORIES'), findsOneWidget);
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+      isTrue,
+    );
+
+    await tester.enterText(find.byType(TextField), 'zesco');
+    await tester.pumpAndSettle();
+    expect(find.text('ZESCO units'), findsWidgets);
+    expect(find.text('Shoprite'), findsNothing);
+
+    // A suggestion fills the field.
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ActionChip, 'Groceries'));
+    await tester.pumpAndSettle();
+    expect(find.text('Shoprite'), findsWidgets);
+
+    await tester.tap(find.byTooltip('Close search'));
+    await tester.pumpAndSettle();
+    expect(find.text('Money in'), findsOneWidget);
+  });
+
+  testWidgets('Activity filters and deletes', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
 
@@ -164,13 +199,6 @@ void main() {
     expect(find.text('TODAY'), findsOneWidget);
     expect(find.text('Money in'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, 'zesco');
-    await tester.pumpAndSettle();
-    expect(find.text('ZESCO units'), findsWidgets);
-    expect(find.text('Shoprite'), findsNothing);
-
-    await tester.tap(find.byTooltip('Clear search'));
-    await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Income').last);
     await tester.pumpAndSettle();
     expect(find.text('Shoprite'), findsNothing);
