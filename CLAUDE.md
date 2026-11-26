@@ -111,8 +111,11 @@ The coral accent (#FF6B4A) is never used for small text or as the background beh
 Tokens live in `AppPalette` (`lib/ui/core/themes/colors.dart`), a `ThemeExtension` with `AppPalette.light` (the table above) and `AppPalette.dark` (deep navy surfaces, lighter text and status colours, a light "+" button). Widgets read the active theme through `context.colors`, `context.text`, `context.gradients` and `context.shadows`, never through constants, so a theme switch blends every colour. `AppTypography` holds sizes and weights only.
 
 - Every new colour gets a value in both palettes, and every text pairing keeps 4.5:1 in both.
-- Category colours are data; `CategoryTile` adjusts their lightness until the icon keeps 3:1 on the surface.
 - The theme preference (system, light, dark) lives in `SettingsRepository`. The Home header toggle morphs a sun into a moon (`SunMoonIcon`).
+
+### Icon tiles
+
+Category and wallet icons all use one style (`IconTile` in `lib/ui/core/ui/category_tile.dart`): an accentText outline icon on an accentSoft square, or white on accentStrong when selected. The icon, not a colour, tells categories apart. A category's stored colour is data for the API and is not used for its icon.
 
 ### Status
 

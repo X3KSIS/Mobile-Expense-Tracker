@@ -87,7 +87,7 @@ class _CategoryOption extends StatelessWidget {
                 ),
                 child: CategoryTile(
                   icon: category.icon,
-                  color: category.color,
+                  emphasized: selected,
                   size: Dimens.quickActionSize - 4,
                 ),
               ),

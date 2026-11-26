@@ -126,7 +126,6 @@ class _Summary extends StatelessWidget {
       children: [
         CategoryTile(
           icon: transaction.categoryIcon,
-          color: transaction.categoryColor,
           size: Dimens.quickActionSize + 4,
         ),
         const SizedBox(height: Dimens.gapM),

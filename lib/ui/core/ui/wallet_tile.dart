@@ -5,6 +5,7 @@ import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/motion.dart';
 import '../themes/theme.dart';
+import 'category_tile.dart';
 import 'pressable.dart';
 
 /// Outline icon for each kind of wallet.
@@ -21,7 +22,7 @@ String walletKindLabel(WalletKind kind) => switch (kind) {
   WalletKind.bank => 'Bank',
 };
 
-/// 44px rounded tile with a wallet kind's icon on a soft tint.
+/// 44px tile with a wallet kind's icon, in the shared coral style.
 class WalletIconTile extends StatelessWidget {
   const WalletIconTile({
     super.key,
@@ -33,23 +34,8 @@ class WalletIconTile extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final (fg, bg) = switch (kind) {
-      WalletKind.cash => (colors.success, colors.successSoft),
-      WalletKind.mobileMoney => (colors.warning, colors.warningSoft),
-      WalletKind.bank => (colors.textPrimary, colors.surfaceMuted),
-    };
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(Dimens.radiusIconTile),
-      ),
-      child: Icon(walletIcon(kind), size: Dimens.iconSize, color: fg),
-    );
-  }
+  Widget build(BuildContext context) =>
+      IconTile(icon: walletIcon(kind), size: size);
 }
 
 /// A row of wallet chips to pick one; the selected chip turns navy.

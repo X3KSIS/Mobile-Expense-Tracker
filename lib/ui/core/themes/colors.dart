@@ -1,5 +1,3 @@
-import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/material.dart';
 
 /// Colour tokens from the coral and navy design system (see CLAUDE.md), in
@@ -48,7 +46,6 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.accentShadow,
     required this.primaryGradientEnd,
     required this.headlineGradientEnd,
-    required this.softTintAlpha,
   });
 
   /// Scaffold.
@@ -142,9 +139,6 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color primaryGradientEnd;
   final Color headlineGradientEnd;
 
-  /// Opacity of soft category tiles and decorative shapes.
-  final double softTintAlpha;
-
   static const AppPalette light = AppPalette(
     background: Color(0xFFF7F7F8),
     surface: Color(0xFFFFFFFF),
@@ -189,7 +183,6 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentShadow: Color(0x47D2401F),
     primaryGradientEnd: Color(0xFFC8323A),
     headlineGradientEnd: Color(0xFF3D5A80),
-    softTintAlpha: 0.12,
   );
 
   /// Dark palette: deep navy surfaces, the same coral accent family, and
@@ -238,7 +231,6 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentShadow: Color(0x40D2401F),
     primaryGradientEnd: Color(0xFFC8323A),
     headlineGradientEnd: Color(0xFFB9CCE4),
-    softTintAlpha: 0.2,
   );
 
   @override
@@ -289,7 +281,6 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accentShadow: c(accentShadow, other.accentShadow),
       primaryGradientEnd: c(primaryGradientEnd, other.primaryGradientEnd),
       headlineGradientEnd: c(headlineGradientEnd, other.headlineGradientEnd),
-      softTintAlpha: lerpDouble(softTintAlpha, other.softTintAlpha, t)!,
     );
   }
 }

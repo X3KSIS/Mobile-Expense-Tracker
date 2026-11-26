@@ -104,7 +104,7 @@ class _Header extends StatelessWidget {
     final budget = progress.budget;
     return Row(
       children: [
-        CategoryTile(icon: budget.categoryIcon, color: budget.categoryColor),
+        CategoryTile(icon: budget.categoryIcon),
         const SizedBox(width: Dimens.gapM),
         Expanded(
           child: Column(

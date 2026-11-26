@@ -40,10 +40,7 @@ class TransactionRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              CategoryTile(
-                icon: transaction.categoryIcon,
-                color: transaction.categoryColor,
-              ),
+              CategoryTile(icon: transaction.categoryIcon),
               const SizedBox(width: Dimens.gapM),
               Expanded(
                 child: Column(

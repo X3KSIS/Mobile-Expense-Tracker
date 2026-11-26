@@ -55,7 +55,7 @@ class _CategoryBar extends StatelessWidget {
       excludeSemantics: true,
       child: Row(
         children: [
-          CategoryTile(icon: category.icon, color: category.color),
+          CategoryTile(icon: category.icon),
           const SizedBox(width: Dimens.gapM),
           Expanded(
             child: Column(
