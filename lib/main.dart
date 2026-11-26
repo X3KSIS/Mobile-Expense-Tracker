@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'config/dependencies.dart';
 import 'data/repositories/auth/auth_repository.dart';
+import 'data/repositories/detected_payment/detected_payment_repository.dart';
 import 'data/repositories/settings/settings_repository.dart';
 import 'domain/models/theme_preference.dart';
 import 'routing/router.dart';
@@ -24,11 +25,31 @@ class ExpenseTrackApp extends StatefulWidget {
   State<ExpenseTrackApp> createState() => _ExpenseTrackAppState();
 }
 
-class _ExpenseTrackAppState extends State<ExpenseTrackApp> {
+class _ExpenseTrackAppState extends State<ExpenseTrackApp>
+    with WidgetsBindingObserver {
   late final GoRouter _router = router(context.read<AuthRepository>());
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshDetectedPayments();
+  }
+
+  /// Payment notifications only arrive while the app runs, so on start
+  /// and every return to the foreground pick up those still in the tray
+  /// (and notice if notification access was just turned on or off).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refreshDetectedPayments();
+  }
+
+  void _refreshDetectedPayments() =>
+      context.read<DetectedPaymentRepository>().refresh();
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _router.dispose();
     super.dispose();
   }

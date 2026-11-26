@@ -114,6 +114,14 @@ void main() {
     expect(m.categoryHint, 'Salary');
   });
 
+  test('recognises providers run together in the sender name', () {
+    expect(
+      parse('AirtelMoney. Money received. Amt: K50.00').provider,
+      'Airtel Money',
+    );
+    expect(parse('MoMoPay: You have paid ZMW 20.00 to X').provider, 'MTN MoMo');
+  });
+
   test('ignores text that is not a money message', () {
     expect(MoneyMessageParser.parse(''), isNull);
     expect(MoneyMessageParser.parse('See you at 5, bring K'), isNull);

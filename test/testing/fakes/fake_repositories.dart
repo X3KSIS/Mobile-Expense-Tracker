@@ -4,6 +4,8 @@ import 'package:flutter_expensetracker/data/repositories/budget/budget_repositor
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/category/category_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/category/category_repository_local_fake.dart';
+import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
@@ -34,6 +36,15 @@ AuthRepositoryLocalFake instantAuthRepository({
 }) =>
     AuthRepositoryLocalFake(delay: Duration.zero, signedIn: signedIn, now: now);
 
+/// Payment messages the fake detected-payment repository offers once
+/// notification access is turned on.
+const List<String> sampleMessages = [
+  'MoMo: You have paid ZMW 60.00 to CHICKEN INN LEVY. Fee ZMW 1.00. '
+      'Txn ID: 700001.',
+  'AirtelMoney. Money received. Amt: K300.00 From: 0971234567 '
+      'MARY PHIRI. TID: MP700002.',
+];
+
 /// App-level providers backed by instant fakes, for whole-app tests.
 List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ChangeNotifierProvider<AuthRepository>(
@@ -50,6 +61,9 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ),
   ChangeNotifierProvider<WalletRepository>(
     create: (_) => instantWalletRepository(),
+  ),
+  ChangeNotifierProvider<DetectedPaymentRepository>(
+    create: (_) => DetectedPaymentRepositoryLocalFake(incoming: sampleMessages),
   ),
   Provider<CategoryRepository>(create: (_) => instantCategoryRepository()),
 ];

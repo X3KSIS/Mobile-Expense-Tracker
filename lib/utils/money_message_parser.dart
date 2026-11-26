@@ -100,10 +100,12 @@ abstract final class MoneyMessageParser {
     return result;
   }
 
+  // Mobile money names have no trailing word boundary: SMS senders run
+  // them together, e.g. "AirtelMoney", "MoMoPay".
   static const List<(String, String, WalletKind)> _providers = [
-    (r'\bMTN\b|\bMoMo\b', 'MTN MoMo', WalletKind.mobileMoney),
-    (r'\bAirtel\b', 'Airtel Money', WalletKind.mobileMoney),
-    (r'\bZamtel\b|\bZamkwacha\b', 'Zamtel Kwacha', WalletKind.mobileMoney),
+    (r'\bMTN|\bMoMo', 'MTN MoMo', WalletKind.mobileMoney),
+    (r'\bAirtel', 'Airtel Money', WalletKind.mobileMoney),
+    (r'\bZamtel|\bZamkwacha', 'Zamtel Kwacha', WalletKind.mobileMoney),
     (r'\bZanaco\b', 'Zanaco', WalletKind.bank),
     (r'\bFNB\b', 'FNB', WalletKind.bank),
     (r'\bStanbic\b', 'Stanbic', WalletKind.bank),

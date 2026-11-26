@@ -6,6 +6,8 @@ import '../data/repositories/auth/auth_repository_local_fake.dart';
 import '../data/repositories/budget/budget_repository.dart';
 import '../data/repositories/budget/budget_repository_local_fake.dart';
 import '../data/repositories/category/category_repository.dart';
+import '../data/repositories/detected_payment/detected_payment_repository.dart';
+import '../data/repositories/detected_payment/detected_payment_repository_notifications.dart';
 import '../data/repositories/category/category_repository_local_fake.dart';
 import '../data/repositories/settings/settings_repository.dart';
 import '../data/repositories/settings/settings_repository_local_fake.dart';
@@ -35,5 +37,9 @@ List<SingleChildWidget> get providersLocal => [
   ),
   ChangeNotifierProvider<WalletRepository>(
     create: (_) => WalletRepositoryLocalFake(),
+  ),
+  // Real already: reads the phone's notifications (Android only).
+  ChangeNotifierProvider<DetectedPaymentRepository>(
+    create: (_) => DetectedPaymentRepositoryNotifications(),
   ),
 ];
