@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../domain/models/theme_preference.dart';
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/ui/expandable_section.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/payday_picker.dart';
 import '../../core/ui/skeleton_screens.dart';
@@ -12,6 +13,7 @@ import '../../core/ui/slow_refresh.dart';
 import '../view_models/home_view_model.dart';
 import 'balance_card.dart';
 import 'budget_alert_card.dart';
+import 'detected_payments_banner.dart';
 import 'home_error_view.dart';
 import 'home_header.dart';
 import 'quick_actions.dart';
@@ -138,6 +140,16 @@ class _HomeContent extends StatelessWidget {
               MediaQuery.platformBrightnessOf(context) == Brightness.dark,
           },
           onDarkModeChanged: viewModel.setDarkMode,
+        ),
+        ExpandableSection(
+          expanded: viewModel.detectedPaymentCount > 0,
+          child: Padding(
+            padding: const EdgeInsets.only(top: Dimens.gapL),
+            child: DetectedPaymentsBanner(
+              count: viewModel.detectedPaymentCount,
+              onReview: () => context.push(Routes.detectedPayments),
+            ),
+          ),
         ),
         const SizedBox(height: Dimens.sectionGap),
         BalanceCard(

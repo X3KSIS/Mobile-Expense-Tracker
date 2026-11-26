@@ -10,6 +10,7 @@ abstract final class Routes {
   static const String add = '/add';
   static const String search = '/search';
   static const String wallets = '/wallets';
+  static const String detectedPayments = '/detected';
   static const String profile = '/profile';
   static const String editProfileSegment = 'edit';
   static const String editProfile = '$profile/$editProfileSegment';

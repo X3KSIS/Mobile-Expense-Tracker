@@ -29,6 +29,7 @@ class AddTransactionViewModel extends ChangeNotifier {
     required this._walletRepository,
     TransactionType initialType = TransactionType.expense,
     this._initialCategoryId,
+    this._initialMessage,
     DateTime Function()? clock,
   }) : _type = initialType,
        _clock = clock ?? DateTime.now {
@@ -52,6 +53,8 @@ class AddTransactionViewModel extends ChangeNotifier {
   List<Wallet> _wallets = const [];
   String? _selectedWalletId;
   double? _pendingFee;
+  MoneyMessage? _initialMessage;
+  MessagePrefill? _initialPrefill;
   late DateTime _date;
   bool _disposed = false;
 
@@ -93,6 +96,15 @@ class AddTransactionViewModel extends ChangeNotifier {
     _type = type;
     _selectedCategory = _firstCategory();
     _notify();
+  }
+
+  /// The text fields to fill from the message this form was opened with
+  /// (e.g. a payment read from a notification), once. Null after that,
+  /// or when there was none.
+  MessagePrefill? takeInitialPrefill() {
+    final prefill = _initialPrefill;
+    _initialPrefill = null;
+    return prefill;
   }
 
   /// Reads a mobile money or bank SMS; null when it isn't one.
@@ -200,6 +212,11 @@ class AddTransactionViewModel extends ChangeNotifier {
           _selectedCategory = initial.first;
         } else {
           _selectedCategory = _firstCategory();
+        }
+        final message = _initialMessage;
+        if (message != null) {
+          _initialMessage = null;
+          _initialPrefill = applyMessage(message);
         }
         _notify();
         return const Result.ok(null);

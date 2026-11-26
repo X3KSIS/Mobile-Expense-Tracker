@@ -41,6 +41,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void initState() {
     super.initState();
     widget.viewModel.save.addListener(_onSaveChanged);
+    widget.viewModel.addListener(_fillInitial);
+  }
+
+  /// Fills the text fields when the form was opened from a message.
+  void _fillInitial() {
+    final prefill = widget.viewModel.takeInitialPrefill();
+    if (prefill == null) return;
+    _amount.text = prefill.amount;
+    _title.text = prefill.title;
+    _note.text = prefill.note;
   }
 
   @override
@@ -55,6 +65,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   void dispose() {
     widget.viewModel.save.removeListener(_onSaveChanged);
+    widget.viewModel.removeListener(_fillInitial);
     _amount.dispose();
     _title.dispose();
     _note.dispose();
@@ -67,7 +78,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final messenger = ScaffoldMessenger.of(context);
     if (save.completed) {
       final kind = widget.viewModel.isExpense ? 'Expense' : 'Income';
-      context.pop();
+      // true tells whoever opened the form that it was saved.
+      context.pop(true);
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text('$kind saved')));

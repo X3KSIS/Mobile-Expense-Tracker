@@ -1,3 +1,4 @@
+import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository_local_fake.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
@@ -28,6 +29,7 @@ void main() {
       authRepository: instantAuthRepository(signedIn: true),
       settingsRepository: SettingsRepositoryLocalFake(),
       walletRepository: instantWalletRepository(),
+      detectedPaymentRepository: DetectedPaymentRepositoryLocalFake(),
     );
     addTearDown(viewModel.dispose);
 

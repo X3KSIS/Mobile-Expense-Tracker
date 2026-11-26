@@ -164,6 +164,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           value: ProfileViewModel.currency,
         ),
         ProfileMenuItem(
+          icon: Icons.sms_outlined,
+          title: 'Payment messages',
+          subtitle: 'Add MoMo and bank payments from notifications',
+          onTap: () => context.push(Routes.detectedPayments),
+        ),
+        ProfileMenuItem(
           icon: Icons.event_outlined,
           title: 'Payday',
           subtitle: widget.viewModel.paydayLabel,

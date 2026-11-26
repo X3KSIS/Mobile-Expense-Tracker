@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
+import '../domain/models/money_message.dart';
 import '../domain/models/transaction.dart';
 import '../ui/activity/view_models/activity_view_model.dart';
 import '../ui/activity/widgets/activity_screen.dart';
@@ -14,6 +15,8 @@ import '../ui/auth/widgets/login_screen.dart';
 import '../ui/auth/widgets/sign_up_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
+import '../ui/detected_payments/view_models/detected_payments_view_model.dart';
+import '../ui/detected_payments/widgets/detected_payments_screen.dart';
 import '../ui/core/themes/motion.dart';
 import '../ui/core/ui/animated_branch_container.dart';
 import '../ui/core/ui/app_shell.dart';
@@ -103,6 +106,10 @@ GoRouter router(AuthRepository authRepository) {
                   ? TransactionType.income
                   : TransactionType.expense,
               initialCategoryId: query[Routes.categoryParam],
+              initialMessage: switch (state.extra) {
+                final MoneyMessage message => message,
+                _ => null,
+              },
             ),
             child: Builder(
               builder: (context) => AddTransactionScreen(
@@ -124,6 +131,19 @@ GoRouter router(AuthRepository authRepository) {
             child: Builder(
               builder: (context) =>
                   SearchScreen(viewModel: context.read<SearchViewModel>()),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.detectedPayments,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              DetectedPaymentsViewModel(repository: context.read()),
+          child: Builder(
+            builder: (context) => DetectedPaymentsScreen(
+              viewModel: context.read<DetectedPaymentsViewModel>(),
             ),
           ),
         ),
@@ -252,6 +272,7 @@ StatefulShellRoute _shell() => StatefulShellRoute(
               authRepository: context.read(),
               settingsRepository: context.read(),
               walletRepository: context.read(),
+              detectedPaymentRepository: context.read(),
             ),
             child: Builder(
               builder: (context) =>

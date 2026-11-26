@@ -1,3 +1,4 @@
+import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/ui/home/view_models/home_view_model.dart';
@@ -14,6 +15,7 @@ void main() {
       authRepository: instantAuthRepository(signedIn: true),
       settingsRepository: SettingsRepositoryLocalFake(),
       walletRepository: instantWalletRepository(),
+      detectedPaymentRepository: DetectedPaymentRepositoryLocalFake(),
     );
     addTearDown(viewModel.dispose);
     return viewModel;
@@ -127,6 +129,7 @@ void main() {
         authRepository: instantAuthRepository(signedIn: true),
         settingsRepository: settings,
         walletRepository: instantWalletRepository(),
+        detectedPaymentRepository: DetectedPaymentRepositoryLocalFake(),
       );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();
@@ -176,6 +179,7 @@ void main() {
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
         walletRepository: instantWalletRepository(),
+        detectedPaymentRepository: DetectedPaymentRepositoryLocalFake(),
       );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();

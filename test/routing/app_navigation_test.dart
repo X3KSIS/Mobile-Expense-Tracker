@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
+import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository_local_fake.dart';
 import 'package:flutter_expensetracker/main.dart';
 import 'package:flutter_expensetracker/ui/core/ui/floating_nav_bar.dart';
 import 'package:flutter_expensetracker/ui/core/ui/labeled_text_field.dart';
@@ -358,6 +360,71 @@ void main() {
     await scrollTo(tester, find.text('Hungry Lion Cairo Road'));
     expect(find.text('Hungry Lion Cairo Road'), findsOneWidget);
     expect(find.text('Charge: Hungry Lion Cairo Road'), findsOneWidget);
+  });
+
+  testWidgets('payments from notifications are reviewed, added or dismissed', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    expect(find.textContaining('from your messages'), findsNothing);
+
+    // Turn on access from Profile.
+    await tester.tap(find.bySemanticsLabel(RegExp('^Profile')));
+    await tester.pumpAndSettle();
+    await scrollTo(tester, find.text('Payment messages'));
+    await tester.tap(find.text('Payment messages'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add payments without typing'), findsOneWidget);
+    await tester.tap(find.text('Allow notification access'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('2 waiting. Nothing is saved until you add it.'),
+      findsOneWidget,
+    );
+
+    // Add opens the form already filled in.
+    await tester.tap(find.widgetWithText(FilledButton, 'Add').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Chicken Inn Levy'), findsOneWidget);
+    await scrollTo(tester, find.text('Save expense'));
+    await tester.tap(find.text('Save expense'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('1 waiting. Nothing is saved until you add it.'),
+      findsOneWidget,
+    );
+
+    // Dismiss the other, then Home has nothing waiting.
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Dismiss'));
+    await tester.pumpAndSettle();
+    expect(find.text("You're all caught up"), findsOneWidget);
+  });
+
+  testWidgets('Home shows a banner when payments are waiting', (tester) async {
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ...instantAppProviders(signedIn: true),
+          ChangeNotifierProvider<DetectedPaymentRepository>(
+            create: (_) => DetectedPaymentRepositoryLocalFake(
+              enabled: true,
+              incoming: sampleMessages,
+            ),
+          ),
+        ],
+        child: const ExpenseTrackApp(),
+      ),
+    );
+    await finishSplash(tester);
+
+    expect(find.text('2 payments from your messages'), findsOneWidget);
+    await tester.tap(find.text('2 payments from your messages'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chicken Inn Levy'), findsOneWidget);
   });
 
   testWidgets('Reports switches month and shows a day total', (tester) async {

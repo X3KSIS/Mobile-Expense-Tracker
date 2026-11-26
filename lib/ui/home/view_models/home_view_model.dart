@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth/auth_repository.dart';
 import '../../../data/repositories/budget/budget_repository.dart';
+import '../../../data/repositories/detected_payment/detected_payment_repository.dart';
 import '../../../data/repositories/settings/settings_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../data/repositories/wallet/wallet_repository.dart';
@@ -26,11 +27,13 @@ class HomeViewModel extends ChangeNotifier {
     required this._authRepository,
     required this._settingsRepository,
     required this._walletRepository,
+    required this._detectedPaymentRepository,
     this.recentLimit = 5,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
     _authRepository.addListener(_onHeaderChanged);
     _settingsRepository.addListener(_onHeaderChanged);
+    _detectedPaymentRepository.addListener(_onHeaderChanged);
     _transactionRepository.addListener(_onDataChanged);
     _budgetRepository.addListener(_onDataChanged);
     _walletRepository.addListener(_onDataChanged);
@@ -45,6 +48,7 @@ class HomeViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
   final SettingsRepository _settingsRepository;
   final WalletRepository _walletRepository;
+  final DetectedPaymentRepository _detectedPaymentRepository;
 
   /// How many recent transactions to show.
   final int recentLimit;
@@ -98,6 +102,9 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<Transaction> get recentTransactions => _recentTransactions;
+
+  /// Payments read from notifications, waiting to be added.
+  int get detectedPaymentCount => _detectedPaymentRepository.pending.length;
 
   /// Each wallet with its balance.
   List<WalletBalance> get wallets => _wallets;
@@ -188,6 +195,7 @@ class HomeViewModel extends ChangeNotifier {
     _disposed = true;
     _authRepository.removeListener(_onHeaderChanged);
     _settingsRepository.removeListener(_onHeaderChanged);
+    _detectedPaymentRepository.removeListener(_onHeaderChanged);
     _transactionRepository.removeListener(_onDataChanged);
     _budgetRepository.removeListener(_onDataChanged);
     _walletRepository.removeListener(_onDataChanged);
