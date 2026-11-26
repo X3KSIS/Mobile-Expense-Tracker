@@ -4,7 +4,7 @@ import '../themes/motion.dart';
 
 /// Reveals [child] by growing from zero height when [expanded], and folds
 /// it away again when not, over [AppMotion.expand] with an ease-out curve.
-/// The content fades with the height so it never appears clipped mid-way.
+/// The content fades ahead of the height so it never appears squashed.
 ///
 /// The child is only built while it is at least partly visible.
 class ExpandableSection extends StatelessWidget {
@@ -30,7 +30,10 @@ class ExpandableSection extends StatelessWidget {
           child: Align(
             alignment: Alignment.topCenter,
             heightFactor: t,
-            child: Opacity(opacity: t, child: child),
+            // Content fades faster than the height moves: it is nearly gone
+            // before a fold gets short, and appears once an unfold has
+            // room, so folding sections never show a squashed stack.
+            child: Opacity(opacity: t * t * t, child: child),
           ),
         );
       },

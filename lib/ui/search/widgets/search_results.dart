@@ -38,10 +38,12 @@ class SearchResults extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Dimens.gapM),
-        for (final day in days) ...[
-          ActivityDaySection(day: day, onTransactionTap: onTransactionTap),
-          const SizedBox(height: Dimens.sectionGap),
-        ],
+        for (final day in days)
+          ActivityDaySection(
+            key: ValueKey(day.day),
+            day: day,
+            onTransactionTap: onTransactionTap,
+          ),
       ],
     );
   }

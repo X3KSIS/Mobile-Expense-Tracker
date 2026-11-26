@@ -57,11 +57,24 @@ class ActivityViewModel extends ChangeNotifier {
   List<Transaction> _all = const [];
   List<Transaction> _visible = const [];
   List<ActivityDay> _days = const [];
+  List<ActivityDay> _allDays = const [];
   ActivityFilter _filter = ActivityFilter.all;
   bool _loaded = false;
   bool _disposed = false;
 
   ActivityFilter get filter => _filter;
+
+  /// Every transaction grouped by day, whatever the filter. The list shows
+  /// these and folds away the ones [isVisible] rejects, so changing the
+  /// filter animates row by row instead of swapping the whole list.
+  List<ActivityDay> get allDays => _allDays;
+
+  /// Whether [transaction] matches the current filter.
+  bool isVisible(Transaction transaction) => switch (_filter) {
+    ActivityFilter.all => true,
+    ActivityFilter.expenses => !transaction.isIncome,
+    ActivityFilter.income => transaction.isIncome,
+  };
 
   /// Transactions matching the filter, grouped by day.
   List<ActivityDay> get days => _days;
@@ -84,6 +97,9 @@ class ActivityViewModel extends ChangeNotifier {
   /// True when there are no transactions at all (not just no matches).
   bool get isEmpty => _loaded && _all.isEmpty;
 
+  /// True when there are transactions but none match the filter.
+  bool get hasNoMatches => _loaded && _all.isNotEmpty && _visible.isEmpty;
+
   void setFilter(ActivityFilter filter) {
     if (filter == _filter) return;
     _filter = filter;
@@ -99,6 +115,7 @@ class ActivityViewModel extends ChangeNotifier {
     switch (result) {
       case Ok(:final value):
         _all = value;
+        _allDays = ActivityDay.group(value);
         _loaded = true;
         _rebuild();
         return const Result.ok(null);
@@ -109,15 +126,7 @@ class ActivityViewModel extends ChangeNotifier {
   }
 
   void _rebuild() {
-    _visible = _all
-        .where(
-          (t) => switch (_filter) {
-            ActivityFilter.all => true,
-            ActivityFilter.expenses => !t.isIncome,
-            ActivityFilter.income => t.isIncome,
-          },
-        )
-        .toList(growable: false);
+    _visible = _all.where(isVisible).toList(growable: false);
     _days = ActivityDay.group(_visible);
     _notify();
   }

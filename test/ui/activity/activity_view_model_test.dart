@@ -50,6 +50,27 @@ void main() {
       );
     });
 
+    test('keeps every day so the list can fold rows in and out', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: instantTransactionRepository(now: now),
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+      final everything = viewModel.allDays.expand((d) => d.transactions);
+
+      viewModel.setFilter(ActivityFilter.income);
+      expect(viewModel.allDays.expand((d) => d.transactions), everything);
+      expect(
+        everything.where(viewModel.isVisible).every((t) => t.isIncome),
+        isTrue,
+      );
+      expect(
+        everything.where(viewModel.isVisible).length,
+        viewModel.visibleCount,
+      );
+      expect(viewModel.hasNoMatches, isFalse);
+    });
+
     test('reloads after a delete', () async {
       final repository = instantTransactionRepository(now: now);
       final viewModel = ActivityViewModel(transactionRepository: repository);

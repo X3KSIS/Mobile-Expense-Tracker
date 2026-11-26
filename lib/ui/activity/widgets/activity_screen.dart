@@ -6,6 +6,7 @@ import '../../../routing/routes.dart';
 import '../../../utils/currency.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/ui/animated_number.dart';
 import '../../core/ui/empty_state.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/search_box.dart';
@@ -99,11 +100,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
                         const SizedBox(height: Dimens.sectionGap),
                         FadeSwitcher(
                           child: Column(
+                            // The filter is not part of the key: changing it
+                            // folds rows in and out rather than swapping
+                            // the whole list.
                             key: ValueKey((
-                              viewModel.filter,
                               viewModel.hasError,
                               viewModel.isEmpty,
-                              viewModel.days.isEmpty,
+                              viewModel.hasNoMatches,
                             )),
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: _body(viewModel),
@@ -141,20 +144,23 @@ class _ActivityScreenState extends State<ActivityScreen> {
         ),
       ];
     }
-    if (viewModel.days.isEmpty) {
+    if (viewModel.hasNoMatches) {
       return const [
         EmptyState(
-          icon: Icons.search_off_rounded,
-          title: 'No matches',
-          message: 'Try a different search or filter.',
+          icon: Icons.filter_list_off_rounded,
+          title: 'Nothing here',
+          message: 'No transactions match this filter.',
         ),
       ];
     }
     return [
-      for (final day in viewModel.days) ...[
-        ActivityDaySection(day: day, onTransactionTap: _openDetails),
-        const SizedBox(height: Dimens.sectionGap),
-      ],
+      for (final day in viewModel.allDays)
+        ActivityDaySection(
+          key: ValueKey(day.day),
+          day: day,
+          isVisible: viewModel.isVisible,
+          onTransactionTap: _openDetails,
+        ),
     ];
   }
 }
@@ -170,9 +176,15 @@ class _ActivityHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TabHeader(
-          title: 'Activity',
-          subtitle: '$count transaction${count == 1 ? '' : 's'}',
+        AnimatedNumber(
+          value: count.toDouble(),
+          builder: (context, value) {
+            final shown = value.round();
+            return TabHeader(
+              title: 'Activity',
+              subtitle: '$shown transaction${shown == 1 ? '' : 's'}',
+            );
+          },
         ),
         const SizedBox(height: Dimens.gapL),
         SearchLauncher(
@@ -193,19 +205,25 @@ class _ActivityHeader extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: StatTile(
-                label: 'Money in',
-                value: formatZmw(viewModel.totalIn),
-                icon: Icons.south_west_rounded,
-                valueColor: context.colors.success,
+              child: AnimatedNumber(
+                value: viewModel.totalIn,
+                builder: (context, value) => StatTile(
+                  label: 'Money in',
+                  value: formatZmw(value),
+                  icon: Icons.south_west_rounded,
+                  valueColor: context.colors.success,
+                ),
               ),
             ),
             const SizedBox(width: Dimens.gapM),
             Expanded(
-              child: StatTile(
-                label: 'Money out',
-                value: formatZmw(viewModel.totalOut),
-                icon: Icons.north_east_rounded,
+              child: AnimatedNumber(
+                value: viewModel.totalOut,
+                builder: (context, value) => StatTile(
+                  label: 'Money out',
+                  value: formatZmw(value),
+                  icon: Icons.north_east_rounded,
+                ),
               ),
             ),
           ],

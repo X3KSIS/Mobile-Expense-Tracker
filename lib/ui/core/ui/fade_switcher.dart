@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../themes/motion.dart';
 
 /// Fades through (old content out, then new content in with a slight
-/// upward drift) whenever [child] changes
+/// 8px upward drift) whenever [child] changes
 /// identity, and smoothly resizes to the new child's height. Give the child
 /// a [Key] that changes when the content should be treated as new, e.g.
 /// `ValueKey(month)`.
@@ -15,6 +15,9 @@ class FadeSwitcher extends StatelessWidget {
     this.alignment = Alignment.topCenter,
     this.animateSize = true,
   });
+
+  /// How far new content drifts up as it fades in.
+  static const double _drift = 8;
 
   final Widget child;
   final Duration duration;
@@ -37,12 +40,15 @@ class FadeSwitcher extends StatelessWidget {
       ),
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.02),
-            end: Offset.zero,
-          ).animate(animation),
+        // A fixed drift in pixels: a fraction of the child's height would
+        // throw tall content (a long list) hundreds of pixels.
+        child: AnimatedBuilder(
+          animation: animation,
           child: child,
+          builder: (context, child) => Transform.translate(
+            offset: Offset(0, _drift * (1 - animation.value)),
+            child: child,
+          ),
         ),
       ),
       child: child,
