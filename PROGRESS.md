@@ -2,6 +2,14 @@
 
 Running log of what has been built and what comes next. Newest session first.
 
+## Session 5: 26 Nov 2026 (continued)
+
+### Done
+
+- **One icon colour:** category and wallet tiles share `IconTile`: a coral (accentText) outline icon on accentSoft, or white on accentStrong for the selected category in the picker. Stored category colours remain data only.
+- **History:** the Activity tab shows the last 7 days (filter, totals and search kept) and ends with a See all activity card. The new History page (`/history`) groups every transaction by month (with each month's money in and out) and day, with the same All / Expenses / Income filter folding rows and months in place.
+- **Quality:** `flutter analyze` clean; 165 tests pass; screens rendered in light and dark and reviewed.
+
 ## Session 4: 26 Nov 2026 (continued)
 
 **Scope:** the three features that set the app apart for Zambian users: wallets, payday-to-payday budgeting and reading mobile money messages. No new packages.
