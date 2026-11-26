@@ -1,3 +1,4 @@
+import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/ui/profile/view_models/edit_profile_view_model.dart';
 import 'package:flutter_expensetracker/ui/profile/view_models/profile_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +12,10 @@ void main() {
         signedIn: true,
         now: DateTime(2026, 11, 25),
       );
-      final viewModel = ProfileViewModel(authRepository: auth);
+      final viewModel = ProfileViewModel(
+        authRepository: auth,
+        settingsRepository: SettingsRepositoryLocalFake(),
+      );
       addTearDown(viewModel.dispose);
 
       expect(viewModel.user!.name, 'Paul Mubanga');
@@ -20,7 +24,10 @@ void main() {
 
     test('notifies when the profile changes', () async {
       final auth = instantAuthRepository(signedIn: true);
-      final viewModel = ProfileViewModel(authRepository: auth);
+      final viewModel = ProfileViewModel(
+        authRepository: auth,
+        settingsRepository: SettingsRepositoryLocalFake(),
+      );
       addTearDown(viewModel.dispose);
       var notified = 0;
       viewModel.addListener(() => notified++);
@@ -33,7 +40,10 @@ void main() {
 
     test('signOut signs the user out', () async {
       final auth = instantAuthRepository(signedIn: true);
-      final viewModel = ProfileViewModel(authRepository: auth);
+      final viewModel = ProfileViewModel(
+        authRepository: auth,
+        settingsRepository: SettingsRepositoryLocalFake(),
+      );
       addTearDown(viewModel.dispose);
 
       await viewModel.signOut.execute();
@@ -45,11 +55,31 @@ void main() {
 
     test('stops listening after dispose', () async {
       final auth = instantAuthRepository(signedIn: true);
-      final viewModel = ProfileViewModel(authRepository: auth);
+      final viewModel = ProfileViewModel(
+        authRepository: auth,
+        settingsRepository: SettingsRepositoryLocalFake(),
+      );
       viewModel.dispose();
 
       // Would throw if the disposed view model were still listening.
       await auth.updateProfile(name: 'Someone Else', phone: '');
+    });
+  });
+
+  group('ProfileViewModel payday', () {
+    test('labels the payday and saves changes', () async {
+      final settings = SettingsRepositoryLocalFake();
+      final viewModel = ProfileViewModel(
+        authRepository: instantAuthRepository(signedIn: true),
+        settingsRepository: settings,
+      );
+      addTearDown(viewModel.dispose);
+
+      expect(viewModel.paydayLabel, '1st (calendar months)');
+      viewModel.setPayday(22);
+      await Future<void>.delayed(Duration.zero);
+      expect(settings.payday, 22);
+      expect(viewModel.paydayLabel, '22nd of the month');
     });
   });
 

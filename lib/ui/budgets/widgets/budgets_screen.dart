@@ -205,11 +205,14 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final days = viewModel.daysLeft;
+    final cycle = viewModel.cycle;
+    final lastDay = cycle.end.subtract(const Duration(days: 1));
+    final period = cycle.isCalendarMonth
+        ? formatMonth(cycle.start)
+        : '${formatDayMonth(cycle.start)} to ${formatDayMonth(lastDay)}';
     return TabHeader(
       title: 'Budgets',
-      subtitle:
-          '${formatMonth(viewModel.month)} · $days day${days == 1 ? '' : 's'} '
-          'left',
+      subtitle: '$period · $days day${days == 1 ? '' : 's'} left',
       trailing: HeaderIconButton(
         icon: Icons.add_rounded,
         tooltip: 'Add budget',

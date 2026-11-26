@@ -6,6 +6,7 @@ import '../../core/themes/dimens.dart';
 import '../../core/ui/app_logo.dart';
 import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/screen_header.dart';
+import '../../core/ui/payday_picker.dart';
 import '../view_models/profile_view_model.dart';
 import 'profile_card.dart';
 import 'profile_menu.dart';
@@ -60,6 +61,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _comingSoon(String feature) => _showSnackBar('$feature is coming soon');
 
   void _editProfile() => context.push(Routes.editProfile);
+
+  Future<void> _pickPayday() async {
+    final day = await showPaydayPicker(
+      context,
+      current: widget.viewModel.payday,
+    );
+    if (day != null) widget.viewModel.setPayday(day);
+  }
 
   void _showAbout() {
     showAboutDialog(
@@ -153,6 +162,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           icon: Icons.payments_outlined,
           title: 'Currency',
           value: ProfileViewModel.currency,
+        ),
+        ProfileMenuItem(
+          icon: Icons.event_outlined,
+          title: 'Payday',
+          subtitle: widget.viewModel.paydayLabel,
+          onTap: _pickPayday,
         ),
         ProfileMenuItem(
           icon: Icons.category_outlined,

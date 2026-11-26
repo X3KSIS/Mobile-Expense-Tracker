@@ -147,7 +147,10 @@ GoRouter router(AuthRepository authRepository) {
         path: Routes.profile,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => ProfileViewModel(authRepository: context.read()),
+          create: (context) => ProfileViewModel(
+            authRepository: context.read(),
+            settingsRepository: context.read(),
+          ),
           child: Builder(
             builder: (context) =>
                 ProfileScreen(viewModel: context.read<ProfileViewModel>()),
@@ -282,6 +285,7 @@ StatefulShellRoute _shell() => StatefulShellRoute(
               budgetRepository: context.read(),
               transactionRepository: context.read(),
               categoryRepository: context.read(),
+              settingsRepository: context.read(),
             ),
             child: Builder(
               builder: (context) =>

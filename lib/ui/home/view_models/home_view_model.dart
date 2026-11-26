@@ -5,9 +5,12 @@ import '../../../data/repositories/budget/budget_repository.dart';
 import '../../../data/repositories/settings/settings_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../data/repositories/wallet/wallet_repository.dart';
+import '../../../domain/models/budget.dart';
 import '../../../domain/models/budget_alert.dart';
 import '../../../domain/models/budget_progress.dart';
+import '../../../domain/models/cycle_forecast.dart';
 import '../../../domain/models/monthly_summary.dart';
+import '../../../domain/models/pay_cycle.dart';
 import '../../../domain/models/theme_preference.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../domain/models/wallet_balances.dart';
@@ -53,7 +56,8 @@ class HomeViewModel extends ChangeNotifier {
   late final Command1<void, String> delete;
 
   MonthlySummary? _summary;
-  BudgetAlert? _budgetAlert;
+  List<Budget> _budgets = const [];
+  List<Transaction> _all = const [];
   List<Transaction> _recentTransactions = const [];
   List<WalletBalance> _wallets = const [];
   bool _hideAmounts = false;
@@ -61,8 +65,37 @@ class HomeViewModel extends ChangeNotifier {
 
   MonthlySummary? get summary => _summary;
 
-  /// The budget closest to its limit, or null when none needs attention.
-  BudgetAlert? get budgetAlert => _budgetAlert;
+  /// The current pay cycle (a calendar month when payday is the 1st).
+  PayCycle get cycle =>
+      PayCycle.containing(_clock(), _settingsRepository.payday);
+
+  /// Days to the next payday, counting today.
+  int get daysToPayday => cycle.daysLeft(_clock());
+
+  /// Day of the month pay arrives.
+  int get payday => _settingsRepository.payday;
+
+  void setPayday(int day) => _settingsRepository.setPayday(day);
+
+  /// The budget closest to its limit this pay cycle, or null when none
+  /// needs attention.
+  BudgetAlert? get budgetAlert {
+    final c = cycle;
+    final progress = BudgetProgress.forPeriod(_budgets, _all, c.start, c.end);
+    return BudgetProgress.topAlert(progress)?.toAlert();
+  }
+
+  /// What can be spent each day until payday, and whether the money lasts.
+  /// Null until wallets have loaded.
+  CycleForecast? get forecast {
+    if (_wallets.isEmpty) return null;
+    return CycleForecast.compute(
+      cycle: cycle,
+      now: _clock(),
+      balance: WalletBalance.total(_wallets),
+      transactions: _all,
+    );
+  }
 
   List<Transaction> get recentTransactions => _recentTransactions;
 
@@ -131,9 +164,9 @@ class HomeViewModel extends ChangeNotifier {
           Ok(value: final wallets),
           Ok(value: final transfers),
         ):
-          final progress = BudgetProgress.forMonth(budgets, all, _clock());
           _summary = summary;
-          _budgetAlert = BudgetProgress.topAlert(progress)?.toAlert();
+          _budgets = budgets;
+          _all = all;
           _recentTransactions = recent;
           _wallets = WalletBalance.compute(wallets, all, transfers);
           return const Result.ok(null);

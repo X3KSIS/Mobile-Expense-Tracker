@@ -119,6 +119,34 @@ void main() {
       expect(viewModel.recentTransactions, hasLength(5));
     });
 
+    test('forecasts daily spending to payday from the wallets', () async {
+      final settings = SettingsRepositoryLocalFake();
+      final viewModel = HomeViewModel(
+        transactionRepository: instantTransactionRepository(),
+        budgetRepository: instantBudgetRepository(),
+        authRepository: instantAuthRepository(signedIn: true),
+        settingsRepository: settings,
+        walletRepository: instantWalletRepository(),
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+
+      final forecast = viewModel.forecast!;
+      expect(forecast.cycle.isCalendarMonth, isTrue);
+      expect(
+        forecast.safePerDay,
+        closeTo(forecast.balance / viewModel.daysToPayday, 0.001),
+      );
+
+      var notified = false;
+      viewModel.addListener(() => notified = true);
+      viewModel.setPayday(25);
+      await Future<void>.delayed(Duration.zero);
+      expect(notified, isTrue);
+      expect(viewModel.payday, 25);
+      expect(viewModel.forecast!.cycle.start.day, 25);
+    });
+
     test('toggleHideAmounts flips the flag and notifies', () async {
       final viewModel = buildViewModel();
       await viewModel.load.execute();

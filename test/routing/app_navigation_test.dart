@@ -311,6 +311,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
 
+    await scrollTo(tester, find.text('MTN MoMo'));
     expect(find.text('MTN MoMo'), findsOneWidget);
     await tester.tap(find.text('Manage'));
     await tester.pumpAndSettle();
@@ -360,6 +361,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
 
+    await scrollTo(tester, find.bySemanticsLabel('Income'));
     await tester.tap(find.bySemanticsLabel('Income'));
     await tester.pumpAndSettle();
 

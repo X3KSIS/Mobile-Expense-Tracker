@@ -5,6 +5,7 @@ import '../../../domain/models/theme_preference.dart';
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/payday_picker.dart';
 import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/transaction_details_sheet.dart';
 import '../../core/ui/slow_refresh.dart';
@@ -15,6 +16,7 @@ import 'home_error_view.dart';
 import 'home_header.dart';
 import 'quick_actions.dart';
 import 'recent_activity.dart';
+import 'safe_to_spend_card.dart';
 import 'wallet_strip.dart';
 
 /// Dashboard: header, balance, budget alert, quick actions and recent
@@ -143,6 +145,22 @@ class _HomeContent extends StatelessWidget {
           hideAmounts: viewModel.hideAmounts,
           onToggleHideAmounts: viewModel.toggleHideAmounts,
         ),
+        if (viewModel.forecast case final forecast?) ...[
+          const SizedBox(height: Dimens.gapL),
+          SafeToSpendCard(
+            forecast: forecast,
+            payday: viewModel.payday,
+            daysLeft: viewModel.daysToPayday,
+            hideAmounts: viewModel.hideAmounts,
+            onChangePayday: () async {
+              final day = await showPaydayPicker(
+                context,
+                current: viewModel.payday,
+              );
+              if (day != null) viewModel.setPayday(day);
+            },
+          ),
+        ],
         FadeSwitcher(
           child: alert == null
               ? const SizedBox(width: double.infinity, key: ValueKey('none'))

@@ -51,3 +51,17 @@ DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
 /// The first day of [d]'s month.
 DateTime monthOf(DateTime d) => DateTime(d.year, d.month);
+
+/// 1st, 2nd, 3rd, 4th … 11th, 12th, 13th … 21st, 22nd, 23rd.
+String ordinal(int n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return '${n}th';
+  return switch (n % 10) {
+    1 => '${n}st',
+    2 => '${n}nd',
+    3 => '${n}rd',
+    _ => '${n}th',
+  };
+}
+
+/// e.g. "25 Dec".
+String formatDayMonth(DateTime date) => DateFormat('d MMM').format(date);

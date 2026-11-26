@@ -1,3 +1,4 @@
+import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/category/fake_categories.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
 import 'package:flutter_expensetracker/domain/models/budget_progress.dart';
@@ -11,12 +12,14 @@ void main() {
   final now = DateTime(2026, 11, 25, 15);
 
   ({BudgetsViewModel viewModel, TransactionRepositoryLocalFake transactions})
-  build() {
+  build({SettingsRepositoryLocalFake? settingsRepository}) {
+    final settings = settingsRepository ?? SettingsRepositoryLocalFake();
     final transactions = instantTransactionRepository(now: now);
     final viewModel = BudgetsViewModel(
       budgetRepository: instantBudgetRepository(),
       transactionRepository: transactions,
       categoryRepository: instantCategoryRepository(),
+      settingsRepository: settings,
       clock: () => now,
     );
     addTearDown(viewModel.dispose);
@@ -155,6 +158,20 @@ void main() {
       await viewModel.load.execute();
 
       expect(names(), [before[1], before[2], before[0], ...before.skip(3)]);
+    });
+
+    test('measures budgets over the pay cycle', () async {
+      final settings = SettingsRepositoryLocalFake(payday: 25);
+      final viewModel = build(settingsRepository: settings).viewModel;
+      await viewModel.load.execute();
+
+      // 25 Nov to 24 Dec: only this cycle's spending counts.
+      expect(viewModel.cycle.start, DateTime(2026, 11, 25));
+      expect(viewModel.daysLeft, 30);
+      final groceries = viewModel.progress.firstWhere(
+        (p) => p.budget.categoryName == 'Groceries',
+      );
+      expect(groceries.spent, lessThan(3200));
     });
 
     test('validates the limit', () {
