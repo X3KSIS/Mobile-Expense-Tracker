@@ -11,6 +11,8 @@ import '../data/repositories/settings/settings_repository.dart';
 import '../data/repositories/settings/settings_repository_local_fake.dart';
 import '../data/repositories/transaction/transaction_repository.dart';
 import '../data/repositories/transaction/transaction_repository_local_fake.dart';
+import '../data/repositories/wallet/wallet_repository.dart';
+import '../data/repositories/wallet/wallet_repository_local_fake.dart';
 
 /// App-level providers. Repositories live here; ViewModels are created in
 /// the route builders.
@@ -30,5 +32,8 @@ List<SingleChildWidget> get providersLocal => [
   Provider<CategoryRepository>(create: (_) => CategoryRepositoryLocalFake()),
   ChangeNotifierProvider<SettingsRepository>(
     create: (_) => SettingsRepositoryLocalFake(),
+  ),
+  ChangeNotifierProvider<WalletRepository>(
+    create: (_) => WalletRepositoryLocalFake(),
   ),
 ];

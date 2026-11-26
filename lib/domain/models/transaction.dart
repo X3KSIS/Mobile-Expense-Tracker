@@ -17,7 +17,11 @@ class Transaction {
     required this.type,
     required this.date,
     this.note,
+    this.walletId = defaultWalletId,
   });
+
+  /// The wallet used when none is given: cash.
+  static const String defaultWalletId = 'w-cash';
 
   final String id;
   final String title;
@@ -33,10 +37,17 @@ class Transaction {
   /// Optional free-text note.
   final String? note;
 
+  /// The wallet the money came out of or went into.
+  final String walletId;
+
   bool get isIncome => type == TransactionType.income;
 
   /// Amount with sign applied: positive for income, negative for expenses.
   double get signedAmount => isIncome ? amount : -amount;
+
+  /// Whether [date] falls on or after [start] and before [end].
+  bool isBetween(DateTime start, DateTime end) =>
+      !date.isBefore(start) && date.isBefore(end);
 
   /// Whether [date] falls in the same calendar month as [month].
   bool isInMonth(DateTime month) =>
@@ -53,7 +64,8 @@ class Transaction {
       other.amount == amount &&
       other.type == type &&
       other.date == date &&
-      other.note == note;
+      other.note == note &&
+      other.walletId == walletId;
 
   @override
   int get hashCode => Object.hash(
@@ -66,6 +78,7 @@ class Transaction {
     type,
     date,
     note,
+    walletId,
   );
 
   @override

@@ -9,6 +9,7 @@ class TransactionDraft {
     required this.category,
     required this.date,
     this.note,
+    this.walletId = Transaction.defaultWalletId,
   });
 
   /// Falls back to the category name when blank.
@@ -19,6 +20,9 @@ class TransactionDraft {
   final TransactionCategory category;
   final DateTime date;
   final String? note;
+
+  /// The wallet the money came out of or went into.
+  final String walletId;
 
   TransactionType get type => category.type;
 
@@ -36,6 +40,7 @@ class TransactionDraft {
       type: category.type,
       date: date,
       note: (trimmedNote == null || trimmedNote.isEmpty) ? null : trimmedNote,
+      walletId: walletId,
     );
   }
 }

@@ -101,7 +101,24 @@ Transaction _make(
   amount: amount,
   type: category.type,
   date: date,
+  walletId: _walletFor(title, category),
 );
+
+/// Which fake wallet (see `WalletRepositoryLocalFake`) a fake transaction
+/// uses: airtime and ZESCO from MoMo, small day-to-day spending in cash,
+/// everything else through the bank.
+String _walletFor(String title, TransactionCategory category) {
+  if (category == FakeCategories.airtime ||
+      category == FakeCategories.utilities) {
+    return 'w-momo';
+  }
+  if (title == 'Bus fare' ||
+      category == FakeCategories.eatingOut ||
+      category == FakeCategories.health) {
+    return 'w-cash';
+  }
+  return 'w-bank';
+}
 
 /// This month's transactions, newest first. Entries that would fall before
 /// the 1st are pulled forward to the start of the month, keeping their

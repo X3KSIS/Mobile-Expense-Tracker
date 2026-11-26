@@ -16,6 +16,7 @@ abstract final class CategoryIcons {
     'entertainment': Icons.movie_outlined,
     'business': Icons.storefront_outlined,
     'gift': Icons.card_giftcard_outlined,
+    'fees': Icons.receipt_outlined,
     'other': Icons.category_outlined,
   };
 

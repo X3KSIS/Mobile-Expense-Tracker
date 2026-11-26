@@ -8,6 +8,8 @@ import 'package:flutter_expensetracker/data/repositories/settings/settings_repos
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
+import 'package:flutter_expensetracker/data/repositories/wallet/wallet_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/wallet/wallet_repository_local_fake.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -17,6 +19,9 @@ TransactionRepositoryLocalFake instantTransactionRepository({DateTime? now}) =>
 
 BudgetRepositoryLocalFake instantBudgetRepository() =>
     BudgetRepositoryLocalFake(delay: Duration.zero);
+
+WalletRepositoryLocalFake instantWalletRepository({DateTime? now}) =>
+    WalletRepositoryLocalFake(now: now, delay: Duration.zero);
 
 CategoryRepositoryLocalFake instantCategoryRepository() =>
     CategoryRepositoryLocalFake(delay: Duration.zero);
@@ -42,6 +47,9 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ),
   ChangeNotifierProvider<SettingsRepository>(
     create: (_) => SettingsRepositoryLocalFake(),
+  ),
+  ChangeNotifierProvider<WalletRepository>(
+    create: (_) => instantWalletRepository(),
   ),
   Provider<CategoryRepository>(create: (_) => instantCategoryRepository()),
 ];

@@ -67,6 +67,15 @@ abstract final class FakeCategories {
     color: 0xFFC0567F,
     type: TransactionType.expense,
   );
+
+  /// Mobile money withdrawal and transfer charges, bank fees.
+  static const TransactionCategory fees = TransactionCategory(
+    id: 'c-fees',
+    name: 'Fees & charges',
+    icon: 'fees',
+    color: 0xFF8A6D3B,
+    type: TransactionType.expense,
+  );
   static const TransactionCategory otherExpense = TransactionCategory(
     id: 'c-other-expense',
     name: 'Other',
@@ -114,6 +123,7 @@ abstract final class FakeCategories {
     health,
     education,
     entertainment,
+    fees,
     otherExpense,
     salary,
     business,
