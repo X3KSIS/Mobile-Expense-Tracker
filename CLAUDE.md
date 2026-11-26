@@ -2,6 +2,15 @@
 
 Personal finance app for tracking income and expenses in Zambian Kwacha (ZMW). Mobile companion to an existing Django web app.
 
+## Core objective
+
+**Expense tracking and spending habits.** The app exists to make recording what money goes out on effortless, and to help the user see and improve how they spend. Judge every feature, screen and suggestion against that:
+
+- Prefer work that makes capturing expenses faster or more complete, or that reveals spending habits: where money goes, trends, recurring costs, overspending, comparisons over time.
+- Income, wallets, balances and payday are supporting context, not the headline.
+- Home, Activity and Reports lead with spending: what was spent, on what, and how it compares.
+- Push back on scope that drifts from this (general banking, social features).
+
 Features, now and planned: dashboard, transactions (recurring, receipts, tags), wallets (cash, mobile money, bank) with transfers, payday-to-payday budgeting with a safe-to-spend forecast, filling transactions from mobile money and bank SMS, categories with colours, budgets, reports and charts, spending heatmap, grocery lists, price tracker, reminders.
 
 Later phases will add Firebase Auth, offline-first storage with Drift (SQLite), and sync to a Django REST API. Until then, all data comes from fake repositories.
