@@ -98,6 +98,7 @@ GoRouter router(AuthRepository authRepository) {
             create: (context) => AddTransactionViewModel(
               transactionRepository: context.read(),
               categoryRepository: context.read(),
+              walletRepository: context.read(),
               initialType: query[Routes.typeParam] == 'income'
                   ? TransactionType.income
                   : TransactionType.expense,

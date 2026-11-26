@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/category/category_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
+import '../../../data/repositories/wallet/wallet_repository.dart';
 import '../../../domain/models/transaction_category.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../domain/models/transaction_draft.dart';
+import '../../../domain/models/wallet.dart';
 import '../../../utils/command.dart';
 import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
@@ -12,11 +14,13 @@ import '../../../utils/result.dart';
 
 typedef TransactionInput = ({String amount, String title, String note});
 
-/// State for the Add transaction form: type, category, date and saving.
+/// State for the Add transaction form: type, category, wallet, date and
+/// saving.
 class AddTransactionViewModel extends ChangeNotifier {
   AddTransactionViewModel({
     required this._transactionRepository,
     required this._categoryRepository,
+    required this._walletRepository,
     TransactionType initialType = TransactionType.expense,
     this._initialCategoryId,
     DateTime Function()? clock,
@@ -29,6 +33,7 @@ class AddTransactionViewModel extends ChangeNotifier {
 
   final TransactionRepository _transactionRepository;
   final CategoryRepository _categoryRepository;
+  final WalletRepository _walletRepository;
   final String? _initialCategoryId;
   final DateTime Function() _clock;
 
@@ -38,6 +43,8 @@ class AddTransactionViewModel extends ChangeNotifier {
   TransactionType _type;
   List<TransactionCategory> _categories = const [];
   TransactionCategory? _selectedCategory;
+  List<Wallet> _wallets = const [];
+  String? _selectedWalletId;
   late DateTime _date;
   bool _disposed = false;
 
@@ -53,6 +60,12 @@ class AddTransactionViewModel extends ChangeNotifier {
 
   DateTime get date => _date;
 
+  /// Wallets to pay from or receive into.
+  List<Wallet> get wallets => _wallets;
+
+  /// The chosen wallet; the first wallet until the user picks one.
+  String? get selectedWalletId => _selectedWalletId;
+
   /// Latest date the picker allows: today.
   DateTime get lastDate => _clock();
 
@@ -63,6 +76,11 @@ class AddTransactionViewModel extends ChangeNotifier {
     if (type == _type) return;
     _type = type;
     _selectedCategory = _firstCategory();
+    _notify();
+  }
+
+  void selectWallet(Wallet wallet) {
+    _selectedWalletId = wallet.id;
     _notify();
   }
 
@@ -95,8 +113,17 @@ class AddTransactionViewModel extends ChangeNotifier {
     return list.isEmpty ? null : list.first;
   }
 
+  /// Loads categories and wallets. Wallets are optional: without them the
+  /// transaction goes to the default (cash) wallet.
   Future<Result<void>> _loadCategories() async {
-    final result = await _categoryRepository.getCategories();
+    final (result, wallets) = await (
+      _categoryRepository.getCategories(),
+      _walletRepository.getWallets(),
+    ).wait;
+    if (wallets case Ok(:final value) when value.isNotEmpty) {
+      _wallets = value;
+      _selectedWalletId ??= value.first.id;
+    }
     switch (result) {
       case Ok(:final value):
         _categories = value;
@@ -127,6 +154,7 @@ class AddTransactionViewModel extends ChangeNotifier {
         category: category,
         date: _date,
         note: input.note,
+        walletId: _selectedWalletId ?? Transaction.defaultWalletId,
       ),
     );
     return switch (result) {

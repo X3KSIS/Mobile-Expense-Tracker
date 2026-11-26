@@ -15,6 +15,7 @@ void main() {
     final viewModel = AddTransactionViewModel(
       transactionRepository: instantTransactionRepository(now: now),
       categoryRepository: instantCategoryRepository(),
+      walletRepository: instantWalletRepository(now: now),
       initialType: type,
       initialCategoryId: categoryId,
       clock: () => now,
@@ -81,6 +82,7 @@ void main() {
       final viewModel = AddTransactionViewModel(
         transactionRepository: transactions,
         categoryRepository: instantCategoryRepository(),
+        walletRepository: instantWalletRepository(now: now),
         clock: () => now,
       );
       addTearDown(viewModel.dispose);
@@ -99,6 +101,28 @@ void main() {
       expect(saved.amount, 1250.5);
       expect(saved.categoryName, 'Groceries');
       expect(saved.type, TransactionType.expense);
+    });
+
+    test('saves to the chosen wallet, the first one by default', () async {
+      final transactions = instantTransactionRepository(now: now);
+      final viewModel = AddTransactionViewModel(
+        transactionRepository: transactions,
+        categoryRepository: instantCategoryRepository(),
+        walletRepository: instantWalletRepository(now: now),
+        clock: () => now,
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.loadCategories.execute();
+
+      expect(viewModel.selectedWalletId, 'w-cash');
+      viewModel.selectWallet(
+        viewModel.wallets.firstWhere((w) => w.name == 'MTN MoMo'),
+      );
+      await viewModel.save.execute((amount: '20', title: 'Bundle', note: ''));
+
+      final recent = await transactions.getRecentTransactions(limit: 1);
+      final saved = (recent as Ok<List<Transaction>>).value.single;
+      expect(saved.walletId, 'w-momo');
     });
 
     test('refuses to save an invalid amount', () async {

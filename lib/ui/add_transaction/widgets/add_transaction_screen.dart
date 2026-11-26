@@ -9,6 +9,7 @@ import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
 import '../../core/ui/segmented_toggle.dart';
+import '../../core/ui/wallet_tile.dart';
 import '../../core/ui/skeleton_screens.dart';
 import '../view_models/add_transaction_view_model.dart';
 import 'amount_input.dart';
@@ -127,6 +128,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
                 const SizedBox(height: Dimens.sectionGap),
                 _CategorySection(viewModel: viewModel),
+                if (viewModel.wallets.isNotEmpty) ...[
+                  const SizedBox(height: Dimens.sectionGap),
+                  _WalletSection(viewModel: viewModel),
+                ],
                 const SizedBox(height: Dimens.sectionGap),
                 _DetailsSection(
                   viewModel: viewModel,
@@ -192,6 +197,32 @@ class _CategorySection extends StatelessWidget {
       categories: viewModel.categories,
       selected: viewModel.selectedCategory,
       onSelected: viewModel.selectCategory,
+    );
+  }
+}
+
+/// "Paid from" or "Received into", with a chip per wallet.
+class _WalletSection extends StatelessWidget {
+  const _WalletSection({required this.viewModel});
+
+  final AddTransactionViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          viewModel.isExpense ? 'Paid from' : 'Received into',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: Dimens.gapM),
+        WalletPicker(
+          wallets: viewModel.wallets,
+          selectedId: viewModel.selectedWalletId,
+          onSelected: viewModel.selectWallet,
+        ),
+      ],
     );
   }
 }
