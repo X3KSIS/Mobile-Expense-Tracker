@@ -329,6 +329,37 @@ void main() {
     expect(find.text('MTN MoMo → Cash'), findsOneWidget);
   });
 
+  testWidgets('a pasted MoMo message fills in and saves an expense', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.byTooltip('Add transaction'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Fill from a message'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byType(TextField).last,
+      'You have paid ZMW 75.00 to HUNGRY LION CAIRO ROAD. Fee ZMW 1.00. '
+      'Txn ID: 55501.',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Money out'), findsOneWidget);
+    await tester.tap(find.text('Fill in the form'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hungry Lion Cairo Road'), findsOneWidget);
+    await scrollTo(tester, find.text('Save expense'));
+    await tester.tap(find.text('Save expense'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Expense saved'), findsOneWidget);
+    await scrollTo(tester, find.text('Hungry Lion Cairo Road'));
+    expect(find.text('Hungry Lion Cairo Road'), findsOneWidget);
+    expect(find.text('Charge: Hungry Lion Cairo Road'), findsOneWidget);
+  });
+
   testWidgets('Reports switches month and shows a day total', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);

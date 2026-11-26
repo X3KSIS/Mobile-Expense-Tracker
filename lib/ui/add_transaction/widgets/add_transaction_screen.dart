@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../domain/models/transaction.dart';
+import '../../../routing/routes.dart';
+import '../../../utils/currency.dart';
+import '../../core/themes/colors.dart';
+import '../../core/themes/theme.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/category_picker.dart';
 import '../../core/ui/fade_switcher.dart';
+import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
@@ -14,6 +19,7 @@ import '../../core/ui/skeleton_screens.dart';
 import '../view_models/add_transaction_view_model.dart';
 import 'amount_input.dart';
 import 'date_field.dart';
+import 'message_sheet.dart';
 
 /// Form to record an expense or income.
 class AddTransactionScreen extends StatefulWidget {
@@ -75,6 +81,23 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
+  Future<void> _fillFromMessage() async {
+    final viewModel = widget.viewModel;
+    final router = GoRouter.of(context);
+    final message = await showMessageSheet(
+      context,
+      read: viewModel.readMessage,
+      onOpenWallets: () => router.push(Routes.wallets),
+    );
+    // The fields filling in is the feedback; a snackbar here would cover
+    // the Save button.
+    if (message == null || !mounted) return;
+    final prefill = viewModel.applyMessage(message);
+    _amount.text = prefill.amount;
+    _title.text = prefill.title;
+    _note.text = prefill.note;
+  }
+
   void _submit() {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -102,7 +125,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 Dimens.screenPadding,
               ),
               children: [
-                const ScreenHeader(title: 'Add transaction'),
+                ScreenHeader(
+                  title: 'Add transaction',
+                  trailing: HeaderIconButton(
+                    icon: Icons.sms_outlined,
+                    tooltip: 'Fill from a message',
+                    onPressed: _fillFromMessage,
+                  ),
+                ),
                 const SizedBox(height: Dimens.sectionGap),
                 SegmentedToggle<TransactionType>(
                   options: const [
@@ -132,6 +162,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   const SizedBox(height: Dimens.sectionGap),
                   _WalletSection(viewModel: viewModel),
                 ],
+                FadeSwitcher(
+                  child: viewModel.pendingFee == null
+                      ? const SizedBox(
+                          key: ValueKey('no-fee'),
+                          width: double.infinity,
+                        )
+                      : Padding(
+                          key: const ValueKey('fee'),
+                          padding: const EdgeInsets.only(top: Dimens.gapL),
+                          child: _FeeNotice(viewModel: viewModel),
+                        ),
+                ),
                 const SizedBox(height: Dimens.sectionGap),
                 _DetailsSection(
                   viewModel: viewModel,
@@ -223,6 +265,52 @@ class _WalletSection extends StatelessWidget {
           onSelected: viewModel.selectWallet,
         ),
       ],
+    );
+  }
+}
+
+/// A charge read from a message, saved as its own expense, with a way to
+/// leave it out.
+class _FeeNotice extends StatelessWidget {
+  const _FeeNotice({required this.viewModel});
+
+  final AddTransactionViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      padding: const EdgeInsets.only(left: Dimens.gapL),
+      decoration: BoxDecoration(
+        color: colors.surfaceMuted,
+        borderRadius: BorderRadius.circular(Dimens.radiusTile),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.receipt_outlined,
+            size: Dimens.iconSizeSmall,
+            color: colors.textSecondary,
+          ),
+          const SizedBox(width: Dimens.gapS),
+          Expanded(
+            child: Text(
+              'Also saves a ${formatZmw(viewModel.pendingFee!)} charge under '
+              'Fees & charges',
+              style: context.text.caption.copyWith(color: colors.textPrimary),
+            ),
+          ),
+          IconButton(
+            tooltip: "Don't save the charge",
+            onPressed: viewModel.dropPendingFee,
+            icon: Icon(
+              Icons.close_rounded,
+              size: Dimens.iconSizeSmall,
+              color: colors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

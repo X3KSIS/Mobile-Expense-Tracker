@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../data/repositories/category/category_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../data/repositories/wallet/wallet_repository.dart';
+import '../../../domain/models/money_message.dart';
 import '../../../domain/models/transaction_category.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../domain/models/transaction_draft.dart';
@@ -10,9 +11,14 @@ import '../../../domain/models/wallet.dart';
 import '../../../utils/command.dart';
 import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
+import '../../../utils/money_message_parser.dart';
 import '../../../utils/result.dart';
 
 typedef TransactionInput = ({String amount, String title, String note});
+
+/// The text fields filled from a message; the view puts them in its
+/// controllers.
+typedef MessagePrefill = ({String amount, String title, String note});
 
 /// State for the Add transaction form: type, category, wallet, date and
 /// saving.
@@ -45,6 +51,7 @@ class AddTransactionViewModel extends ChangeNotifier {
   TransactionCategory? _selectedCategory;
   List<Wallet> _wallets = const [];
   String? _selectedWalletId;
+  double? _pendingFee;
   late DateTime _date;
   bool _disposed = false;
 
@@ -63,6 +70,15 @@ class AddTransactionViewModel extends ChangeNotifier {
   /// Wallets to pay from or receive into.
   List<Wallet> get wallets => _wallets;
 
+  /// A charge read from a message, saved as a separate Fees & charges
+  /// expense alongside the transaction. Null when there is none.
+  double? get pendingFee => _pendingFee;
+
+  void dropPendingFee() {
+    _pendingFee = null;
+    _notify();
+  }
+
   /// The chosen wallet; the first wallet until the user picks one.
   String? get selectedWalletId => _selectedWalletId;
 
@@ -78,6 +94,57 @@ class AddTransactionViewModel extends ChangeNotifier {
     _selectedCategory = _firstCategory();
     _notify();
   }
+
+  /// Reads a mobile money or bank SMS; null when it isn't one.
+  MoneyMessage? readMessage(String text) => MoneyMessageParser.parse(text);
+
+  /// Fills the form from [message]: type, category, wallet, date and any
+  /// charge. Returns the amount, title and note for the text fields.
+  MessagePrefill applyMessage(MoneyMessage message) {
+    _type = message.isIncome ? TransactionType.income : TransactionType.expense;
+    final options = categories;
+    _selectedCategory =
+        options.where((c) => c.name == message.categoryHint).firstOrNull ??
+        options.where((c) => c.icon == 'other').firstOrNull ??
+        _firstCategory();
+    _selectedWalletId = _walletFor(message)?.id ?? _selectedWalletId;
+    final date = message.date;
+    if (date != null && !date.isAfter(_clock())) _date = date;
+    _pendingFee = message.fee;
+    _notify();
+
+    final amount = message.amount;
+    final provider = message.provider;
+    final reference = message.reference;
+    final balance = message.balance;
+    return (
+      amount: amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2),
+      title: message.counterparty ?? _titleFromHint(message) ?? '',
+      note: [
+        ?provider,
+        if (reference != null) 'Ref $reference',
+        if (balance != null) 'Balance after ${formatZmw(balance)}',
+      ].join(' · '),
+    );
+  }
+
+  /// The wallet a message came from: one named after the provider (e.g.
+  /// "MTN MoMo" for an MTN message), else the first of the same kind.
+  Wallet? _walletFor(MoneyMessage message) {
+    final provider = message.provider?.toLowerCase();
+    if (provider != null) {
+      final brand = provider.split(' ').first;
+      final named = _wallets.where((w) => w.name.toLowerCase().contains(brand));
+      if (named.isNotEmpty) return named.first;
+    }
+    final kind = message.providerKind;
+    return kind == null
+        ? null
+        : _wallets.where((w) => w.kind == kind).firstOrNull;
+  }
+
+  static String? _titleFromHint(MoneyMessage message) =>
+      message.categoryHint == 'Utilities' ? 'ZESCO units' : message.provider;
 
   void selectWallet(Wallet wallet) {
     _selectedWalletId = wallet.id;
@@ -157,11 +224,37 @@ class AddTransactionViewModel extends ChangeNotifier {
         walletId: _selectedWalletId ?? Transaction.defaultWalletId,
       ),
     );
+    if (result case Error(:final error)) return Result.error(error);
+    return _saveFee(input.title.trim().isEmpty ? category.name : input.title);
+  }
+
+  /// Saves the [pendingFee] (if any) as a Fees & charges expense from the
+  /// same wallet.
+  Future<Result<void>> _saveFee(String title) async {
+    final fee = _pendingFee;
+    final feeCategory = _categories
+        .where((c) => c.id == feesCategoryId)
+        .firstOrNull;
+    if (fee == null || fee <= 0 || feeCategory == null) {
+      return const Result.ok(null);
+    }
+    final result = await _transactionRepository.addTransaction(
+      TransactionDraft(
+        title: 'Charge: ${title.trim()}',
+        amount: fee,
+        category: feeCategory,
+        date: _date,
+        walletId: _selectedWalletId ?? Transaction.defaultWalletId,
+      ),
+    );
     return switch (result) {
       Ok() => const Result.ok(null),
       Error(:final error) => Result.error(error),
     };
   }
+
+  /// The category charges are recorded under.
+  static const String feesCategoryId = 'c-fees';
 
   void _notify() {
     if (!_disposed) notifyListeners();
