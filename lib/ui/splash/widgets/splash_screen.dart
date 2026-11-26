@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 const AppLogo(size: 96),
                 const SizedBox(height: Dimens.cardPadding),
-                const Text('ExpenseTrack', style: AppTypography.wordmark),
+                Text('ExpenseTrack', style: context.text.wordmark),
                 const SizedBox(height: 6),
                 Text(
                   'Know where your kwacha goes',

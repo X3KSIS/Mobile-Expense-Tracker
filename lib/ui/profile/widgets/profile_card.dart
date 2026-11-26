@@ -18,15 +18,15 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mutedStyle = AppTypography.body.copyWith(
-      color: AppColors.textOnNavyMuted,
+    final mutedStyle = context.text.body.copyWith(
+      color: context.colors.textOnNavyMuted,
     );
     final phone = user.phone;
     return MeshGradientBox(
-      mesh: AppGradients.navyMesh,
+      mesh: context.gradients.navyMesh,
       padding: const EdgeInsets.all(Dimens.cardPadding + 2),
       borderRadius: BorderRadius.circular(Dimens.radiusCard),
-      boxShadow: AppShadows.soft,
+      boxShadow: context.shadows.soft,
       child: Row(
         children: [
           UserAvatar(initials: user.initials, large: true),
@@ -37,7 +37,7 @@ class ProfileCard extends StatelessWidget {
               children: [
                 Text(
                   user.name,
-                  style: AppTypography.profileName,
+                  style: context.text.profileName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -55,8 +55,8 @@ class ProfileCard extends StatelessWidget {
                 const SizedBox(height: Dimens.gapS + 2),
                 Text(
                   memberSince.toUpperCase(),
-                  style: AppTypography.overline.copyWith(
-                    color: AppColors.textOnNavyMuted,
+                  style: context.text.overline.copyWith(
+                    color: context.colors.textOnNavyMuted,
                   ),
                 ),
               ],

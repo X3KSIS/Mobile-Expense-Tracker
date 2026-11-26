@@ -5,7 +5,10 @@ import 'package:provider/provider.dart';
 
 import 'config/dependencies.dart';
 import 'data/repositories/auth/auth_repository.dart';
+import 'data/repositories/settings/settings_repository.dart';
+import 'domain/models/theme_preference.dart';
 import 'routing/router.dart';
+import 'ui/core/themes/motion.dart';
 import 'ui/core/themes/theme.dart';
 
 void main() {
@@ -32,13 +35,28 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: MaterialApp.router(
-        title: 'ExpenseTrack',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        routerConfig: _router,
+    final preference = context.select<SettingsRepository, ThemePreference>(
+      (settings) => settings.themePreference,
+    );
+    return MaterialApp.router(
+      title: 'ExpenseTrack',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: switch (preference) {
+        ThemePreference.system => ThemeMode.system,
+        ThemePreference.light => ThemeMode.light,
+        ThemePreference.dark => ThemeMode.dark,
+      },
+      // Every colour blends from one palette to the other.
+      themeAnimationDuration: AppMotion.theme,
+      themeAnimationCurve: AppMotion.move,
+      routerConfig: _router,
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        child: child!,
       ),
     );
   }

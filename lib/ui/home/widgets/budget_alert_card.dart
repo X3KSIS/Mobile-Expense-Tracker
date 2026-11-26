@@ -26,7 +26,7 @@ class BudgetAlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MeshGradientBox(
-      mesh: AppGradients.navyMesh,
+      mesh: context.gradients.navyMesh,
       borderRadius: BorderRadius.circular(Dimens.radiusCard),
       padding: const EdgeInsets.all(Dimens.cardPadding),
       child: Row(
@@ -55,12 +55,12 @@ class _AlertText extends StatelessWidget {
       children: [
         Text(
           'BUDGET ALERT',
-          style: AppTypography.overline.copyWith(
-            color: AppColors.textOnNavyMuted,
+          style: context.text.overline.copyWith(
+            color: context.colors.textOnNavyMuted,
           ),
         ),
         const SizedBox(height: Dimens.gapS),
-        Text(message, style: AppTypography.cardTitleOnNavy),
+        Text(message, style: context.text.cardTitleOnNavy),
         const SizedBox(height: Dimens.gapL),
         FilledButton(onPressed: onViewBudget, child: const Text('View budget')),
       ],
@@ -78,12 +78,12 @@ class _AlertFigures extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text('${alert.percentRounded}%', style: AppTypography.percentLarge),
+        Text('${alert.percentRounded}%', style: context.text.percentLarge),
         const SizedBox(height: Dimens.gapXs),
         Text(
           '$currencyCode ${formatWhole(alert.remaining)} LEFT',
-          style: AppTypography.overline.copyWith(
-            color: AppColors.textOnNavyMuted,
+          style: context.text.overline.copyWith(
+            color: context.colors.textOnNavyMuted,
           ),
         ),
       ],

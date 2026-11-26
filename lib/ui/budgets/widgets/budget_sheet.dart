@@ -106,7 +106,9 @@ class _BudgetSheetState extends State<BudgetSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            style: TextButton.styleFrom(foregroundColor: AppColors.textPrimary),
+            style: TextButton.styleFrom(
+              foregroundColor: context.colors.textPrimary,
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -143,7 +145,7 @@ class _BudgetSheetState extends State<BudgetSheet> {
                   _isEditing
                       ? '${widget.budget!.categoryName} budget'
                       : 'New budget',
-                  style: AppTypography.sectionTitle,
+                  style: context.text.sectionTitle,
                 ),
                 const SizedBox(height: Dimens.gapL),
                 if (!_isEditing) ...[
@@ -205,13 +207,13 @@ class _CategoryChoice extends StatelessWidget {
     if (categories.isEmpty) {
       return Text(
         'Every expense category already has a budget.',
-        style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+        style: context.text.body.copyWith(color: context.colors.textSecondary),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Category', style: AppTypography.fieldLabel),
+        Text('Category', style: context.text.fieldLabel),
         const SizedBox(height: Dimens.gapS),
         CategoryPicker(
           categories: categories,

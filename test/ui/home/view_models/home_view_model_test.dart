@@ -1,3 +1,4 @@
+import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/ui/home/view_models/home_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +12,7 @@ void main() {
       transactionRepository: transactions ?? instantTransactionRepository(),
       budgetRepository: instantBudgetRepository(),
       authRepository: instantAuthRepository(signedIn: true),
+      settingsRepository: SettingsRepositoryLocalFake(),
     );
     addTearDown(viewModel.dispose);
     return viewModel;
@@ -143,6 +145,7 @@ void main() {
         transactionRepository: instantTransactionRepository(),
         budgetRepository: instantBudgetRepository(),
         authRepository: auth,
+        settingsRepository: SettingsRepositoryLocalFake(),
       );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();

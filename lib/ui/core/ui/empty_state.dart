@@ -37,13 +37,13 @@ class EmptyState extends StatelessWidget {
             width: Dimens.emptyStateTileSize,
             height: Dimens.emptyStateTileSize,
             decoration: BoxDecoration(
-              color: AppColors.accentSoft,
+              color: context.colors.accentSoft,
               borderRadius: BorderRadius.circular(Dimens.radiusTile),
             ),
             child: Icon(
               icon,
               size: Dimens.emptyStateIconSize,
-              color: AppColors.accentText,
+              color: context.colors.accentText,
             ),
           ),
           const SizedBox(height: Dimens.gapL),

@@ -71,10 +71,10 @@ class TransactionRow extends StatelessWidget {
                   transaction.amount,
                   isIncome: transaction.isIncome,
                 ),
-                style: AppTypography.listAmount.copyWith(
+                style: context.text.listAmount.copyWith(
                   color: transaction.isIncome
-                      ? AppColors.success
-                      : AppColors.textPrimary,
+                      ? context.colors.success
+                      : context.colors.textPrimary,
                 ),
               ),
             ],

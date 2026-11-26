@@ -37,7 +37,7 @@ class SegmentedToggle<T> extends StatelessWidget {
       height: Dimens.minTouchTarget + Dimens.gapXs * 2,
       padding: const EdgeInsets.all(Dimens.gapXs),
       decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
+        color: context.colors.surfaceMuted,
         borderRadius: BorderRadius.circular(Dimens.radiusFull),
       ),
       child: Stack(
@@ -49,9 +49,9 @@ class SegmentedToggle<T> extends StatelessWidget {
             child: FractionallySizedBox(
               widthFactor: 1 / count,
               heightFactor: 1,
-              child: const DecoratedBox(
+              child: DecoratedBox(
                 decoration: ShapeDecoration(
-                  color: AppColors.navy,
+                  color: context.colors.navy,
                   shape: StadiumBorder(),
                 ),
               ),
@@ -103,10 +103,10 @@ class _Segment extends StatelessWidget {
             child: AnimatedDefaultTextStyle(
               duration: AppMotion.medium,
               curve: AppMotion.move,
-              style: AppTypography.button.copyWith(
+              style: context.text.button.copyWith(
                 color: selected
-                    ? AppColors.textOnNavy
-                    : AppColors.textSecondary,
+                    ? context.colors.textOnNavy
+                    : context.colors.textSecondary,
               ),
               child: Text(label),
             ),

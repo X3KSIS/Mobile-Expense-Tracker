@@ -19,22 +19,24 @@ class FormErrorBanner extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(Dimens.gapM + 2),
         decoration: BoxDecoration(
-          color: AppColors.accentSoft,
+          color: context.colors.accentSoft,
           borderRadius: BorderRadius.circular(Dimens.radiusInput),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               size: Dimens.iconSizeSmall + 2,
-              color: AppColors.accentText,
+              color: context.colors.accentText,
             ),
             const SizedBox(width: Dimens.gapS + 2),
             Expanded(
               child: Text(
                 message,
-                style: AppTypography.body.copyWith(color: AppColors.accentText),
+                style: context.text.body.copyWith(
+                  color: context.colors.accentText,
+                ),
               ),
             ),
           ],

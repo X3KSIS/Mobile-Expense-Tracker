@@ -52,7 +52,9 @@ class TransactionDetailsSheet extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            style: TextButton.styleFrom(foregroundColor: AppColors.textPrimary),
+            style: TextButton.styleFrom(
+              foregroundColor: context.colors.textPrimary,
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -96,7 +98,7 @@ class TransactionDetailsSheet extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () => _confirmDelete(context),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.accentText,
+                foregroundColor: context.colors.accentText,
                 minimumSize: const Size.fromHeight(Dimens.buttonHeight + 4),
                 shape: const StadiumBorder(),
               ),
@@ -130,16 +132,16 @@ class _Summary extends StatelessWidget {
         const SizedBox(height: Dimens.gapM),
         Text(
           transaction.title,
-          style: AppTypography.sectionTitle,
+          style: context.text.sectionTitle,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: Dimens.gapXs),
         Text(
           formatZmwSigned(transaction.amount, isIncome: transaction.isIncome),
-          style: AppTypography.amountMedium.copyWith(
+          style: context.text.amountMedium.copyWith(
             color: transaction.isIncome
-                ? AppColors.success
-                : AppColors.textPrimary,
+                ? context.colors.success
+                : context.colors.textPrimary,
           ),
         ),
       ],
@@ -158,17 +160,17 @@ class _DetailRow extends StatelessWidget {
     return MergeSemantics(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: Dimens.gapM),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: AppColors.border)),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: context.colors.border)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(width: 92, child: Text(label, style: AppTypography.label)),
+            SizedBox(width: 92, child: Text(label, style: context.text.label)),
             Expanded(
               child: Text(
                 value,
-                style: AppTypography.body,
+                style: context.text.body,
                 textAlign: TextAlign.end,
               ),
             ),

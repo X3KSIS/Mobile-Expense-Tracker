@@ -18,14 +18,14 @@ class UserAvatar extends StatelessWidget {
     final size = large ? Dimens.avatarSizeLarge : Dimens.avatarSize;
     final radius = large ? Dimens.radiusAvatarLarge : Dimens.radiusButton;
     final style = large
-        ? AppTypography.avatarInitialsLarge
-        : AppTypography.sectionTitle.copyWith(color: AppColors.accentText);
+        ? context.text.avatarInitialsLarge
+        : context.text.sectionTitle.copyWith(color: context.colors.accentText);
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.accentSoft,
+        color: context.colors.accentSoft,
         borderRadius: BorderRadius.circular(radius),
       ),
       child: Text(initials, style: style),

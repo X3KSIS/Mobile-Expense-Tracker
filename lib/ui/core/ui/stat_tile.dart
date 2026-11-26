@@ -11,21 +11,24 @@ class StatTile extends StatelessWidget {
     required this.label,
     required this.value,
     required this.icon,
-    this.valueColor = AppColors.textPrimary,
+    this.valueColor,
   });
 
   final String label;
   final String value;
   final IconData icon;
-  final Color valueColor;
+
+  /// Defaults to the primary text colour.
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
+    final valueColor = this.valueColor ?? context.colors.textPrimary;
     return MergeSemantics(
       child: Container(
         padding: const EdgeInsets.all(Dimens.gapM + 2),
         decoration: BoxDecoration(
-          color: AppColors.surfaceMuted,
+          color: context.colors.surfaceMuted,
           borderRadius: BorderRadius.circular(Dimens.radiusTile),
         ),
         child: Column(
@@ -38,7 +41,7 @@ class StatTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: AppTypography.caption,
+                    style: context.text.caption,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -51,7 +54,7 @@ class StatTile extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 value,
-                style: AppTypography.statValue.copyWith(color: valueColor),
+                style: context.text.statValue.copyWith(color: valueColor),
               ),
             ),
           ],

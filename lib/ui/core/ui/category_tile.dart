@@ -28,7 +28,7 @@ class CategoryTile extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: AppColors.softTintAlpha),
+        color: tint.withValues(alpha: context.colors.softTintAlpha),
         borderRadius: BorderRadius.circular(Dimens.radiusIconTile),
       ),
       child: Icon(

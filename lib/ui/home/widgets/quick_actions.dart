@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
+import '../../core/ui/pressable.dart';
 
 /// Shortcuts shown on the Home screen.
 enum QuickAction {
@@ -48,35 +49,37 @@ class _QuickActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(Dimens.radiusButton);
     final labelStyle = Theme.of(context).textTheme.bodySmall
-        ?.copyWith(color: AppColors.textPrimary);
+        ?.copyWith(color: context.colors.textPrimary);
     return Semantics(
       button: true,
       label: action.label,
       excludeSemantics: true,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: radius,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: Dimens.gapXs),
-          child: Column(
-            children: [
-              Container(
-                width: Dimens.quickActionSize,
-                height: Dimens.quickActionSize,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: radius,
-                  border: Border.all(color: AppColors.border),
+      child: Pressable(
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: radius,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Dimens.gapXs),
+            child: Column(
+              children: [
+                Container(
+                  width: Dimens.quickActionSize,
+                  height: Dimens.quickActionSize,
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: radius,
+                    border: Border.all(color: context.colors.border),
+                  ),
+                  child: Icon(
+                    action.icon,
+                    size: Dimens.iconSize,
+                    color: context.colors.textPrimary,
+                  ),
                 ),
-                child: Icon(
-                  action.icon,
-                  size: Dimens.iconSize,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: Dimens.gapS),
-              Text(action.label, style: labelStyle),
-            ],
+                const SizedBox(height: Dimens.gapS),
+                Text(action.label, style: labelStyle),
+              ],
+            ),
           ),
         ),
       ),

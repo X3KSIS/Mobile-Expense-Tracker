@@ -45,15 +45,15 @@ class ProfileMenuSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: Dimens.gapXs),
           child: Semantics(
             header: true,
-            child: Text(title.toUpperCase(), style: AppTypography.overline),
+            child: Text(title.toUpperCase(), style: context.text.overline),
           ),
         ),
         const SizedBox(height: Dimens.gapS + 2),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(Dimens.radiusList),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(Dimens.radiusList),
@@ -104,10 +104,10 @@ class _MenuRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.title, style: AppTypography.listTitle),
+                    Text(item.title, style: context.text.listTitle),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
-                      Text(subtitle, style: AppTypography.caption),
+                      Text(subtitle, style: context.text.caption),
                     ],
                   ],
                 ),
@@ -117,18 +117,18 @@ class _MenuRow extends StatelessWidget {
                   padding: const EdgeInsets.only(left: Dimens.gapS),
                   child: Text(
                     value,
-                    style: AppTypography.body.copyWith(
-                      color: AppColors.textSecondary,
+                    style: context.text.body.copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),
               if (item.onTap != null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(left: Dimens.gapXs),
                   child: Icon(
                     Icons.chevron_right_rounded,
                     size: Dimens.iconSize,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                 ),
             ],
@@ -150,10 +150,14 @@ class _IconTile extends StatelessWidget {
       width: Dimens.iconTileSize,
       height: Dimens.iconTileSize,
       decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
+        color: context.colors.surfaceMuted,
         borderRadius: BorderRadius.circular(Dimens.radiusIconTile),
       ),
-      child: Icon(icon, size: Dimens.iconSize, color: AppColors.textPrimary),
+      child: Icon(
+        icon,
+        size: Dimens.iconSize,
+        color: context.colors.textPrimary,
+      ),
     );
   }
 }

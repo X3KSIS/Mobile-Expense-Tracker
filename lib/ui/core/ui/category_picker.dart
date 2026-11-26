@@ -81,7 +81,7 @@ class _CategoryOption extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Dimens.radiusTile),
                   border: Border.all(
-                    color: selected ? AppColors.navy : Colors.transparent,
+                    color: selected ? context.colors.navy : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -94,10 +94,10 @@ class _CategoryOption extends StatelessWidget {
               const SizedBox(height: Dimens.gapXs + 2),
               AnimatedDefaultTextStyle(
                 duration: AppMotion.short,
-                style: AppTypography.caption.copyWith(
+                style: context.text.caption.copyWith(
                   color: selected
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
                 child: Text(

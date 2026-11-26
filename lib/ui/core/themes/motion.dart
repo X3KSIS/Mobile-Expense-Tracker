@@ -15,6 +15,43 @@ abstract final class AppMotion {
   /// Shimmer sweep across skeletons.
   static const Duration shimmer = Duration(milliseconds: 1400);
 
+  /// Light and dark themes blending into each other.
+  static const Duration theme = Duration(milliseconds: 500);
+
+  /// Icons morphing from one shape into another, e.g. sun to moon.
+  static const Duration morph = Duration(milliseconds: 560);
+
+  /// Cards expanding and collapsing. Always paired with [expandCurve].
+  static const Duration expand = Duration(milliseconds: 350);
+
+  /// Ease out: expansion starts quickly and settles gently.
+  static const Curve expandCurve = Curves.easeOut;
+
+  /// Pressed buttons shrink to this scale, then spring back.
+  static const double pressScale = 0.95;
+
+  /// How quickly a pressed button shrinks.
+  static const Duration pressDown = Duration(milliseconds: 90);
+
+  /// Spring that brings a pressed button back to full size with a small,
+  /// soft overshoot.
+  static const SpringDescription pressSpring = SpringDescription(
+    mass: 1,
+    stiffness: 420,
+    damping: 18,
+  );
+
+  /// A dragged list item grows by 5 % while it is lifted.
+  static const double dragLiftScale = 1.05;
+
+  /// Pull-to-refresh runs in slow motion: the indicator eases open, spins
+  /// slowly while refreshing, and settles back over these durations.
+  static const Duration refreshSettle = Duration(milliseconds: 900);
+  static const Duration refreshSpin = Duration(milliseconds: 1800);
+
+  /// Slow, gentle easing for the pull-to-refresh indicator.
+  static const Curve slowMotion = Curves.easeInOutSine;
+
   /// Things arriving or settling.
   static const Curve enter = Curves.easeOutCubic;
 

@@ -211,6 +211,7 @@ StatefulShellRoute _shell() => StatefulShellRoute(
               transactionRepository: context.read(),
               budgetRepository: context.read(),
               authRepository: context.read(),
+              settingsRepository: context.read(),
             ),
             child: Builder(
               builder: (context) =>

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../core/themes/dimens.dart';
 import '../../core/ui/header_icon_button.dart';
+import '../../core/ui/sun_moon_icon.dart';
 import '../../core/ui/user_avatar.dart';
 
-/// Avatar, greeting and the notifications bell. Tapping the avatar or the
+/// Avatar, greeting, the light/dark theme toggle and the notifications
+/// bell. Tapping the avatar or the
 /// name opens the profile.
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
@@ -13,6 +15,8 @@ class HomeHeader extends StatelessWidget {
     required this.initials,
     required this.onProfilePressed,
     required this.onNotificationsPressed,
+    required this.isDarkMode,
+    required this.onDarkModeChanged,
     this.hasUnreadNotifications = true,
   });
 
@@ -21,6 +25,10 @@ class HomeHeader extends StatelessWidget {
   final VoidCallback onProfilePressed;
   final VoidCallback onNotificationsPressed;
   final bool hasUnreadNotifications;
+
+  /// Whether the dark theme is showing; the toggle shows a moon when true.
+  final bool isDarkMode;
+  final ValueChanged<bool> onDarkModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +71,12 @@ class HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: Dimens.gapM),
+        HeaderIconButton(
+          tooltip: isDarkMode ? 'Switch to light mode' : 'Switch to dark mode',
+          onPressed: () => onDarkModeChanged(!isDarkMode),
+          child: SunMoonIcon(isMoon: isDarkMode),
+        ),
+        const SizedBox(width: Dimens.gapS),
         HeaderIconButton(
           icon: Icons.notifications_none_rounded,
           tooltip: 'Notifications',

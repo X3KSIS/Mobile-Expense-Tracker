@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'colors.dart';
 import 'dimens.dart';
 
-/// Text styles from the design system. Most widgets read them through
-/// `Theme.of(context).textTheme`; the extra styles here cover big amounts
-/// and the nav bar, which have no Material slot.
+/// Text sizes and weights from the design system, without colour.
+///
+/// Widgets use `context.text`, which adds the active palette's colours.
 abstract final class AppTypography {
   static const String fontFamily = 'PlusJakartaSans';
 
@@ -16,7 +17,6 @@ abstract final class AppTypography {
     fontSize: 24,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.48,
-    color: AppColors.textPrimary,
   );
 
   /// Header name 18 / 700.
@@ -24,7 +24,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
   );
 
   /// Section title 17 / 700.
@@ -32,7 +31,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 17,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
   );
 
   /// List titles 15 / 600.
@@ -40,7 +38,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
   );
 
   /// Body 14 / 500.
@@ -48,7 +45,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    color: AppColors.textPrimary,
   );
 
   /// Secondary label 13 / 500, e.g. "Welcome back".
@@ -56,15 +52,13 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
   );
 
-  /// Caption 12 / 500, textSecondary.
+  /// Caption 12 / 500.
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
   );
 
   /// Overline 11 / 600, letter-spacing 0.12em. Pass uppercase text.
@@ -73,7 +67,6 @@ abstract final class AppTypography {
     fontSize: 11,
     fontWeight: FontWeight.w600,
     letterSpacing: 1.32,
-    color: AppColors.textSecondary,
   );
 
   /// Form field label 13 / 600, shown above inputs.
@@ -81,7 +74,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
   );
 
   /// Primary full-width button label 16 / 700.
@@ -91,21 +83,19 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w700,
   );
 
-  /// Name on the navy profile card 20 / 800, white.
+  /// Name on the navy profile card 20 / 800.
   static const TextStyle profileName = TextStyle(
     fontFamily: fontFamily,
     fontSize: 20,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.2,
-    color: AppColors.textOnNavy,
   );
 
-  /// Initials inside the large avatar 26 / 800, coral text.
+  /// Initials inside the large avatar 26 / 800.
   static const TextStyle avatarInitialsLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 26,
     fontWeight: FontWeight.w800,
-    color: AppColors.accentText,
   );
 
   /// Button label 14 / 700.
@@ -120,7 +110,13 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
+  );
+
+  /// Status badge label 12 / 700.
+  static const TextStyle badge = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
   );
 
   /// Big amounts 36 / 800.
@@ -129,7 +125,6 @@ abstract final class AppTypography {
     fontSize: 36,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.72,
-    color: AppColors.textPrimary,
   );
 
   /// Amount in sheets and summary cards 30 / 800.
@@ -138,15 +133,13 @@ abstract final class AppTypography {
     fontSize: 30,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.6,
-    color: AppColors.textPrimary,
   );
 
-  /// The smaller, grey "ZMW" prefix in front of a big amount.
+  /// The smaller "ZMW" prefix in front of a big amount.
   static const TextStyle amountPrefix = TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w700,
-    color: AppColors.textSecondary,
   );
 
   /// The smaller, lighter decimals after a big amount.
@@ -154,7 +147,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 22,
     fontWeight: FontWeight.w600,
-    color: AppColors.textSecondary,
   );
 
   /// Percentage on the navy budget card 38 / 800.
@@ -164,7 +156,6 @@ abstract final class AppTypography {
     fontWeight: FontWeight.w800,
     letterSpacing: -0.76,
     height: 1.1,
-    color: AppColors.accent,
   );
 
   /// Stat tile values 17 / 800.
@@ -172,7 +163,6 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 17,
     fontWeight: FontWeight.w800,
-    color: AppColors.textPrimary,
   );
 
   /// Amounts in list rows 15 / 700.
@@ -180,16 +170,14 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
   );
 
-  /// Card titles on navy 17 / 700, white.
+  /// Card titles on navy 17 / 700.
   static const TextStyle cardTitleOnNavy = TextStyle(
     fontFamily: fontFamily,
     fontSize: 17,
     fontWeight: FontWeight.w700,
     height: 1.3,
-    color: AppColors.textOnNavy,
   );
 
   /// Wordmark on the splash screen 28 / 800.
@@ -198,57 +186,103 @@ abstract final class AppTypography {
     fontSize: 28,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.56,
-    color: AppColors.textPrimary,
   );
 }
 
-/// Builds the app's [ThemeData].
-abstract final class AppTheme {
-  static const ColorScheme _lightScheme = ColorScheme(
-    brightness: Brightness.light,
-    primary: AppColors.accentStrong,
-    onPrimary: AppColors.surface,
-    primaryContainer: AppColors.accentSoft,
-    onPrimaryContainer: AppColors.accentText,
-    secondary: AppColors.navy,
-    onSecondary: AppColors.textOnNavy,
-    secondaryContainer: AppColors.surfaceMuted,
-    onSecondaryContainer: AppColors.textPrimary,
-    tertiary: AppColors.success,
-    onTertiary: AppColors.surface,
-    tertiaryContainer: AppColors.successSoft,
-    onTertiaryContainer: AppColors.success,
-    error: AppColors.error,
-    onError: AppColors.surface,
-    surface: AppColors.surface,
-    onSurface: AppColors.textPrimary,
-    onSurfaceVariant: AppColors.textSecondary,
-    surfaceContainerLowest: AppColors.surface,
-    surfaceContainerLow: AppColors.background,
-    surfaceContainer: AppColors.surfaceMuted,
-    surfaceContainerHigh: AppColors.surfaceMuted,
-    surfaceContainerHighest: AppColors.surfaceMuted,
-    outline: AppColors.border,
-    outlineVariant: AppColors.border,
-    shadow: AppColors.shadow,
-    inverseSurface: AppColors.navy,
-    onInverseSurface: AppColors.textOnNavy,
-    inversePrimary: AppColors.accent,
-  );
+/// The [AppTypography] styles coloured from one [AppPalette]. Read with
+/// `context.text`.
+class AppTextStyles {
+  const AppTextStyles(this._c);
 
-  static const TextTheme _textTheme = TextTheme(
-    displaySmall: AppTypography.amountLarge,
-    headlineSmall: AppTypography.screenTitle,
-    titleLarge: AppTypography.headerTitle,
-    titleMedium: AppTypography.sectionTitle,
-    titleSmall: AppTypography.listTitle,
-    bodyLarge: AppTypography.listTitle,
-    bodyMedium: AppTypography.body,
-    bodySmall: AppTypography.caption,
-    labelLarge: AppTypography.button,
-    labelMedium: AppTypography.label,
-    labelSmall: AppTypography.overline,
-  );
+  final AppPalette _c;
+
+  TextStyle get screenTitle =>
+      AppTypography.screenTitle.copyWith(color: _c.textPrimary);
+  TextStyle get headerTitle =>
+      AppTypography.headerTitle.copyWith(color: _c.textPrimary);
+  TextStyle get sectionTitle =>
+      AppTypography.sectionTitle.copyWith(color: _c.textPrimary);
+  TextStyle get listTitle =>
+      AppTypography.listTitle.copyWith(color: _c.textPrimary);
+  TextStyle get body => AppTypography.body.copyWith(color: _c.textPrimary);
+  TextStyle get label => AppTypography.label.copyWith(color: _c.textSecondary);
+  TextStyle get caption =>
+      AppTypography.caption.copyWith(color: _c.textSecondary);
+  TextStyle get overline =>
+      AppTypography.overline.copyWith(color: _c.textSecondary);
+  TextStyle get fieldLabel =>
+      AppTypography.fieldLabel.copyWith(color: _c.textPrimary);
+  TextStyle get primaryButton =>
+      AppTypography.primaryButton.copyWith(color: _c.onAccentStrong);
+  TextStyle get profileName =>
+      AppTypography.profileName.copyWith(color: _c.textOnNavy);
+  TextStyle get avatarInitialsLarge =>
+      AppTypography.avatarInitialsLarge.copyWith(color: _c.accentText);
+  TextStyle get button => AppTypography.button.copyWith(color: _c.textPrimary);
+  TextStyle get navLabel =>
+      AppTypography.navLabel.copyWith(color: _c.textPrimary);
+  TextStyle get badge => AppTypography.badge.copyWith(color: _c.textPrimary);
+  TextStyle get amountLarge =>
+      AppTypography.amountLarge.copyWith(color: _c.textPrimary);
+  TextStyle get amountMedium =>
+      AppTypography.amountMedium.copyWith(color: _c.textPrimary);
+  TextStyle get amountPrefix =>
+      AppTypography.amountPrefix.copyWith(color: _c.textSecondary);
+  TextStyle get amountDecimals =>
+      AppTypography.amountDecimals.copyWith(color: _c.textSecondary);
+  TextStyle get percentLarge =>
+      AppTypography.percentLarge.copyWith(color: _c.accent);
+  TextStyle get statValue =>
+      AppTypography.statValue.copyWith(color: _c.textPrimary);
+  TextStyle get listAmount =>
+      AppTypography.listAmount.copyWith(color: _c.textPrimary);
+  TextStyle get cardTitleOnNavy =>
+      AppTypography.cardTitleOnNavy.copyWith(color: _c.textOnNavy);
+  TextStyle get wordmark =>
+      AppTypography.wordmark.copyWith(color: _c.textPrimary);
+}
+
+extension AppTextContext on BuildContext {
+  AppTextStyles get text => AppTextStyles(colors);
+}
+
+/// Builds the app's light and dark [ThemeData] from the two palettes.
+abstract final class AppTheme {
+  static final ThemeData light = _build(AppPalette.light, Brightness.light);
+  static final ThemeData dark = _build(AppPalette.dark, Brightness.dark);
+
+  static ColorScheme _scheme(AppPalette c, Brightness brightness) =>
+      ColorScheme(
+        brightness: brightness,
+        primary: c.accentStrong,
+        onPrimary: c.onAccentStrong,
+        primaryContainer: c.accentSoft,
+        onPrimaryContainer: c.accentText,
+        secondary: c.navy,
+        onSecondary: c.textOnNavy,
+        secondaryContainer: c.surfaceMuted,
+        onSecondaryContainer: c.textPrimary,
+        tertiary: c.success,
+        onTertiary: c.surface,
+        tertiaryContainer: c.successSoft,
+        onTertiaryContainer: c.success,
+        error: c.error,
+        onError: c.surface,
+        surface: c.surface,
+        onSurface: c.textPrimary,
+        onSurfaceVariant: c.textSecondary,
+        surfaceContainerLowest: c.surface,
+        surfaceContainerLow: c.background,
+        surfaceContainer: c.surfaceMuted,
+        surfaceContainerHigh: c.surfaceMuted,
+        surfaceContainerHighest: c.surfaceMuted,
+        outline: c.border,
+        outlineVariant: c.border,
+        shadow: c.shadow,
+        inverseSurface: c.navy,
+        onInverseSurface: c.textOnNavy,
+        inversePrimary: c.accent,
+      );
 
   static RoundedRectangleBorder _rounded(double radius, {BorderSide? side}) =>
       RoundedRectangleBorder(
@@ -256,153 +290,170 @@ abstract final class AppTheme {
         side: side ?? BorderSide.none,
       );
 
-  static const BorderSide _borderSide = BorderSide(color: AppColors.border);
-
-  static ThemeData get light => ThemeData(
-    useMaterial3: true,
-    colorScheme: _lightScheme,
-    fontFamily: AppTypography.fontFamily,
-    textTheme: _textTheme,
-    scaffoldBackgroundColor: AppColors.background,
-    // Pushed screens fade and drift forward instead of sliding abruptly.
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
-        TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
-        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-      },
-    ),
-    canvasColor: AppColors.background,
-    dividerTheme: const DividerThemeData(
-      color: AppColors.border,
-      thickness: 1,
-      space: 1,
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.background,
-      foregroundColor: AppColors.textPrimary,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: false,
-      titleTextStyle: AppTypography.screenTitle,
-    ),
-    cardTheme: CardThemeData(
-      color: AppColors.surface,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      shape: _rounded(Dimens.radiusCard, side: _borderSide),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: AppColors.accentStrong,
-        foregroundColor: AppColors.surface,
-        textStyle: AppTypography.button,
-        minimumSize: const Size(0, Dimens.buttonHeight),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        shape: _rounded(Dimens.radiusButton),
-        elevation: 0,
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
-        textStyle: AppTypography.button,
-        minimumSize: const Size(0, Dimens.buttonHeight),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        side: _borderSide,
-        shape: _rounded(Dimens.radiusButton),
-      ),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        foregroundColor: AppColors.accentText,
-        textStyle: AppTypography.button,
-        minimumSize: const Size(Dimens.minTouchTarget, Dimens.minTouchTarget),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        shape: _rounded(Dimens.radiusInput),
-      ),
-    ),
-    iconButtonTheme: IconButtonThemeData(
-      style: IconButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        minimumSize: const Size(Dimens.minTouchTarget, Dimens.minTouchTarget),
-      ),
-    ),
-    chipTheme: ChipThemeData(
-      backgroundColor: AppColors.surface,
-      selectedColor: AppColors.navy,
-      disabledColor: AppColors.surfaceMuted,
-      checkmarkColor: AppColors.textOnNavy,
-      labelStyle: AppTypography.body,
-      secondaryLabelStyle: AppTypography.body.copyWith(
-        color: AppColors.textOnNavy,
-      ),
-      side: _borderSide,
-      shape: _rounded(Dimens.radiusInput, side: _borderSide),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      showCheckmark: false,
-    ),
-    inputDecorationTheme: InputDecorationThemeData(
-      filled: true,
-      fillColor: AppColors.surface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      hintStyle: AppTypography.body.copyWith(color: AppColors.textSecondary),
-      labelStyle: AppTypography.body.copyWith(color: AppColors.textSecondary),
-      border: _inputBorder(AppColors.border),
-      enabledBorder: _inputBorder(AppColors.border),
-      focusedBorder: _inputBorder(AppColors.accentStrong, width: 1.5),
-      errorBorder: _inputBorder(AppColors.error),
-      focusedErrorBorder: _inputBorder(AppColors.error, width: 1.5),
-    ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.accent,
-      linearTrackColor: AppColors.surfaceMuted,
-    ),
-    snackBarTheme: SnackBarThemeData(
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: AppColors.navy,
-      contentTextStyle: AppTypography.body.copyWith(
-        color: AppColors.textOnNavy,
-      ),
-      shape: _rounded(Dimens.radiusButton),
-    ),
-    bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: AppColors.surface,
-      surfaceTintColor: Colors.transparent,
-      showDragHandle: true,
-      dragHandleColor: AppColors.border,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(Dimens.radiusCard),
-        ),
-      ),
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: AppColors.surface,
-      surfaceTintColor: Colors.transparent,
-      shape: _rounded(Dimens.radiusDialog),
-      titleTextStyle: AppTypography.sectionTitle,
-      contentTextStyle: AppTypography.body.copyWith(
-        color: AppColors.textSecondary,
-      ),
-    ),
-    tooltipTheme: TooltipThemeData(
-      decoration: BoxDecoration(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.circular(Dimens.gapS),
-      ),
-      textStyle: AppTypography.caption.copyWith(color: AppColors.textOnNavy),
-    ),
-  );
-
   static OutlineInputBorder _inputBorder(Color color, {double width = 1}) =>
       OutlineInputBorder(
         borderRadius: BorderRadius.circular(Dimens.radiusInput),
         borderSide: BorderSide(color: color, width: width),
       );
+
+  static ThemeData _build(AppPalette c, Brightness brightness) {
+    final t = AppTextStyles(c);
+    final borderSide = BorderSide(color: c.border);
+    return ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      colorScheme: _scheme(c, brightness),
+      extensions: [c],
+      fontFamily: AppTypography.fontFamily,
+      textTheme: TextTheme(
+        displaySmall: t.amountLarge,
+        headlineSmall: t.screenTitle,
+        titleLarge: t.headerTitle,
+        titleMedium: t.sectionTitle,
+        titleSmall: t.listTitle,
+        bodyLarge: t.listTitle,
+        bodyMedium: t.body,
+        bodySmall: t.caption,
+        labelLarge: AppTypography.button,
+        labelMedium: t.label,
+        labelSmall: t.overline,
+      ),
+      scaffoldBackgroundColor: c.background,
+      // Pushed screens fade and drift forward instead of sliding abruptly.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
+      canvasColor: c.background,
+      dividerTheme: DividerThemeData(color: c.border, thickness: 1, space: 1),
+      appBarTheme: AppBarTheme(
+        backgroundColor: c.background,
+        foregroundColor: c.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: t.screenTitle,
+        systemOverlayStyle: brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+      ),
+      cardTheme: CardThemeData(
+        color: c.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        shape: _rounded(Dimens.radiusCard, side: borderSide),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: c.accentStrong,
+          foregroundColor: c.onAccentStrong,
+          textStyle: AppTypography.button,
+          minimumSize: const Size(0, Dimens.buttonHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: _rounded(Dimens.radiusButton),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          backgroundColor: c.surface,
+          foregroundColor: c.textPrimary,
+          textStyle: AppTypography.button,
+          minimumSize: const Size(0, Dimens.buttonHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          side: borderSide,
+          shape: _rounded(Dimens.radiusButton),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: c.accentText,
+          textStyle: AppTypography.button,
+          minimumSize: const Size(Dimens.minTouchTarget, Dimens.minTouchTarget),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          shape: _rounded(Dimens.radiusInput),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: c.textPrimary,
+          minimumSize: const Size(Dimens.minTouchTarget, Dimens.minTouchTarget),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: c.surface,
+        selectedColor: c.navy,
+        disabledColor: c.surfaceMuted,
+        checkmarkColor: c.textOnNavy,
+        labelStyle: t.body,
+        secondaryLabelStyle: t.body.copyWith(color: c.textOnNavy),
+        side: borderSide,
+        shape: _rounded(Dimens.radiusInput, side: borderSide),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        showCheckmark: false,
+      ),
+      inputDecorationTheme: InputDecorationThemeData(
+        filled: true,
+        fillColor: c.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        hintStyle: t.body.copyWith(color: c.textSecondary),
+        labelStyle: t.body.copyWith(color: c.textSecondary),
+        border: _inputBorder(c.border),
+        enabledBorder: _inputBorder(c.border),
+        focusedBorder: _inputBorder(c.accentStrong, width: 1.5),
+        errorBorder: _inputBorder(c.error),
+        focusedErrorBorder: _inputBorder(c.error, width: 1.5),
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: c.accentStrong,
+        selectionHandleColor: c.accentStrong,
+        selectionColor: c.accent.withValues(alpha: 0.3),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: c.accent,
+        linearTrackColor: c.surfaceMuted,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: c.navy,
+        contentTextStyle: t.body.copyWith(color: c.textOnNavy),
+        shape: _rounded(Dimens.radiusButton),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: c.surface,
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: true,
+        dragHandleColor: c.border,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Dimens.radiusCard),
+          ),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: c.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: _rounded(Dimens.radiusDialog),
+        titleTextStyle: t.sectionTitle,
+        contentTextStyle: t.body.copyWith(color: c.textSecondary),
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: c.navy,
+          borderRadius: BorderRadius.circular(Dimens.gapS),
+        ),
+        textStyle: t.caption.copyWith(color: c.textOnNavy),
+      ),
+    );
+  }
 }

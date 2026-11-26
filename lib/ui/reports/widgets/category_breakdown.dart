@@ -21,7 +21,7 @@ class CategoryBreakdown extends StatelessWidget {
     if (categories.isEmpty) {
       return Text(
         'No spending this month.',
-        style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+        style: context.text.body.copyWith(color: context.colors.textSecondary),
       );
     }
     final largest = categories.first.amount;
@@ -66,14 +66,14 @@ class _CategoryBar extends StatelessWidget {
                     Expanded(
                       child: Text(
                         category.name,
-                        style: AppTypography.listTitle,
+                        style: context.text.listTitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Text(
                       formatZmw(category.amount),
-                      style: AppTypography.listAmount,
+                      style: context.text.listAmount,
                     ),
                   ],
                 ),
@@ -86,7 +86,7 @@ class _CategoryBar extends StatelessWidget {
                       width: 36,
                       child: Text(
                         '$percent%',
-                        style: AppTypography.caption,
+                        style: context.text.caption,
                         textAlign: TextAlign.end,
                       ),
                     ),

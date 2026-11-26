@@ -41,14 +41,16 @@ class ActivityDaySection extends StatelessWidget {
                   header: true,
                   child: Text(
                     formatDayHeading(day.day, now: now).toUpperCase(),
-                    style: AppTypography.overline,
+                    style: context.text.overline,
                   ),
                 ),
               ),
               Text(
                 netLabel,
-                style: AppTypography.caption.copyWith(
-                  color: net > 0 ? AppColors.success : AppColors.textSecondary,
+                style: context.text.caption.copyWith(
+                  color: net > 0
+                      ? context.colors.success
+                      : context.colors.textSecondary,
                 ),
               ),
             ],

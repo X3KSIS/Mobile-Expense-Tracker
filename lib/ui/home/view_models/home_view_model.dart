@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth/auth_repository.dart';
 import '../../../data/repositories/budget/budget_repository.dart';
+import '../../../data/repositories/settings/settings_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../domain/models/budget_alert.dart';
 import '../../../domain/models/budget_progress.dart';
 import '../../../domain/models/monthly_summary.dart';
+import '../../../domain/models/theme_preference.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
@@ -17,10 +19,12 @@ class HomeViewModel extends ChangeNotifier {
     required this._transactionRepository,
     required this._budgetRepository,
     required this._authRepository,
+    required this._settingsRepository,
     this.recentLimit = 5,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
-    _authRepository.addListener(_onAuthChanged);
+    _authRepository.addListener(_onHeaderChanged);
+    _settingsRepository.addListener(_onHeaderChanged);
     _transactionRepository.addListener(_onDataChanged);
     _budgetRepository.addListener(_onDataChanged);
     load = Command0<void>(_load)..execute();
@@ -32,6 +36,7 @@ class HomeViewModel extends ChangeNotifier {
   final TransactionRepository _transactionRepository;
   final BudgetRepository _budgetRepository;
   final AuthRepository _authRepository;
+  final SettingsRepository _settingsRepository;
 
   /// How many recent transactions to show.
   final int recentLimit;
@@ -73,8 +78,18 @@ class HomeViewModel extends ChangeNotifier {
   /// Up to two initials from [userName], e.g. "PM".
   String get userInitials => _authRepository.currentUser?.initials ?? '';
 
-  /// Rebuilds the header when the profile changes.
-  void _onAuthChanged() {
+  /// The colour theme the user picked.
+  ThemePreference get themePreference => _settingsRepository.themePreference;
+
+  /// Switches to the dark theme, or to the light one when [dark] is false.
+  void setDarkMode(bool dark) {
+    _settingsRepository.setThemePreference(
+      dark ? ThemePreference.dark : ThemePreference.light,
+    );
+  }
+
+  /// Rebuilds the header when the profile or theme changes.
+  void _onHeaderChanged() {
     if (!_disposed) notifyListeners();
   }
 
@@ -122,7 +137,8 @@ class HomeViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
-    _authRepository.removeListener(_onAuthChanged);
+    _authRepository.removeListener(_onHeaderChanged);
+    _settingsRepository.removeListener(_onHeaderChanged);
     _transactionRepository.removeListener(_onDataChanged);
     _budgetRepository.removeListener(_onDataChanged);
     load.dispose();

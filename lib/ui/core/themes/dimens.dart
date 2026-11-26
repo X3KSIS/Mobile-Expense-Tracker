@@ -65,18 +65,31 @@ abstract final class Dimens {
       MediaQuery.viewPaddingOf(context).bottom;
 }
 
-/// Soft shadows. Gradients live in `gradients.dart`.
-abstract final class AppShadows {
-  static const List<BoxShadow> soft = [
-    BoxShadow(color: AppColors.shadow, blurRadius: 24, offset: Offset(0, 8)),
+/// Soft shadows, read with `context.shadows`. Gradients live in
+/// `gradients.dart`.
+class AppShadows {
+  const AppShadows(this._palette);
+
+  final AppPalette _palette;
+
+  List<BoxShadow> get soft => [
+    BoxShadow(
+      color: _palette.shadow,
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
   ];
 
   /// Soft coral glow under the primary action button.
-  static const List<BoxShadow> coral = [
+  List<BoxShadow> get coral => [
     BoxShadow(
-      color: AppColors.accentShadow,
+      color: _palette.accentShadow,
       blurRadius: 20,
-      offset: Offset(0, 8),
+      offset: const Offset(0, 8),
     ),
   ];
+}
+
+extension AppShadowsContext on BuildContext {
+  AppShadows get shadows => AppShadows(colors);
 }

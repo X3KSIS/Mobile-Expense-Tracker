@@ -44,7 +44,7 @@ class BalanceCard extends StatelessWidget {
                 IconButton(
                   onPressed: onToggleHideAmounts,
                   tooltip: hideAmounts ? 'Show amounts' : 'Hide amounts',
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                   iconSize: Dimens.iconSize,
                   icon: AnimatedSwitcher(
                     duration: AppMotion.short,
@@ -79,7 +79,7 @@ class BalanceCard extends StatelessWidget {
                     value: hideAmounts
                         ? _mask
                         : '+${formatWhole(summary.income)}',
-                    valueColor: AppColors.success,
+                    valueColor: context.colors.success,
                   ),
                 ),
                 const SizedBox(width: Dimens.gapM),
@@ -89,7 +89,7 @@ class BalanceCard extends StatelessWidget {
                     value: hideAmounts
                         ? _mask
                         : '-${formatWhole(summary.expenses)}',
-                    valueColor: AppColors.textPrimary,
+                    valueColor: context.colors.textPrimary,
                   ),
                 ),
               ],
@@ -117,18 +117,15 @@ class _NetAmount extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            const TextSpan(
-              text: '$currencyCode ',
-              style: AppTypography.amountPrefix,
-            ),
+            TextSpan(text: '$currencyCode ', style: context.text.amountPrefix),
             TextSpan(
               text: hidden ? '••••••' : parts.whole,
-              style: AppTypography.amountLarge,
+              style: context.text.amountLarge,
             ),
             if (!hidden)
               TextSpan(
                 text: parts.decimals,
-                style: AppTypography.amountDecimals,
+                style: context.text.amountDecimals,
               ),
           ],
         ),
@@ -158,13 +155,13 @@ class _StatTile extends StatelessWidget {
         vertical: Dimens.gapM,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
+        color: context.colors.surfaceMuted,
         borderRadius: BorderRadius.circular(Dimens.radiusTile),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.overline),
+          Text(label, style: context.text.overline),
           const SizedBox(height: Dimens.gapXs),
           FadeSwitcher(
             alignment: Alignment.centerLeft,
@@ -172,7 +169,7 @@ class _StatTile extends StatelessWidget {
             child: Text(
               value,
               key: ValueKey(value),
-              style: AppTypography.statValue.copyWith(color: valueColor),
+              style: context.text.statValue.copyWith(color: valueColor),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

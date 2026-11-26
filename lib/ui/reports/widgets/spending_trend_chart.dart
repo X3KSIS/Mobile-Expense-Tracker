@@ -86,10 +86,10 @@ class SpendingTrendChart extends StatelessWidget {
                 child: Text(
                   formatMonthShort(m.month),
                   textAlign: TextAlign.center,
-                  style: AppTypography.caption.copyWith(
+                  style: context.text.caption.copyWith(
                     color: m.month == selected
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary,
+                        ? context.colors.textPrimary
+                        : context.colors.textSecondary,
                     fontWeight: m.month == selected
                         ? FontWeight.w700
                         : FontWeight.w500,
@@ -124,7 +124,7 @@ class _YAxis extends StatelessWidget {
                 bottom: plotHeight * fraction - 7,
                 child: Text(
                   formatCompact(top * fraction),
-                  style: AppTypography.caption,
+                  style: context.text.caption,
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -150,8 +150,8 @@ class _Gridlines extends StatelessWidget {
               left: 0,
               right: 0,
               bottom: plotHeight * fraction,
-              child: const ColoredBox(
-                color: AppColors.chartGrid,
+              child: ColoredBox(
+                color: context.colors.chartGrid,
                 child: SizedBox(height: 1),
               ),
             ),
@@ -194,8 +194,8 @@ class _Column extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: Dimens.gapXs),
                 child: Text(
                   formatCompact(totals.expenses),
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.textPrimary,
+                  style: context.text.caption.copyWith(
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -206,7 +206,9 @@ class _Column extends StatelessWidget {
               width: Dimens.columnMaxWidth,
               height: math.max(height, totals.expenses > 0 ? 2 : 0),
               decoration: BoxDecoration(
-                color: selected ? AppColors.accent : AppColors.chartMuted,
+                color: selected
+                    ? context.colors.accent
+                    : context.colors.chartMuted,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(Dimens.dataEndRadius),
                 ),

@@ -49,11 +49,13 @@ class LabeledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = enabled ? AppColors.textSecondary : AppColors.border;
+    final iconColor = enabled
+        ? context.colors.textSecondary
+        : context.colors.border;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.fieldLabel),
+        Text(label, style: context.text.fieldLabel),
         const SizedBox(height: Dimens.gapS),
         TextFormField(
           controller: controller,
@@ -68,15 +70,21 @@ class LabeledTextField extends StatelessWidget {
           obscureText: obscureText,
           enabled: enabled,
           maxLines: maxLines,
-          style: AppTypography.body.copyWith(
-            color: enabled ? AppColors.textPrimary : AppColors.textSecondary,
+          style: context.text.body.copyWith(
+            color: enabled
+                ? context.colors.textPrimary
+                : context.colors.textSecondary,
           ),
           decoration: InputDecoration(
             hintText: hint,
             helperText: helper,
-            helperStyle: AppTypography.caption,
-            errorStyle: AppTypography.caption.copyWith(color: AppColors.error),
-            fillColor: enabled ? AppColors.surface : AppColors.surfaceMuted,
+            helperStyle: context.text.caption,
+            errorStyle: context.text.caption.copyWith(
+              color: context.colors.error,
+            ),
+            fillColor: enabled
+                ? context.colors.surface
+                : context.colors.surfaceMuted,
             prefixIcon: prefixIcon == null
                 ? null
                 : Icon(prefixIcon, size: Dimens.iconSizeSmall + 2),
@@ -151,7 +159,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
                 : Icons.visibility_off_outlined,
             key: ValueKey(_obscured),
             size: Dimens.iconSizeSmall + 2,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../domain/models/theme_preference.dart';
 import '../../../routing/routes.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/fade_switcher.dart';
@@ -126,6 +127,13 @@ class _HomeContent extends StatelessWidget {
           initials: viewModel.userInitials,
           onProfilePressed: () => context.push(Routes.profile),
           onNotificationsPressed: onNotificationsPressed,
+          isDarkMode: switch (viewModel.themePreference) {
+            ThemePreference.dark => true,
+            ThemePreference.light => false,
+            ThemePreference.system =>
+              MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+          },
+          onDarkModeChanged: viewModel.setDarkMode,
         ),
         const SizedBox(height: Dimens.sectionGap),
         BalanceCard(

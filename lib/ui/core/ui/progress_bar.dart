@@ -10,18 +10,24 @@ class ProgressBar extends StatelessWidget {
   const ProgressBar({
     super.key,
     required this.value,
-    this.color = AppColors.accent,
-    this.trackColor = AppColors.surfaceMuted,
+    this.color,
+    this.trackColor,
     this.semanticLabel,
   });
 
   final double value;
-  final Color color;
-  final Color trackColor;
+
+  /// Defaults to the accent colour.
+  final Color? color;
+
+  /// Defaults to the muted surface colour.
+  final Color? trackColor;
   final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.colors.accent;
+    final trackColor = this.trackColor ?? context.colors.surfaceMuted;
     final target = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
     return Semantics(
       label: semanticLabel,

@@ -4,6 +4,8 @@ import 'package:flutter_expensetracker/data/repositories/budget/budget_repositor
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/category/category_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/category/category_repository_local_fake.dart';
+import 'package:flutter_expensetracker/data/repositories/settings/settings_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +39,9 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ),
   ChangeNotifierProvider<BudgetRepository>(
     create: (_) => instantBudgetRepository(),
+  ),
+  ChangeNotifierProvider<SettingsRepository>(
+    create: (_) => SettingsRepositoryLocalFake(),
   ),
   Provider<CategoryRepository>(create: (_) => instantCategoryRepository()),
 ];

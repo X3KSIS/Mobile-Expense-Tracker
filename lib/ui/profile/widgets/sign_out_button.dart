@@ -26,7 +26,9 @@ class SignOutButton extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            style: TextButton.styleFrom(foregroundColor: AppColors.textPrimary),
+            style: TextButton.styleFrom(
+              foregroundColor: context.colors.textPrimary,
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -44,19 +46,19 @@ class SignOutButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: loading ? null : () => _confirm(context),
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.accentText,
+        foregroundColor: context.colors.accentText,
         minimumSize: const Size.fromHeight(Dimens.primaryButtonHeight),
         shape: const StadiumBorder(),
       ),
       icon: AnimatedSwitcher(
         duration: AppMotion.short,
         child: loading
-            ? const SizedBox.square(
+            ? SizedBox.square(
                 key: ValueKey('spinner'),
                 dimension: Dimens.iconSizeSmall,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.accentText,
+                  color: context.colors.accentText,
                 ),
               )
             : const Icon(

@@ -27,22 +27,22 @@ class BudgetsSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mutedStyle = AppTypography.body.copyWith(
-      color: AppColors.textOnNavyMuted,
+    final mutedStyle = context.text.body.copyWith(
+      color: context.colors.textOnNavyMuted,
     );
     final money = splitMoney(spent);
     return MeshGradientBox(
-      mesh: AppGradients.navyMesh,
+      mesh: context.gradients.navyMesh,
       padding: const EdgeInsets.all(Dimens.cardPadding + 2),
       borderRadius: BorderRadius.circular(Dimens.radiusCard),
-      boxShadow: AppShadows.soft,
+      boxShadow: context.shadows.soft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'SPENT THIS MONTH',
-            style: AppTypography.overline.copyWith(
-              color: AppColors.textOnNavyMuted,
+            style: context.text.overline.copyWith(
+              color: context.colors.textOnNavyMuted,
             ),
           ),
           const SizedBox(height: Dimens.gapS),
@@ -54,20 +54,20 @@ class BudgetsSummaryCard extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: '$currencyCode ',
-                    style: AppTypography.amountPrefix.copyWith(
-                      color: AppColors.textOnNavyMuted,
+                    style: context.text.amountPrefix.copyWith(
+                      color: context.colors.textOnNavyMuted,
                     ),
                   ),
                   TextSpan(
                     text: money.whole,
-                    style: AppTypography.amountLarge.copyWith(
-                      color: AppColors.accent,
+                    style: context.text.amountLarge.copyWith(
+                      color: context.colors.accent,
                     ),
                   ),
                   TextSpan(
                     text: money.decimals,
-                    style: AppTypography.amountDecimals.copyWith(
-                      color: AppColors.textOnNavyMuted,
+                    style: context.text.amountDecimals.copyWith(
+                      color: context.colors.textOnNavyMuted,
                     ),
                   ),
                 ],
@@ -79,7 +79,7 @@ class BudgetsSummaryCard extends StatelessWidget {
           const SizedBox(height: Dimens.gapL),
           ProgressBar(
             value: percentUsed,
-            trackColor: AppColors.navyTrack,
+            trackColor: context.colors.navyTrack,
             semanticLabel: 'Total budget used',
           ),
           const SizedBox(height: Dimens.gapM),
@@ -88,16 +88,16 @@ class BudgetsSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${formatZmw(remaining)} left',
-                  style: AppTypography.listTitle.copyWith(
-                    color: AppColors.textOnNavy,
+                  style: context.text.listTitle.copyWith(
+                    color: context.colors.textOnNavy,
                   ),
                 ),
               ),
               if (overCount > 0)
                 Text(
                   '$overCount over limit',
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.textOnNavyMuted,
+                  style: context.text.caption.copyWith(
+                    color: context.colors.textOnNavyMuted,
                   ),
                 ),
             ],

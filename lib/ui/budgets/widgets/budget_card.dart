@@ -25,10 +25,10 @@ class BudgetCard extends StatelessWidget {
         ? '${formatZmw(progress.overBy)} over'
         : '${formatZmw(progress.remaining)} left';
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: radius,
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.colors.border),
       ),
       child: InkWell(
         onTap: onTap,
@@ -51,23 +51,23 @@ class BudgetCard extends StatelessWidget {
                       children: [
                         Text(
                           budget.categoryName,
-                          style: AppTypography.listTitle,
+                          style: context.text.listTitle,
                         ),
                         const SizedBox(height: 2),
                         Text(
                           '${formatZmw(progress.spent)} of '
                           '${formatZmw(budget.limit)}',
-                          style: AppTypography.caption,
+                          style: context.text.caption,
                         ),
                       ],
                     ),
                   ),
                   Text(
                     '${progress.percentRounded}%',
-                    style: AppTypography.statValue.copyWith(
+                    style: context.text.statValue.copyWith(
                       color: warn
-                          ? AppColors.accentText
-                          : AppColors.textPrimary,
+                          ? context.colors.accentText
+                          : context.colors.textPrimary,
                     ),
                   ),
                 ],
@@ -75,16 +75,18 @@ class BudgetCard extends StatelessWidget {
               const SizedBox(height: Dimens.gapM),
               ProgressBar(
                 value: progress.percentUsed,
-                color: warn ? AppColors.accentStrong : AppColors.accent,
+                color: warn
+                    ? context.colors.accentStrong
+                    : context.colors.accent,
                 semanticLabel: '${budget.categoryName} budget used',
               ),
               const SizedBox(height: Dimens.gapS),
               Text(
                 status,
-                style: AppTypography.caption.copyWith(
+                style: context.text.caption.copyWith(
                   color: progress.isOverLimit
-                      ? AppColors.accentText
-                      : AppColors.textSecondary,
+                      ? context.colors.accentText
+                      : context.colors.textSecondary,
                   fontWeight: progress.isOverLimit
                       ? FontWeight.w700
                       : FontWeight.w500,

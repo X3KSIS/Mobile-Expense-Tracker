@@ -39,17 +39,17 @@ class DateField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.fieldLabel),
+        Text(label, style: context.text.fieldLabel),
         const SizedBox(height: Dimens.gapS),
         Semantics(
           button: true,
           label: '$label, $value. Change date',
           excludeSemantics: true,
           child: Material(
-            color: AppColors.surface,
+            color: context.colors.surface,
             shape: RoundedRectangleBorder(
               borderRadius: radius,
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: context.colors.border),
             ),
             child: InkWell(
               onTap: () => _pick(context),
@@ -61,17 +61,17 @@ class DateField extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today_outlined,
                       size: Dimens.iconSizeSmall + 2,
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                     const SizedBox(width: Dimens.gapM),
-                    Expanded(child: Text(value, style: AppTypography.body)),
-                    const Icon(
+                    Expanded(child: Text(value, style: context.text.body)),
+                    Icon(
                       Icons.chevron_right_rounded,
                       size: Dimens.iconSize,
-                      color: AppColors.textSecondary,
+                      color: context.colors.textSecondary,
                     ),
                   ],
                 ),

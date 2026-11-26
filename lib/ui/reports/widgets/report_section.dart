@@ -32,9 +32,9 @@ class ReportSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(Dimens.gapL),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(Dimens.radiusList),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.colors.border),
           ),
           child: child,
         ),

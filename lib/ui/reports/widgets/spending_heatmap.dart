@@ -56,7 +56,7 @@ class SpendingHeatmap extends StatelessWidget {
                 Expanded(
                   child: Text(
                     d,
-                    style: AppTypography.caption,
+                    style: context.text.caption,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -113,10 +113,12 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fill = future ? AppColors.surface : AppColors.heatRamp[level];
+    final fill = future
+        ? context.colors.surface
+        : context.colors.heatRamp[level];
     final textColor = level == 4
-        ? AppColors.textOnNavy
-        : (future ? AppColors.textSecondary : AppColors.textPrimary);
+        ? context.colors.textOnNavy
+        : (future ? context.colors.textSecondary : context.colors.textPrimary);
     return Semantics(
       button: true,
       selected: selected,
@@ -137,14 +139,14 @@ class _DayCell extends StatelessWidget {
               borderRadius: BorderRadius.circular(_radius),
               border: Border.all(
                 color: selected
-                    ? AppColors.navy
-                    : (future ? AppColors.border : Colors.transparent),
+                    ? context.colors.navy
+                    : (future ? context.colors.border : Colors.transparent),
                 width: selected ? 2 : 1,
               ),
             ),
             child: Text(
               '${day.day.day}',
-              style: AppTypography.caption.copyWith(
+              style: context.text.caption.copyWith(
                 color: textColor,
                 fontWeight: FontWeight.w600,
               ),
@@ -170,10 +172,10 @@ class _Readout extends StatelessWidget {
         alignment: Alignment.centerLeft,
         duration: AppMotion.short,
         child: day == null
-            ? const Text(
+            ? Text(
                 'Tap a day to see what you spent.',
                 key: ValueKey('hint'),
-                style: AppTypography.caption,
+                style: context.text.caption,
               )
             : Text.rich(
                 key: ValueKey(day.day),
@@ -181,11 +183,11 @@ class _Readout extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: formatZmw(day.amount),
-                      style: AppTypography.listAmount,
+                      style: context.text.listAmount,
                     ),
                     TextSpan(
                       text: '  ${formatPickerDate(day.day)}',
-                      style: AppTypography.caption,
+                      style: context.text.caption,
                     ),
                   ],
                 ),
@@ -204,9 +206,9 @@ class _Legend extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Text('Less', style: AppTypography.caption),
+          Text('Less', style: context.text.caption),
           const SizedBox(width: Dimens.gapS - 2),
-          for (final color in AppColors.heatRamp) ...[
+          for (final color in context.colors.heatRamp) ...[
             Container(
               width: 14,
               height: 14,
@@ -218,7 +220,7 @@ class _Legend extends StatelessWidget {
             const SizedBox(width: 3),
           ],
           const SizedBox(width: 3),
-          const Text('More', style: AppTypography.caption),
+          Text('More', style: context.text.caption),
         ],
       ),
     );

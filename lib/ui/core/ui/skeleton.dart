@@ -55,10 +55,10 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
               shaderCallback: (bounds) => LinearGradient(
                 begin: Alignment(-1 + shift, -1 + shift),
                 end: Alignment(1 + shift, 1 + shift),
-                colors: const [
-                  AppColors.surfaceMuted,
-                  AppColors.skeletonHighlight,
-                  AppColors.surfaceMuted,
+                colors: [
+                  context.colors.surfaceMuted,
+                  context.colors.skeletonHighlight,
+                  context.colors.surfaceMuted,
                 ],
                 stops: const [0.35, 0.5, 0.65],
               ).createShader(bounds),
@@ -90,7 +90,7 @@ class SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
+        color: context.colors.surfaceMuted,
         borderRadius: BorderRadius.circular(radius),
       ),
     );
@@ -127,9 +127,9 @@ class SkeletonCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: child,
     );

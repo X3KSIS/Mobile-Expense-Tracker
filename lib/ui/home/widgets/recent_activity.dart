@@ -42,7 +42,7 @@ class RecentActivity extends StatelessWidget {
                 child: Text(
                   'No transactions yet. Tap + to add your first one.',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),

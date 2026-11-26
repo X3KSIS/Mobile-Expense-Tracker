@@ -195,7 +195,7 @@ class _ActivityHeader extends StatelessWidget {
                 label: 'Money in',
                 value: formatZmw(viewModel.totalIn),
                 icon: Icons.south_west_rounded,
-                valueColor: AppColors.success,
+                valueColor: context.colors.success,
               ),
             ),
             const SizedBox(width: Dimens.gapM),

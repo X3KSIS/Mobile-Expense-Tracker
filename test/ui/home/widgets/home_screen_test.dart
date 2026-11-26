@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository.dart';
 import 'package:flutter_expensetracker/ui/core/themes/theme.dart';
 import 'package:flutter_expensetracker/ui/home/view_models/home_view_model.dart';
@@ -25,6 +26,7 @@ void main() {
       transactionRepository: transactions ?? instantTransactionRepository(),
       budgetRepository: instantBudgetRepository(),
       authRepository: instantAuthRepository(signedIn: true),
+      settingsRepository: SettingsRepositoryLocalFake(),
     );
     addTearDown(viewModel.dispose);
 

@@ -39,9 +39,9 @@ class AmountInput extends StatelessWidget {
         Dimens.gapS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(Dimens.radiusCard),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,20 +52,20 @@ class AmountInput extends StatelessWidget {
             child: Text(
               label.toUpperCase(),
               key: ValueKey(label),
-              style: AppTypography.overline,
+              style: context.text.overline,
             ),
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(currencyCode, style: AppTypography.amountPrefix),
+              Text(currencyCode, style: context.text.amountPrefix),
               const SizedBox(width: Dimens.gapS),
               Expanded(
                 child: TextFormField(
                   controller: controller,
                   validator: validator,
                   autofocus: autofocus,
-                  style: AppTypography.amountLarge,
+                  style: context.text.amountLarge,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -74,8 +74,8 @@ class AmountInput extends StatelessWidget {
                   ],
                   decoration: InputDecoration(
                     hintText: '0.00',
-                    hintStyle: AppTypography.amountLarge.copyWith(
-                      color: AppColors.border,
+                    hintStyle: context.text.amountLarge.copyWith(
+                      color: context.colors.border,
                     ),
                     filled: false,
                     border: InputBorder.none,
@@ -86,8 +86,8 @@ class AmountInput extends StatelessWidget {
                     contentPadding: const EdgeInsets.symmetric(
                       vertical: Dimens.gapS,
                     ),
-                    errorStyle: AppTypography.caption.copyWith(
-                      color: AppColors.error,
+                    errorStyle: context.text.caption.copyWith(
+                      color: context.colors.error,
                     ),
                   ),
                 ),

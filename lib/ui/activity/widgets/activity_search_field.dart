@@ -45,23 +45,23 @@ class _ActivitySearchFieldState extends State<ActivitySearchField> {
         setState(() {});
       },
       textInputAction: TextInputAction.search,
-      style: AppTypography.body,
+      style: context.text.body,
       decoration: InputDecoration(
         hintText: 'Search transactions',
-        prefixIcon: const Icon(
+        prefixIcon: Icon(
           Icons.search_rounded,
           size: Dimens.iconSize,
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
         ),
         suffixIcon: _controller.text.isEmpty
             ? null
             : IconButton(
                 tooltip: 'Clear search',
                 onPressed: _clear,
-                icon: const Icon(
+                icon: Icon(
                   Icons.close_rounded,
                   size: Dimens.iconSizeSmall + 2,
-                  color: AppColors.textSecondary,
+                  color: context.colors.textSecondary,
                 ),
               ),
       ),

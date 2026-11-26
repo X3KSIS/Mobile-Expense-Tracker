@@ -26,9 +26,9 @@ class MonthSwitcher extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Dimens.gapXs),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(Dimens.radiusFull),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         children: [
@@ -45,7 +45,7 @@ class MonthSwitcher extends StatelessWidget {
                 child: Text(
                   formatMonthYear(month),
                   key: ValueKey(month),
-                  style: AppTypography.listTitle,
+                  style: context.text.listTitle,
                   textAlign: TextAlign.center,
                 ),
               ),

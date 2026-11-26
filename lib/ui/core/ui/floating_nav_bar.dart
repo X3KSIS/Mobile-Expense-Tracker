@@ -6,6 +6,7 @@ import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/motion.dart';
 import '../themes/theme.dart';
+import 'pressable.dart';
 
 /// One tab in the [FloatingNavBar].
 class NavDestination {
@@ -39,10 +40,10 @@ class FloatingNavBar extends StatelessWidget {
             height: Dimens.navBarHeight,
             padding: const EdgeInsets.symmetric(horizontal: Dimens.gapS),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(Dimens.radiusFull),
-              border: Border.all(color: AppColors.navBorder),
-              boxShadow: AppShadows.soft,
+              border: Border.all(color: context.colors.navBorder),
+              boxShadow: context.shadows.soft,
             ),
             child: Material(
               type: MaterialType.transparency,
@@ -122,16 +123,16 @@ class _NavItem extends StatelessWidget {
           tween: Tween(end: selected ? 1 : 0),
           duration: AppMotion.long,
           curve: AppMotion.move,
-          builder: (context, t, _) => _buildPill(t),
+          builder: (context, t, _) => _buildPill(context, t),
         ),
       ),
     );
   }
 
-  Widget _buildPill(double t) {
+  Widget _buildPill(BuildContext context, double t) {
     final iconColor = Color.lerp(
-      AppColors.textSecondary,
-      AppColors.textPrimary,
+      context.colors.textSecondary,
+      context.colors.textPrimary,
       t,
     );
     // The label fades in during the second half, once the pill has opened.
@@ -145,7 +146,11 @@ class _NavItem extends StatelessWidget {
         horizontal: lerpDouble(_paddingInactive, _paddingActive, t)!,
       ),
       decoration: ShapeDecoration(
-        color: Color.lerp(AppColors.surface, AppColors.surfaceMuted, t),
+        color: Color.lerp(
+          context.colors.surface,
+          context.colors.surfaceMuted,
+          t,
+        ),
         shape: const StadiumBorder(),
       ),
       child: Row(
@@ -164,7 +169,7 @@ class _NavItem extends StatelessWidget {
                     constraints: BoxConstraints(maxWidth: maxLabelWidth),
                     child: Text(
                       destination.label,
-                      style: AppTypography.navLabel,
+                      style: context.text.navLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
@@ -189,23 +194,25 @@ class _AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: 'Add transaction',
-      child: Container(
-        width: Dimens.navFabSize,
-        height: Dimens.navFabSize,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: AppShadows.soft,
-        ),
-        child: Material(
-          color: AppColors.fab,
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: onPressed,
-            customBorder: const CircleBorder(),
-            child: const Icon(
-              Icons.add_rounded,
-              size: 28,
-              color: AppColors.onFab,
+      child: Pressable(
+        child: Container(
+          width: Dimens.navFabSize,
+          height: Dimens.navFabSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: context.shadows.soft,
+          ),
+          child: Material(
+            color: context.colors.fab,
+            shape: const CircleBorder(),
+            child: InkWell(
+              onTap: onPressed,
+              customBorder: const CircleBorder(),
+              child: Icon(
+                Icons.add_rounded,
+                size: 28,
+                color: context.colors.onFab,
+              ),
             ),
           ),
         ),

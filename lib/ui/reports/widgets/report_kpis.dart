@@ -77,19 +77,19 @@ class _KpiTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(Dimens.gapL - 2),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(Dimens.radiusTile),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: AppTypography.caption),
+            Text(label, style: context.text.caption),
             const SizedBox(height: Dimens.gapXs),
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(formatZmw(value), style: AppTypography.statValue),
+              child: Text(formatZmw(value), style: context.text.statValue),
             ),
             const SizedBox(height: Dimens.gapXs),
             _Delta(
@@ -124,13 +124,13 @@ class _Delta extends StatelessWidget {
     if (previous == 0 || change == 0) {
       return Text(
         previous == 0 ? 'No data for $vs' : 'Same as $vs',
-        style: AppTypography.caption,
+        style: context.text.caption,
       );
     }
     final up = change > 0;
     final good = up == upIsGood;
     final percent = (change.abs() / previous.abs() * 100).round();
-    final color = good ? AppColors.success : AppColors.accentText;
+    final color = good ? context.colors.success : context.colors.accentText;
     return Row(
       children: [
         Icon(
@@ -142,7 +142,7 @@ class _Delta extends StatelessWidget {
         Flexible(
           child: Text(
             '${up ? 'Up' : 'Down'} $percent% vs $vs',
-            style: AppTypography.caption.copyWith(
+            style: context.text.caption.copyWith(
               color: color,
               fontWeight: FontWeight.w600,
             ),

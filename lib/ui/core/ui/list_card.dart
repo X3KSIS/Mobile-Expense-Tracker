@@ -20,9 +20,9 @@ class ListCard extends StatelessWidget {
     final radius = BorderRadius.circular(Dimens.radiusList);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: radius,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.colors.border),
       ),
       child: ClipRRect(
         borderRadius: radius,

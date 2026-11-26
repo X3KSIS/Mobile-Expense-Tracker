@@ -1,4 +1,4 @@
-import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
 
 import 'colors.dart';
 
@@ -33,41 +33,55 @@ class MeshGradient {
 /// 3. Use mesh gradients for organic multi-point blends on large surfaces.
 /// 4. Gradient text is for headlines only; other text stays solid.
 ///
-/// Hues were checked when the stops were chosen: navy mesh 198–219°,
-/// primary 357–11°, headline 214–218°. White text keeps at least 4.5:1 on
-/// every stop of the navy mesh and the primary gradient.
-abstract final class AppGradients {
+/// Hues were checked when the stops were chosen, in both palettes: navy
+/// mesh 198–219°, primary 357–11°, headline 213–218°. White text keeps at
+/// least 4.5:1 on every stop of the navy mesh and the primary gradient.
+///
+/// Read with `context.gradients`; the stops come from the active
+/// [AppPalette], so gradients blend along with a theme change.
+class AppGradients {
+  const AppGradients(this._palette);
+
+  final AppPalette _palette;
+
   static const Alignment _start = Alignment.topLeft;
   static const Alignment _end = Alignment.bottomRight;
 
   /// Navy feature cards: deep navy with blue and teal-navy glows.
-  static const MeshGradient navyMesh = MeshGradient(
+  MeshGradient get navyMesh => MeshGradient(
     base: LinearGradient(
       begin: _start,
       end: _end,
-      colors: [AppColors.navy, Color(0xFF1C3550)],
+      colors: [_palette.navy, _palette.navyMeshEnd],
     ),
     points: [
       MeshPoint(
-        center: Alignment(0.9, -1.1),
-        color: Color(0xCC2A3F66),
+        center: const Alignment(0.9, -1.1),
+        color: _palette.navyGlowTop,
         radius: 1.1,
       ),
-      MeshPoint(center: Alignment(-1, 1.1), color: Color(0x99173B4A)),
+      MeshPoint(
+        center: const Alignment(-1, 1.1),
+        color: _palette.navyGlowBottom,
+      ),
     ],
   );
 
   /// Primary action button: accentStrong into a neighbouring crimson.
-  static const LinearGradient primary = LinearGradient(
+  LinearGradient get primary => LinearGradient(
     begin: _start,
     end: _end,
-    colors: [AppColors.accentStrong, Color(0xFFC8323A)],
+    colors: [_palette.accentStrong, _palette.primaryGradientEnd],
   );
 
-  /// Screen headlines: navy text easing into steel blue.
-  static const LinearGradient headline = LinearGradient(
+  /// Screen headlines: the primary text colour easing into steel blue.
+  LinearGradient get headline => LinearGradient(
     begin: _start,
     end: _end,
-    colors: [AppColors.textPrimary, Color(0xFF3D5A80)],
+    colors: [_palette.textPrimary, _palette.headlineGradientEnd],
   );
+}
+
+extension AppGradientsContext on BuildContext {
+  AppGradients get gradients => AppGradients(colors);
 }

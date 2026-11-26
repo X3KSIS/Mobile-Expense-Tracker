@@ -56,6 +56,12 @@ class HomeSkeleton extends StatelessWidget {
               height: Dimens.headerButtonSize,
               radius: Dimens.radiusButton,
             ),
+            SizedBox(width: Dimens.gapS),
+            SkeletonBox(
+              width: Dimens.headerButtonSize,
+              height: Dimens.headerButtonSize,
+              radius: Dimens.radiusButton,
+            ),
           ],
         ),
         const SizedBox(height: Dimens.sectionGap),
