@@ -13,6 +13,7 @@ import '../../core/ui/segmented_toggle.dart';
 import '../../core/ui/stat_tile.dart';
 import '../../core/ui/tab_header.dart';
 import '../../core/ui/transaction_details_sheet.dart';
+import '../../core/ui/slow_refresh.dart';
 import '../view_models/activity_view_model.dart';
 import 'activity_day_section.dart';
 import 'activity_search_field.dart';
@@ -81,7 +82,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             animateSize: false,
             child: viewModel.isLoading
                 ? const ActivitySkeleton(key: ValueKey('loading'))
-                : RefreshIndicator(
+                : SlowRefresh(
                     key: const ValueKey('content'),
                     onRefresh: viewModel.load.execute,
                     child: ListView(

@@ -209,17 +209,35 @@ void main() {
     await tester.tap(find.text('Add budget'));
     await tester.pumpAndSettle();
     expect(find.text('Budget added'), findsOneWidget);
-    expect(find.text('ZMW 500.00 over'), findsOneWidget);
+    // New budgets join the end of the list.
+    final over = find.text('ZMW 500.00 over');
+    await tester.scrollUntilVisible(
+      over,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(over, findsOneWidget);
+    expect(find.text('Over budget'), findsOneWidget);
 
-    // Raise it, then delete it.
+    // Tapping the card expands it; raise the limit from there.
+    final edit = find.widgetWithText(TextButton, 'Edit');
+    expect(edit, findsNothing);
     await tester.tap(find.text('Housing'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(edit);
+    await tester.pumpAndSettle();
+    expect(find.text('Left per day'), findsOneWidget);
+    await tester.tap(edit);
     await tester.pumpAndSettle();
     await tester.enterText(field('Monthly limit (ZMW)'), '4000');
     await tester.tap(find.text('Save budget'));
     await tester.pumpAndSettle();
     expect(find.text('ZMW 3,500.00 of ZMW 4,000.00'), findsOneWidget);
 
-    await tester.tap(find.text('Housing'));
+    // The card is still open; delete the budget.
+    await tester.ensureVisible(edit);
+    await tester.pumpAndSettle();
+    await tester.tap(edit);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete budget'));
     await tester.pumpAndSettle();

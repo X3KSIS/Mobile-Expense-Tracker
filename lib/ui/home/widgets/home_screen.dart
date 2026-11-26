@@ -7,6 +7,7 @@ import '../../core/themes/dimens.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/transaction_details_sheet.dart';
+import '../../core/ui/slow_refresh.dart';
 import '../view_models/home_view_model.dart';
 import 'balance_card.dart';
 import 'budget_alert_card.dart';
@@ -82,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onRetry: viewModel.load.execute,
               );
             } else {
-              content = RefreshIndicator(
+              content = SlowRefresh(
                 key: const ValueKey('content'),
                 onRefresh: viewModel.load.execute,
                 child: _HomeContent(

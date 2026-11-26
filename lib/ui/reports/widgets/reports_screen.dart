@@ -6,6 +6,7 @@ import '../../core/ui/empty_state.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/tab_header.dart';
+import '../../core/ui/slow_refresh.dart';
 import '../view_models/reports_view_model.dart';
 import 'category_breakdown.dart';
 import 'month_switcher.dart';
@@ -32,7 +33,7 @@ class ReportsScreen extends StatelessWidget {
             animateSize: false,
             child: viewModel.isLoading
                 ? const ReportsSkeleton(key: ValueKey('loading'))
-                : RefreshIndicator(
+                : SlowRefresh(
                     key: const ValueKey('content'),
                     onRefresh: viewModel.load.execute,
                     child: ListView(

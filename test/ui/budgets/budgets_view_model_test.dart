@@ -1,5 +1,6 @@
 import 'package:flutter_expensetracker/data/repositories/category/fake_categories.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
+import 'package:flutter_expensetracker/domain/models/budget_progress.dart';
 import 'package:flutter_expensetracker/domain/models/transaction_draft.dart';
 import 'package:flutter_expensetracker/ui/budgets/view_models/budgets_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -116,6 +117,44 @@ void main() {
       final groceries = viewModel.progress.first;
       expect(groceries.spent, 3500);
       expect(groceries.isOverLimit, isTrue);
+    });
+
+    test('gives each budget a status', () async {
+      final viewModel = build().viewModel;
+      await viewModel.load.execute();
+
+      BudgetStatus statusOf(String name) => viewModel.progress
+          .firstWhere((p) => p.budget.categoryName == name)
+          .status;
+      expect(statusOf('Groceries'), BudgetStatus.nearLimit);
+      expect(statusOf('Transport'), BudgetStatus.onTrack);
+      expect(statusOf('Eating out'), BudgetStatus.notStarted);
+    });
+
+    test('works out the daily allowance and average', () async {
+      final viewModel = build().viewModel;
+      await viewModel.load.execute();
+
+      final groceries = viewModel.progress.first;
+      // ZMW 100 left over the 6 days from 25 to 30 November.
+      expect(viewModel.dailyAllowance(groceries), closeTo(100 / 6, 0.001));
+      // ZMW 3,200 over the first 25 days.
+      expect(viewModel.dailyAverage(groceries), 128);
+    });
+
+    test('reorders budgets straight away and keeps the order', () async {
+      final viewModel = build().viewModel;
+      await viewModel.load.execute();
+      List<String> names() =>
+          viewModel.progress.map((p) => p.budget.categoryName).toList();
+      final before = names();
+
+      final saving = viewModel.reorder.execute((0, 2));
+      expect(names(), [before[1], before[2], before[0], ...before.skip(3)]);
+      await saving;
+      await viewModel.load.execute();
+
+      expect(names(), [before[1], before[2], before[0], ...before.skip(3)]);
     });
 
     test('validates the limit', () {

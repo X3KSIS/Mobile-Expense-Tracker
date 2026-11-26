@@ -2,6 +2,21 @@ import 'budget.dart';
 import 'budget_alert.dart';
 import 'transaction.dart';
 
+/// Where a budget stands this month.
+enum BudgetStatus {
+  /// Nothing spent yet.
+  notStarted,
+
+  /// Spending is below [BudgetProgress.alertThreshold].
+  onTrack,
+
+  /// At or above the alert threshold, but not over the limit.
+  nearLimit,
+
+  /// Spent more than the limit.
+  overLimit,
+}
+
 /// How much of a [Budget] has been spent in one month.
 class BudgetProgress {
   const BudgetProgress({required this.budget, required this.spent});
@@ -29,6 +44,13 @@ class BudgetProgress {
   bool get isOverLimit => spent > budget.limit;
 
   bool get needsAttention => percentUsed >= alertThreshold;
+
+  BudgetStatus get status {
+    if (isOverLimit) return BudgetStatus.overLimit;
+    if (needsAttention) return BudgetStatus.nearLimit;
+    if (spent <= 0) return BudgetStatus.notStarted;
+    return BudgetStatus.onTrack;
+  }
 
   BudgetAlert toAlert() => BudgetAlert(
     categoryName: budget.categoryName,

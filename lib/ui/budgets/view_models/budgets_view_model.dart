@@ -34,6 +34,7 @@ class BudgetsViewModel extends ChangeNotifier {
     load = Command0<void>(_load)..execute();
     save = Command1<void, BudgetInput>(_save);
     delete = Command1<void, String>(_budgetRepository.deleteBudget);
+    reorder = Command1<void, (int, int)>(_reorder);
   }
 
   final BudgetRepository _budgetRepository;
@@ -45,12 +46,16 @@ class BudgetsViewModel extends ChangeNotifier {
   late final Command1<void, BudgetInput> save;
   late final Command1<void, String> delete;
 
+  /// Moves the budget at the first index so it ends up at the second.
+  /// The new order shows straight away and is then saved.
+  late final Command1<void, (int, int)> reorder;
+
   List<BudgetProgress> _progress = const [];
   List<TransactionCategory> _expenseCategories = const [];
   bool _loaded = false;
   bool _disposed = false;
 
-  /// Budgets with this month's spending, most used first.
+  /// Budgets with this month's spending, in the user's order.
   List<BudgetProgress> get progress => _progress;
 
   bool get isLoading => load.running && !_loaded;
@@ -67,6 +72,14 @@ class BudgetsViewModel extends ChangeNotifier {
     final lastDay = DateTime(now.year, now.month + 1, 0).day;
     return lastDay - now.day + 1;
   }
+
+  /// How much can still be spent each day for the rest of the month
+  /// without going over [progress]'s limit.
+  double dailyAllowance(BudgetProgress progress) =>
+      progress.remaining / daysLeft;
+
+  /// Average spent per day so far this month.
+  double dailyAverage(BudgetProgress progress) => progress.spent / _clock().day;
 
   double get totalLimit => _progress.fold(0, (sum, p) => sum + p.budget.limit);
 
@@ -112,8 +125,7 @@ class BudgetsViewModel extends ChangeNotifier {
         Ok(value: final transactions),
         Ok(value: final categories),
       ):
-        _progress = BudgetProgress.forMonth(budgets, transactions, _clock())
-          ..sort((a, b) => b.percentUsed.compareTo(a.percentUsed));
+        _progress = BudgetProgress.forMonth(budgets, transactions, _clock());
         _expenseCategories = categories;
         _loaded = true;
         _notify();
@@ -154,6 +166,22 @@ class BudgetsViewModel extends ChangeNotifier {
     };
   }
 
+  Future<Result<void>> _reorder((int, int) move) async {
+    final (from, target) = move;
+    if (from < 0 || from >= _progress.length) {
+      return Result.error(Exception('No budget at index $from'));
+    }
+    final to = target.clamp(0, _progress.length - 1);
+    if (to == from) return const Result.ok(null);
+    final reordered = [..._progress];
+    reordered.insert(to, reordered.removeAt(from));
+    _progress = reordered;
+    _notify();
+    return _budgetRepository.reorderBudgets([
+      for (final p in reordered) p.budget.id,
+    ]);
+  }
+
   void _notify() {
     if (!_disposed) notifyListeners();
   }
@@ -166,6 +194,7 @@ class BudgetsViewModel extends ChangeNotifier {
     load.dispose();
     save.dispose();
     delete.dispose();
+    reorder.dispose();
     super.dispose();
   }
 }

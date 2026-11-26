@@ -60,6 +60,22 @@ class BudgetRepositoryLocalFake extends BudgetRepository {
   }
 
   @override
+  Future<Result<void>> reorderBudgets(List<String> orderedIds) async {
+    await Future<void>.delayed(delay);
+    int rank(Budget b) {
+      final i = orderedIds.indexOf(b.id);
+      return i == -1 ? orderedIds.length : i;
+    }
+
+    final sorted = [..._budgets]..sort((a, b) => rank(a).compareTo(rank(b)));
+    _budgets
+      ..clear()
+      ..addAll(sorted);
+    notifyListeners();
+    return const Result.ok(null);
+  }
+
+  @override
   Future<Result<void>> deleteBudget(String id) async {
     await Future<void>.delayed(delay);
     _budgets.removeWhere((b) => b.id == id);

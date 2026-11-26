@@ -14,4 +14,8 @@ abstract class BudgetRepository extends ChangeNotifier {
   Future<Result<Budget>> saveBudget(Budget budget);
 
   Future<Result<void>> deleteBudget(String id);
+
+  /// Saves the user's order of budgets. [orderedIds] lists budget ids in
+  /// the new order; budgets missing from it keep their place at the end.
+  Future<Result<void>> reorderBudgets(List<String> orderedIds);
 }
