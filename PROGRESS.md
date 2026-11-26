@@ -8,7 +8,14 @@ Running log of what has been built and what comes next. Newest session first.
 
 - **One icon colour:** category and wallet tiles share `IconTile`: a coral (accentText) outline icon on accentSoft, or white on accentStrong for the selected category in the picker. Stored category colours remain data only.
 - **History:** the Activity tab shows the last 7 days (filter, totals and search kept) and ends with a See all activity card. The new History page (`/history`) groups every transaction by month (with each month's money in and out) and day, with the same All / Expenses / Income filter folding rows and months in place.
-- **Quality:** `flutter analyze` clean; 165 tests pass; screens rendered in light and dark and reviewed.
+- **Core objective** added to `CLAUDE.md`: expense tracking and spending habits.
+- **Habit insights:** `SpendingInsights.compute` (domain) compares this month so far with the same days last month (whole months for past months): overall pace, biggest category rise and fall, categories rising 3+ months running, top place visited more than once, small spends (ZMW 100 or less) adding up, and the busiest weekday over 90 days. Shown as a Your habits section on Reports (per selected month) and a Your spending habits card on Home with the top insight. Wording lives in `describeInsight` (`insight_row.dart`).
+- **Quality:** `flutter analyze` clean; 182 tests pass; screens rendered in light and dark and reviewed.
+
+### Next
+
+1. Recurring and subscription spotting (DStv, rent, bundles) from transaction history.
+2. Category trends over time and personal inflation with the price tracker.
 
 ## Session 4: 26 Nov 2026 (continued)
 
