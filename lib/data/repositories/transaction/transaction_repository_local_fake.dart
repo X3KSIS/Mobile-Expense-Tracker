@@ -190,6 +190,14 @@ List<Transaction> _history(DateTime now) {
         (420 * f).roundToDouble(),
         day(20),
       ),
+      // A subscription, due again late this month.
+      _make(
+        '$id-12',
+        'DStv Compact',
+        FakeCategories.entertainment,
+        450,
+        day(28),
+      ),
       if (back.isOdd)
         _make('$id-9', 'Side job', FakeCategories.business, 1800, day(14)),
       if (back == 2)
