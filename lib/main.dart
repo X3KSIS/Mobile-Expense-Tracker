@@ -39,7 +39,7 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp> {
       (settings) => settings.themePreference,
     );
     return MaterialApp.router(
-      title: 'ExpenseTrack',
+      title: 'Expense Tracker',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,

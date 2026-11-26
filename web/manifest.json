@@ -1,11 +1,11 @@
 {
-    "name": "flutter_expensetracker",
-    "short_name": "flutter_expensetracker",
+    "name": "Expense Tracker",
+    "short_name": "Expense Tracker",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F7F7F8",
+    "theme_color": "#FF6B4A",
+    "description": "Track income and expenses in Zambian Kwacha.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
