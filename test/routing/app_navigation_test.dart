@@ -222,6 +222,28 @@ void main() {
     expect(find.text('Money in'), findsOneWidget);
   });
 
+  testWidgets('Activity shows the week and opens the full History', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.bySemanticsLabel('Activity'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Last 7 days'), findsOneWidget);
+    await scrollTo(tester, find.text('See all activity'));
+    await tester.tap(find.text('See all activity'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('History'), findsOneWidget);
+    expect(find.text('November 2026'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Income').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Shoprite'), findsNothing);
+    expect(find.text('Out ZMW 0.00'), findsWidgets);
+  });
+
   testWidgets('Activity filters and deletes', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);

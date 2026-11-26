@@ -11,6 +11,7 @@ void main() {
     test('groups every transaction by day, newest first', () async {
       final viewModel = ActivityViewModel(
         transactionRepository: instantTransactionRepository(now: now),
+        clock: () => now,
       );
       addTearDown(viewModel.dispose);
 
@@ -32,6 +33,7 @@ void main() {
     test('filters by type and updates the totals', () async {
       final viewModel = ActivityViewModel(
         transactionRepository: instantTransactionRepository(now: now),
+        clock: () => now,
       );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();
@@ -53,6 +55,7 @@ void main() {
     test('keeps every day so the list can fold rows in and out', () async {
       final viewModel = ActivityViewModel(
         transactionRepository: instantTransactionRepository(now: now),
+        clock: () => now,
       );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();
@@ -71,9 +74,28 @@ void main() {
       expect(viewModel.hasNoMatches, isFalse);
     });
 
+    test('shows only the last 7 days, and counts the full history', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: instantTransactionRepository(now: now),
+        clock: () => now,
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+
+      final since = DateTime(2026, 11, 19);
+      final recent = viewModel.allDays.expand((d) => d.transactions);
+      expect(recent, isNotEmpty);
+      expect(recent.every((t) => !t.date.isBefore(since)), isTrue);
+      expect(viewModel.totalCount, greaterThan(recent.length));
+      expect(viewModel.hasNoRecent, isFalse);
+    });
+
     test('reloads after a delete', () async {
       final repository = instantTransactionRepository(now: now);
-      final viewModel = ActivityViewModel(transactionRepository: repository);
+      final viewModel = ActivityViewModel(
+        transactionRepository: repository,
+        clock: () => now,
+      );
       addTearDown(viewModel.dispose);
       await viewModel.load.execute();
       final before = viewModel.visibleCount;

@@ -6,8 +6,17 @@ import '../../../utils/command.dart';
 import '../../../utils/dates.dart';
 import '../../../utils/result.dart';
 
-/// Which transactions the Activity list shows.
+/// Which transactions a list shows.
 enum ActivityFilter { all, expenses, income }
+
+extension ActivityFilterMatch on ActivityFilter {
+  /// Whether [transaction] passes this filter.
+  bool matches(Transaction transaction) => switch (this) {
+    ActivityFilter.all => true,
+    ActivityFilter.expenses => !transaction.isIncome,
+    ActivityFilter.income => transaction.isIncome,
+  };
+}
 
 /// Transactions from one day.
 class ActivityDay {
@@ -38,23 +47,33 @@ class ActivityDay {
   }
 }
 
-/// State for the Activity tab: every transaction, filterable and grouped
-/// by day. Searching happens on its own full-screen page. Reloads when transactions change.
+/// State for the Activity tab: the last [recentDays] days of transactions,
+/// filterable and grouped by day, with a way into the full history.
+/// Searching happens on its own full-screen page. Reloads when
+/// transactions change.
 class ActivityViewModel extends ChangeNotifier {
-  ActivityViewModel({required this._transactionRepository}) {
+  ActivityViewModel({
+    required this._transactionRepository,
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now {
     _transactionRepository.addListener(_onTransactionsChanged);
     load = Command0<void>(_load)..execute();
     delete = Command1<void, String>(_transactionRepository.deleteTransaction);
   }
 
+  /// How many days, counting today, the tab shows.
+  static const int recentDays = 7;
+
   final TransactionRepository _transactionRepository;
+  final DateTime Function() _clock;
 
   late final Command0<void> load;
 
   /// Deletes the transaction with the given id.
   late final Command1<void, String> delete;
 
-  List<Transaction> _all = const [];
+  int _totalCount = 0;
+  List<Transaction> _recent = const [];
   List<Transaction> _visible = const [];
   List<ActivityDay> _days = const [];
   List<ActivityDay> _allDays = const [];
@@ -64,23 +83,22 @@ class ActivityViewModel extends ChangeNotifier {
 
   ActivityFilter get filter => _filter;
 
-  /// Every transaction grouped by day, whatever the filter. The list shows
-  /// these and folds away the ones [isVisible] rejects, so changing the
-  /// filter animates row by row instead of swapping the whole list.
+  /// Every recent transaction grouped by day, whatever the filter. The list
+  /// shows these and folds away the ones [isVisible] rejects, so changing
+  /// the filter animates row by row instead of swapping the whole list.
   List<ActivityDay> get allDays => _allDays;
 
   /// Whether [transaction] matches the current filter.
-  bool isVisible(Transaction transaction) => switch (_filter) {
-    ActivityFilter.all => true,
-    ActivityFilter.expenses => !transaction.isIncome,
-    ActivityFilter.income => transaction.isIncome,
-  };
+  bool isVisible(Transaction transaction) => _filter.matches(transaction);
 
-  /// Transactions matching the filter, grouped by day.
+  /// Recent transactions matching the filter, grouped by day.
   List<ActivityDay> get days => _days;
 
-  /// Number of transactions matching the filter.
+  /// Number of recent transactions matching the filter.
   int get visibleCount => _visible.length;
+
+  /// Number of transactions in the full history.
+  int get totalCount => _totalCount;
 
   /// Total income among the visible transactions.
   double get totalIn =>
@@ -94,11 +112,14 @@ class ActivityViewModel extends ChangeNotifier {
 
   bool get hasError => load.error && !_loaded;
 
-  /// True when there are no transactions at all (not just no matches).
-  bool get isEmpty => _loaded && _all.isEmpty;
+  /// True when there are no transactions at all (not just no recent ones).
+  bool get isEmpty => _loaded && _totalCount == 0;
 
-  /// True when there are transactions but none match the filter.
-  bool get hasNoMatches => _loaded && _all.isNotEmpty && _visible.isEmpty;
+  /// True when there is history but nothing in the last [recentDays] days.
+  bool get hasNoRecent => _loaded && _totalCount > 0 && _recent.isEmpty;
+
+  /// True when there are recent transactions but none match the filter.
+  bool get hasNoMatches => _loaded && _recent.isNotEmpty && _visible.isEmpty;
 
   void setFilter(ActivityFilter filter) {
     if (filter == _filter) return;
@@ -114,8 +135,18 @@ class ActivityViewModel extends ChangeNotifier {
     final result = await _transactionRepository.getTransactions();
     switch (result) {
       case Ok(:final value):
-        _all = value;
-        _allDays = ActivityDay.group(value);
+        final now = _clock();
+        final today = DateTime(now.year, now.month, now.day);
+        final since = DateTime(
+          today.year,
+          today.month,
+          today.day - (recentDays - 1),
+        );
+        _totalCount = value.length;
+        _recent = value
+            .where((t) => !t.date.isBefore(since))
+            .toList(growable: false);
+        _allDays = ActivityDay.group(_recent);
         _loaded = true;
         _rebuild();
         return const Result.ok(null);
@@ -126,7 +157,7 @@ class ActivityViewModel extends ChangeNotifier {
   }
 
   void _rebuild() {
-    _visible = _all.where(isVisible).toList(growable: false);
+    _visible = _recent.where(isVisible).toList(growable: false);
     _days = ActivityDay.group(_visible);
     _notify();
   }

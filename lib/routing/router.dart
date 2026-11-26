@@ -25,6 +25,8 @@ import '../ui/home/widgets/home_screen.dart';
 import '../ui/profile/view_models/edit_profile_view_model.dart';
 import '../ui/profile/view_models/profile_view_model.dart';
 import '../ui/profile/widgets/edit_profile_screen.dart';
+import '../ui/history/view_models/history_view_model.dart';
+import '../ui/history/widgets/history_screen.dart';
 import '../ui/profile/widgets/profile_screen.dart';
 import '../ui/reports/view_models/reports_view_model.dart';
 import '../ui/reports/widgets/reports_screen.dart';
@@ -132,6 +134,18 @@ GoRouter router(AuthRepository authRepository) {
               builder: (context) =>
                   SearchScreen(viewModel: context.read<SearchViewModel>()),
             ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.history,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              HistoryViewModel(transactionRepository: context.read()),
+          child: Builder(
+            builder: (context) =>
+                HistoryScreen(viewModel: context.read<HistoryViewModel>()),
           ),
         ),
       ),

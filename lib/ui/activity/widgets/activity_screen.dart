@@ -11,16 +11,17 @@ import '../../core/ui/empty_state.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/search_box.dart';
 import '../../core/ui/skeleton_screens.dart';
-import '../../core/ui/segmented_toggle.dart';
 import '../../core/ui/stat_tile.dart';
 import '../../core/ui/tab_header.dart';
 import '../../core/ui/transaction_details_sheet.dart';
 import '../../core/ui/slow_refresh.dart';
 import '../view_models/activity_view_model.dart';
 import 'activity_day_section.dart';
+import 'activity_filter_toggle.dart';
+import 'see_all_button.dart';
 
-/// Every transaction, filterable and grouped by day. The search box opens
-/// the full-screen search.
+/// The last week of transactions, filterable and grouped by day, with a
+/// way into the full History. The search box opens the full-screen search.
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key, required this.viewModel});
 
@@ -106,6 +107,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             key: ValueKey((
                               viewModel.hasError,
                               viewModel.isEmpty,
+                              viewModel.hasNoRecent,
                               viewModel.hasNoMatches,
                             )),
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,13 +146,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
         ),
       ];
     }
-    if (viewModel.hasNoMatches) {
-      return const [
-        EmptyState(
-          icon: Icons.filter_list_off_rounded,
-          title: 'Nothing here',
-          message: 'No transactions match this filter.',
+    final seeAll = SeeAllButton(
+      total: viewModel.totalCount,
+      onTap: () => context.push(Routes.history),
+    );
+    if (viewModel.hasNoRecent) {
+      return [
+        const EmptyState(
+          icon: Icons.event_busy_outlined,
+          title: 'Quiet week',
+          message: 'Nothing recorded in the last 7 days.',
         ),
+        const SizedBox(height: Dimens.gapL),
+        seeAll,
+      ];
+    }
+    if (viewModel.hasNoMatches) {
+      return [
+        const EmptyState(
+          icon: Icons.filter_list_off_rounded,
+          title: 'Nothing here this week',
+          message: 'No recent transactions match this filter.',
+        ),
+        const SizedBox(height: Dimens.gapL),
+        seeAll,
       ];
     }
     return [
@@ -161,6 +180,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           isVisible: viewModel.isVisible,
           onTransactionTap: _openDetails,
         ),
+      seeAll,
     ];
   }
 }
@@ -182,7 +202,9 @@ class _ActivityHeader extends StatelessWidget {
             final shown = value.round();
             return TabHeader(
               title: 'Activity',
-              subtitle: '$shown transaction${shown == 1 ? '' : 's'}',
+              subtitle:
+                  'Last ${ActivityViewModel.recentDays} days · $shown '
+                  'transaction${shown == 1 ? '' : 's'}',
             );
           },
         ),
@@ -192,12 +214,7 @@ class _ActivityHeader extends StatelessWidget {
           onTap: () => context.push(Routes.search),
         ),
         const SizedBox(height: Dimens.gapM),
-        SegmentedToggle<ActivityFilter>(
-          options: const [
-            ToggleOption(value: ActivityFilter.all, label: 'All'),
-            ToggleOption(value: ActivityFilter.expenses, label: 'Expenses'),
-            ToggleOption(value: ActivityFilter.income, label: 'Income'),
-          ],
+        ActivityFilterToggle(
           selected: viewModel.filter,
           onChanged: viewModel.setFilter,
         ),

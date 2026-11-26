@@ -9,6 +9,7 @@ abstract final class Routes {
   static const String reports = '/reports';
   static const String add = '/add';
   static const String search = '/search';
+  static const String history = '/history';
   static const String wallets = '/wallets';
   static const String detectedPayments = '/detected';
   static const String profile = '/profile';
