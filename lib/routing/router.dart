@@ -263,6 +263,7 @@ GoRouter router(AuthRepository authRepository) {
           create: (context) => ProfileViewModel(
             authRepository: context.read(),
             settingsRepository: context.read(),
+            syncRepository: context.read(),
           ),
           child: Builder(
             builder: (context) =>

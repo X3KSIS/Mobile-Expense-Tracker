@@ -44,8 +44,13 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _auth.addListener(_onAuthChanged);
-    _onAuthChanged();
-    _refreshDetectedPayments();
+    // After the first frame: starting a sync announces its status, and
+    // listeners must not be told about changes in the middle of a build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _onAuthChanged();
+      _refreshDetectedPayments();
+    });
   }
 
   /// Syncs while someone is signed in.

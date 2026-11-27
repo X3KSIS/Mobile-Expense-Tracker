@@ -15,6 +15,7 @@ void main() {
       final viewModel = ProfileViewModel(
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
+        syncRepository: FakeSyncRepository(),
       );
       addTearDown(viewModel.dispose);
 
@@ -27,6 +28,7 @@ void main() {
       final viewModel = ProfileViewModel(
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
+        syncRepository: FakeSyncRepository(),
       );
       addTearDown(viewModel.dispose);
       var notified = 0;
@@ -43,6 +45,7 @@ void main() {
       final viewModel = ProfileViewModel(
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
+        syncRepository: FakeSyncRepository(),
       );
       addTearDown(viewModel.dispose);
 
@@ -58,6 +61,7 @@ void main() {
       final viewModel = ProfileViewModel(
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
+        syncRepository: FakeSyncRepository(),
       );
       viewModel.dispose();
 

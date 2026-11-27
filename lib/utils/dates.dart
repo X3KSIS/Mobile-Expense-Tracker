@@ -65,3 +65,15 @@ String ordinal(int n) {
 
 /// e.g. "25 Dec".
 String formatDayMonth(DateTime date) => DateFormat('d MMM').format(date);
+
+/// How long ago [date] was, relative to [now]: `just now`, `5 min ago`,
+/// `at 14:05` (today), otherwise `on 25 Nov`.
+String formatAgo(DateTime date, DateTime now) {
+  final minutes = now.difference(date).inMinutes;
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return '$minutes min ago';
+  if (dateOnly(date) == dateOnly(now)) {
+    return 'at ${DateFormat.Hm().format(date)}';
+  }
+  return 'on ${formatDayMonth(date)}';
+}

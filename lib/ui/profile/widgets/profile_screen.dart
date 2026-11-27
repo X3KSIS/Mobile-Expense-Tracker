@@ -11,6 +11,7 @@ import '../view_models/profile_view_model.dart';
 import 'profile_card.dart';
 import 'profile_menu.dart';
 import 'sign_out_button.dart';
+import 'sync_status_card.dart';
 
 /// The signed-in user's profile, account settings and sign-out.
 class ProfileScreen extends StatefulWidget {
@@ -101,6 +102,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: Dimens.sectionGap + 2),
                 if (user != null)
                   ProfileCard(user: user, memberSince: viewModel.memberSince),
+                const SizedBox(height: Dimens.gapL),
+                SyncStatusCard(
+                  status: viewModel.syncStatus,
+                  lastSyncedAt: viewModel.lastSyncedAt,
+                  now: viewModel.now,
+                  onSyncNow: viewModel.syncNow.execute,
+                ),
                 const SizedBox(height: Dimens.sectionGap + 6),
                 ..._sections(),
                 const SizedBox(height: Dimens.sectionGap + 6),
