@@ -30,4 +30,7 @@ abstract class TransactionRepository extends ChangeNotifier {
   );
 
   Future<Result<void>> deleteTransaction(String id);
+
+  /// Brings back a transaction deleted with [deleteTransaction] (Undo).
+  Future<Result<void>> restoreTransaction(String id);
 }

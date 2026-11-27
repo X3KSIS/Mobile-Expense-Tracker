@@ -42,13 +42,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _onDeleteChanged() {
     final delete = widget.viewModel.delete;
     if (delete.running || delete.result == null || !mounted) return;
-    final message = delete.completed
-        ? 'Transaction deleted'
-        : "Couldn't delete. Please try again.";
+    final deleted = delete.completed;
     delete.clearResult();
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            deleted
+                ? 'Transaction deleted'
+                : "Couldn't delete. Please try again.",
+          ),
+          action: deleted
+              ? SnackBarAction(
+                  label: 'Undo',
+                  onPressed: widget.viewModel.undoDelete.execute,
+                )
+              : null,
+        ),
+      );
   }
 
   void _openDetails(Transaction transaction) {

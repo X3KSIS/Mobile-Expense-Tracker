@@ -39,7 +39,8 @@ class HomeViewModel extends ChangeNotifier {
     _budgetRepository.addListener(_onDataChanged);
     _walletRepository.addListener(_onDataChanged);
     load = Command0<void>(_load)..execute();
-    delete = Command1<void, String>(_transactionRepository.deleteTransaction);
+    delete = Command1<void, String>(_deleteTransaction);
+    undoDelete = Command0<void>(_undoDelete);
   }
 
   final DateTime Function() _clock;
@@ -59,6 +60,23 @@ class HomeViewModel extends ChangeNotifier {
 
   /// Deletes the transaction with the given id.
   late final Command1<void, String> delete;
+
+  /// Brings back the transaction [delete] removed last.
+  late final Command0<void> undoDelete;
+
+  String? _lastDeletedId;
+
+  Future<Result<void>> _deleteTransaction(String id) {
+    _lastDeletedId = id;
+    return _transactionRepository.deleteTransaction(id);
+  }
+
+  Future<Result<void>> _undoDelete() async {
+    final id = _lastDeletedId;
+    if (id == null) return const Result.ok(null);
+    _lastDeletedId = null;
+    return _transactionRepository.restoreTransaction(id);
+  }
 
   MonthlySummary? _summary;
   List<Budget> _budgets = const [];
@@ -220,6 +238,7 @@ class HomeViewModel extends ChangeNotifier {
     _walletRepository.removeListener(_onDataChanged);
     load.dispose();
     delete.dispose();
+    undoDelete.dispose();
     super.dispose();
   }
 }

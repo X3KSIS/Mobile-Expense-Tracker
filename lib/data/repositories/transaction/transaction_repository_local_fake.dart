@@ -93,9 +93,26 @@ class TransactionRepositoryLocalFake extends TransactionRepository {
     return Result.ok(transaction);
   }
 
+  /// Deleted transactions, kept so Undo can bring them back.
+  final Map<String, Transaction> _deleted = {};
+
+  @override
+  Future<Result<void>> restoreTransaction(String id) async {
+    await Future<void>.delayed(delay);
+    final transaction = _deleted.remove(id);
+    if (transaction != null) {
+      _transactions.add(transaction);
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
   @override
   Future<Result<void>> deleteTransaction(String id) async {
     await Future<void>.delayed(delay);
+    for (final t in _transactions.where((t) => t.id == id)) {
+      _deleted[id] = t;
+    }
     _transactions.removeWhere((t) => t.id == id);
     notifyListeners();
     return const Result.ok(null);

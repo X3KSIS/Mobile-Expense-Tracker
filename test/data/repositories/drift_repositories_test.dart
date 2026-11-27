@@ -76,6 +76,9 @@ void main() {
         await repo.updateTransaction(added.id, draft(5, now)),
         isA<Error>(),
       );
+
+      await repo.restoreTransaction(added.id);
+      expect(_ok(await repo.getTransactions()).single.id, added.id);
     });
 
     test('tells listeners about changes', () async {

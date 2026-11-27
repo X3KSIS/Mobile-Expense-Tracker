@@ -363,6 +363,10 @@ void main() {
 
     expect(find.text('Transaction deleted'), findsOneWidget);
     expect(find.text('-ZMW 640.00'), findsNothing);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('-ZMW 640.00'), findsWidgets);
   });
 
   testWidgets('Budgets adds, edits and deletes a budget', (tester) async {

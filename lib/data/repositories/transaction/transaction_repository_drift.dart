@@ -98,6 +98,17 @@ class TransactionRepositoryDrift extends TransactionRepository
   });
 
   @override
+  Future<Result<void>> restoreTransaction(String id) => guard(() async {
+    await (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
+      TransactionsCompanion(
+        deleted: const Value(false),
+        dirty: const Value(true),
+        modifiedAt: Value(_clock()),
+      ),
+    );
+  });
+
+  @override
   Future<Result<void>> deleteTransaction(String id) => guard(() async {
     await (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(

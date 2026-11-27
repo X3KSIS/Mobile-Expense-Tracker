@@ -58,7 +58,8 @@ class ActivityViewModel extends ChangeNotifier {
   }) : _clock = clock ?? DateTime.now {
     _transactionRepository.addListener(_onTransactionsChanged);
     load = Command0<void>(_load)..execute();
-    delete = Command1<void, String>(_transactionRepository.deleteTransaction);
+    delete = Command1<void, String>(_deleteTransaction);
+    undoDelete = Command0<void>(_undoDelete);
   }
 
   /// How many days, counting today, the tab shows.
@@ -71,6 +72,23 @@ class ActivityViewModel extends ChangeNotifier {
 
   /// Deletes the transaction with the given id.
   late final Command1<void, String> delete;
+
+  /// Brings back the transaction [delete] removed last.
+  late final Command0<void> undoDelete;
+
+  String? _lastDeletedId;
+
+  Future<Result<void>> _deleteTransaction(String id) {
+    _lastDeletedId = id;
+    return _transactionRepository.deleteTransaction(id);
+  }
+
+  Future<Result<void>> _undoDelete() async {
+    final id = _lastDeletedId;
+    if (id == null) return const Result.ok(null);
+    _lastDeletedId = null;
+    return _transactionRepository.restoreTransaction(id);
+  }
 
   int _totalCount = 0;
   List<Transaction> _recent = const [];
@@ -172,6 +190,7 @@ class ActivityViewModel extends ChangeNotifier {
     _transactionRepository.removeListener(_onTransactionsChanged);
     load.dispose();
     delete.dispose();
+    undoDelete.dispose();
     super.dispose();
   }
 }
