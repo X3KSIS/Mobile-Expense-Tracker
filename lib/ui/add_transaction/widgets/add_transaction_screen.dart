@@ -21,7 +21,7 @@ import 'amount_input.dart';
 import 'date_field.dart';
 import 'message_sheet.dart';
 
-/// Form to record an expense or income.
+/// Form to record an expense or income, or to edit one.
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key, required this.viewModel});
 
@@ -44,7 +44,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     widget.viewModel.addListener(_fillInitial);
   }
 
-  /// Fills the text fields when the form was opened from a message.
+  /// Fills the text fields when the form was opened from a message or to
+  /// edit a transaction.
   void _fillInitial() {
     final prefill = widget.viewModel.takeInitialPrefill();
     if (prefill == null) return;
@@ -78,11 +79,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final messenger = ScaffoldMessenger.of(context);
     if (save.completed) {
       final kind = widget.viewModel.isExpense ? 'Expense' : 'Income';
+      final text = widget.viewModel.isEditing ? 'Changes saved' : '$kind saved';
       // true tells whoever opened the form that it was saved.
       context.pop(true);
       messenger
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('$kind saved')));
+        ..showSnackBar(SnackBar(content: Text(text)));
     } else {
       save.clearResult();
       messenger
@@ -138,12 +140,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               children: [
                 ScreenHeader(
-                  title: 'Add transaction',
-                  trailing: HeaderIconButton(
-                    icon: Icons.sms_outlined,
-                    tooltip: 'Fill from a message',
-                    onPressed: _fillFromMessage,
-                  ),
+                  title: viewModel.isEditing
+                      ? 'Edit transaction'
+                      : 'Add transaction',
+                  trailing: viewModel.isEditing
+                      ? null
+                      : HeaderIconButton(
+                          icon: Icons.sms_outlined,
+                          tooltip: 'Fill from a message',
+                          onPressed: _fillFromMessage,
+                        ),
                 ),
                 const SizedBox(height: Dimens.sectionGap),
                 SegmentedToggle<TransactionType>(
@@ -194,7 +200,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
                 const SizedBox(height: Dimens.sectionGap + 10),
                 PrimaryButton(
-                  label: viewModel.isExpense ? 'Save expense' : 'Save income',
+                  label: viewModel.isEditing
+                      ? 'Save changes'
+                      : viewModel.isExpense
+                      ? 'Save expense'
+                      : 'Save income',
                   loading: viewModel.save.running,
                   onPressed: _submit,
                 ),

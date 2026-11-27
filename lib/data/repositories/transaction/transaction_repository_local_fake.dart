@@ -78,6 +78,22 @@ class TransactionRepositoryLocalFake extends TransactionRepository {
   }
 
   @override
+  Future<Result<Transaction>> updateTransaction(
+    String id,
+    TransactionDraft draft,
+  ) async {
+    await Future<void>.delayed(delay);
+    final index = _transactions.indexWhere((t) => t.id == id);
+    if (index < 0) {
+      return Result.error(Exception('Transaction $id not found'));
+    }
+    final transaction = draft.toTransaction(id);
+    _transactions[index] = transaction;
+    notifyListeners();
+    return Result.ok(transaction);
+  }
+
+  @override
   Future<Result<void>> deleteTransaction(String id) async {
     await Future<void>.delayed(delay);
     _transactions.removeWhere((t) => t.id == id);

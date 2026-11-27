@@ -37,6 +37,14 @@ class FailingTransactionRepository extends TransactionRepository {
       shouldFail ? Result.error(failure) : _delegate.addTransaction(draft);
 
   @override
+  Future<Result<Transaction>> updateTransaction(
+    String id,
+    TransactionDraft draft,
+  ) async => shouldFail
+      ? Result.error(failure)
+      : _delegate.updateTransaction(id, draft);
+
+  @override
   Future<Result<void>> deleteTransaction(String id) async =>
       shouldFail ? Result.error(failure) : _delegate.deleteTransaction(id);
 }

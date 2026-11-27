@@ -20,8 +20,8 @@ typedef TransactionInput = ({String amount, String title, String note});
 /// controllers.
 typedef MessagePrefill = ({String amount, String title, String note});
 
-/// State for the Add transaction form: type, category, wallet, date and
-/// saving.
+/// State for the transaction form: type, category, wallet, date and
+/// saving. Adds a new transaction, or edits [editing] when given.
 class AddTransactionViewModel extends ChangeNotifier {
   AddTransactionViewModel({
     required this._transactionRepository,
@@ -30,10 +30,22 @@ class AddTransactionViewModel extends ChangeNotifier {
     TransactionType initialType = TransactionType.expense,
     this._initialCategoryId,
     this._initialMessage,
+    Transaction? editing,
     DateTime Function()? clock,
-  }) : _type = initialType,
+  }) : _editing = editing,
+       _type = editing?.type ?? initialType,
        _clock = clock ?? DateTime.now {
-    _date = _clock();
+    _date = editing?.date ?? _clock();
+    if (editing != null) {
+      _initialMessage = null;
+      _selectedWalletId = editing.walletId;
+      final amount = editing.amount;
+      _initialPrefill = (
+        amount: amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2),
+        title: editing.title,
+        note: editing.note ?? '',
+      );
+    }
     loadCategories = Command0<void>(_loadCategories)..execute();
     save = Command1<void, TransactionInput>(_save);
   }
@@ -42,6 +54,7 @@ class AddTransactionViewModel extends ChangeNotifier {
   final CategoryRepository _categoryRepository;
   final WalletRepository _walletRepository;
   final String? _initialCategoryId;
+  final Transaction? _editing;
   final DateTime Function() _clock;
 
   late final Command0<void> loadCategories;
@@ -59,6 +72,9 @@ class AddTransactionViewModel extends ChangeNotifier {
   bool _disposed = false;
 
   TransactionType get type => _type;
+
+  /// Whether this form edits an existing transaction.
+  bool get isEditing => _editing != null;
 
   bool get isExpense => _type == TransactionType.expense;
 
@@ -169,10 +185,14 @@ class AddTransactionViewModel extends ChangeNotifier {
   }
 
   /// Keeps the time of day when today is picked, so new entries sort
-  /// above earlier ones; other days use midday.
+  /// above earlier ones, and keeps an edited transaction's own time on its
+  /// own day; other days use midday.
   void selectDate(DateTime date) {
     final now = _clock();
-    _date = dateOnly(date) == dateOnly(now)
+    final original = _editing?.date;
+    _date = original != null && dateOnly(date) == dateOnly(original)
+        ? original
+        : dateOnly(date) == dateOnly(now)
         ? now
         : DateTime(date.year, date.month, date.day, 12);
     _notify();
@@ -207,7 +227,10 @@ class AddTransactionViewModel extends ChangeNotifier {
       case Ok(:final value):
         _categories = value;
         final initial = value.where((c) => c.id == _initialCategoryId);
-        if (initial.isNotEmpty) {
+        final editing = _editing;
+        if (editing != null) {
+          _selectedCategory = _categoryOf(editing);
+        } else if (initial.isNotEmpty) {
           _type = initial.first.type;
           _selectedCategory = initial.first;
         } else {
@@ -225,22 +248,50 @@ class AddTransactionViewModel extends ChangeNotifier {
     }
   }
 
+  /// The category [t] was saved under. One that no longer exists is added
+  /// back to the picker so editing never changes it silently.
+  TransactionCategory _categoryOf(Transaction t) {
+    final match = _categories
+        .where((c) => c.type == t.type && c.name == t.categoryName)
+        .firstOrNull;
+    if (match != null) return match;
+    final kept = TransactionCategory(
+      id: 'kept-${t.categoryName}',
+      name: t.categoryName,
+      icon: t.categoryIcon,
+      color: t.categoryColor,
+      type: t.type,
+    );
+    _categories = [kept, ..._categories];
+    return kept;
+  }
+
   Future<Result<void>> _save(TransactionInput input) async {
     final amount = parseAmount(input.amount);
     final category = _selectedCategory;
     if (amount == null || amount <= 0 || category == null) {
       return Result.error(Exception('Incomplete transaction'));
     }
-    final result = await _transactionRepository.addTransaction(
-      TransactionDraft(
-        title: input.title,
-        amount: amount,
-        category: category,
-        date: _date,
-        note: input.note,
-        walletId: _selectedWalletId ?? Transaction.defaultWalletId,
-      ),
+    final draft = TransactionDraft(
+      title: input.title,
+      amount: amount,
+      category: category,
+      date: _date,
+      note: input.note,
+      walletId: _selectedWalletId ?? Transaction.defaultWalletId,
     );
+    final editing = _editing;
+    if (editing != null) {
+      final result = await _transactionRepository.updateTransaction(
+        editing.id,
+        draft,
+      );
+      return switch (result) {
+        Ok() => const Result.ok(null),
+        Error(:final error) => Result.error(error),
+      };
+    }
+    final result = await _transactionRepository.addTransaction(draft);
     if (result case Error(:final error)) return Result.error(error);
     return _saveFee(input.title.trim().isEmpty ? category.name : input.title);
   }

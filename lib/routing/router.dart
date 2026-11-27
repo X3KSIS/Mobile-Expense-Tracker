@@ -116,6 +116,10 @@ GoRouter router(AuthRepository authRepository) {
                 final MoneyMessage message => message,
                 _ => null,
               },
+              editing: switch (state.extra) {
+                final Transaction transaction => transaction,
+                _ => null,
+              },
             ),
             child: Builder(
               builder: (context) => AddTransactionScreen(

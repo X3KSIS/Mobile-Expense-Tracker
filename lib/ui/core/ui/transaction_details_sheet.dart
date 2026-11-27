@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../domain/models/transaction.dart';
+import '../../../routing/routes.dart';
 import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
 import '../themes/colors.dart';
 import '../themes/dimens.dart';
 import '../themes/theme.dart';
 import 'category_tile.dart';
+import 'pressable.dart';
 
-/// Opens a bottom sheet with [transaction]'s details and a Delete button.
-/// [onDelete] runs after the user confirms.
+/// Opens a bottom sheet with [transaction]'s details, an Edit button
+/// (opens the transaction form) and a Delete button. [onDelete] runs after
+/// the user confirms.
 Future<void> showTransactionDetails(
   BuildContext context, {
   required Transaction transaction,
@@ -21,6 +25,10 @@ Future<void> showTransactionDetails(
     isScrollControlled: true,
     builder: (sheetContext) => TransactionDetailsSheet(
       transaction: transaction,
+      onEdit: () {
+        Navigator.of(sheetContext).pop();
+        context.push(Routes.add, extra: transaction);
+      },
       onDelete: () {
         Navigator.of(sheetContext).pop();
         onDelete();
@@ -34,10 +42,12 @@ class TransactionDetailsSheet extends StatelessWidget {
   const TransactionDetailsSheet({
     super.key,
     required this.transaction,
+    required this.onEdit,
     required this.onDelete,
   });
 
   final Transaction transaction;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -95,6 +105,21 @@ class TransactionDetailsSheet extends StatelessWidget {
             ),
             if (note != null) _DetailRow(label: 'Note', value: note),
             const SizedBox(height: Dimens.sectionGap),
+            Pressable(
+              child: FilledButton.icon(
+                onPressed: onEdit,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(Dimens.buttonHeight + 4),
+                  shape: const StadiumBorder(),
+                ),
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  size: Dimens.iconSizeSmall + 2,
+                ),
+                label: const Text('Edit transaction'),
+              ),
+            ),
+            const SizedBox(height: Dimens.gapM),
             OutlinedButton.icon(
               onPressed: () => _confirmDelete(context),
               style: OutlinedButton.styleFrom(

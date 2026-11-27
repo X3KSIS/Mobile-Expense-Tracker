@@ -296,6 +296,32 @@ void main() {
     expect(find.text('Out ZMW 0.00'), findsWidgets);
   });
 
+  testWidgets('a transaction can be edited from its details', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.bySemanticsLabel('Activity'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Shoprite').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit transaction'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit transaction'), findsOneWidget);
+    final amount = find.byType(TextFormField).first;
+    expect(find.descendant(of: amount, matching: find.text('640')), findsOne);
+    await tester.enterText(amount, '655');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await scrollTo(tester, find.text('Save changes'));
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Changes saved'), findsOneWidget);
+    expect(find.text('-ZMW 655.00'), findsWidgets);
+    expect(find.text('-ZMW 640.00'), findsNothing);
+  });
+
   testWidgets('Activity filters and deletes', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);

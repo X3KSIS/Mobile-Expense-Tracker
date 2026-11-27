@@ -7,7 +7,7 @@ import '../../../utils/result.dart';
 
 /// Source of truth for transactions and their monthly totals.
 ///
-/// Extends [ChangeNotifier] and notifies after every add or delete, so
+/// Extends [ChangeNotifier] and notifies after every add, edit or delete, so
 /// ViewModels can reload.
 abstract class TransactionRepository extends ChangeNotifier {
   /// All transactions, newest first.
@@ -22,6 +22,12 @@ abstract class TransactionRepository extends ChangeNotifier {
 
   /// Saves a new transaction and returns it with its id.
   Future<Result<Transaction>> addTransaction(TransactionDraft draft);
+
+  /// Replaces the transaction [id] with [draft], keeping its id.
+  Future<Result<Transaction>> updateTransaction(
+    String id,
+    TransactionDraft draft,
+  );
 
   Future<Result<void>> deleteTransaction(String id);
 }

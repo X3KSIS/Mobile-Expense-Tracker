@@ -7,6 +7,9 @@ abstract final class Routes {
   static const String activity = '/activity';
   static const String budgets = '/budgets';
   static const String reports = '/reports';
+
+  /// Add transaction. Opened with a `Transaction` as `extra`, it edits
+  /// that transaction; with a `MoneyMessage`, it is filled from it.
   static const String add = '/add';
   static const String search = '/search';
   static const String history = '/history';
