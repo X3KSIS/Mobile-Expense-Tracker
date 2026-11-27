@@ -26,9 +26,8 @@ class SetupRequiredApp extends StatelessWidget {
                 title: 'Not connected to the server',
                 message:
                     'This build has no Supabase settings, so sign-in is '
-                    'turned off. Run the app with '
-                    '--dart-define-from-file=supabase.json (in VS Code, '
-                    'pick "Expense Tracker (Supabase)").',
+                    'turned off. Check SUPABASE_URL and '
+                    'SUPABASE_PUBLISHABLE_KEY in supabase.json.',
               ),
             ),
           ),

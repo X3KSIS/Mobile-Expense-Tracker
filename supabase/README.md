@@ -26,7 +26,7 @@ In **Authentication → Sign In / Providers → Email**:
 
 1. Open **Project Settings → API Keys** and copy the **publishable key** (`sb_publishable_…`). A legacy *anon* key also works. Copy the **Project URL** from **Project Settings → Data API**.
 2. Copy `supabase.example.json` (in the project root) to `supabase.json` and fill in both values. `supabase.json` is gitignored.
-3. Run the app with:
+3. The app's own project is built in (`lib/data/services/supabase/supabase_config.dart`), so `flutter run` or F5 connects to it. `supabase.json` is only needed to point a build at a different project:
 
    ```sh
    flutter run -d <device> --dart-define-from-file=supabase.json
@@ -34,7 +34,7 @@ In **Authentication → Sign In / Providers → Email**:
 
 Never put the **secret** or **service_role** key in the app or in `supabase.json`. It bypasses row-level security.
 
-Without `--dart-define-from-file`, the app shows a "Not connected to the server" screen; there is no demo sign-in.
+There is no demo sign-in: every sign-in goes through Supabase.
 
 ## How sync works
 
