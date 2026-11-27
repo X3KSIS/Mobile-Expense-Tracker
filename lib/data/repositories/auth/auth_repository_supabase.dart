@@ -149,6 +149,23 @@ class AuthRepositorySupabase extends AuthRepository {
     return _reloadProfile().then((updated) => updated ?? user);
   });
 
+  @override
+  Future<Result<AppUser>> setPhoto(Uint8List? photo) => _call(() async {
+    final user = _user;
+    if (user == null) throw const AuthException(AuthErrorCode.notSignedIn);
+    await (_db.update(
+      _db.profiles,
+    )..where((p) => p.userId.equals(user.id))).write(
+      ProfilesCompanion(
+        avatarBytes: Value(photo),
+        avatarDirty: const Value(true),
+        modifiedAt: Value(_clock()),
+        dirty: const Value(true),
+      ),
+    );
+    return _reloadProfile().then((updated) => updated ?? user);
+  });
+
   Future<AppUser> _open(sb.User user) async {
     final row = await _db.openAccount(
       userId: user.id,
@@ -184,6 +201,7 @@ class AuthRepositorySupabase extends AuthRepository {
     email: row.email,
     phone: row.phone,
     createdAt: row.createdAt,
+    photo: row.avatarBytes,
   );
 
   /// The session ended elsewhere (expired or revoked).

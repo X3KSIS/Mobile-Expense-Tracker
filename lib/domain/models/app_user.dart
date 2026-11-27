@@ -1,7 +1,8 @@
+import 'dart:typed_data';
+
 /// The signed-in person's profile.
 ///
-/// Named `AppUser` so it never clashes with Firebase's `User` once Firebase
-/// Auth is added.
+/// Named `AppUser` so it never clashes with Supabase's `User`.
 class AppUser {
   const AppUser({
     required this.id,
@@ -9,6 +10,7 @@ class AppUser {
     required this.email,
     required this.createdAt,
     this.phone,
+    this.photo,
   });
 
   final String id;
@@ -20,6 +22,9 @@ class AppUser {
 
   /// When the account was created.
   final DateTime createdAt;
+
+  /// Profile photo (JPEG bytes), or null to show [initials].
+  final Uint8List? photo;
 
   /// Up to two initials from [name], e.g. "PM" for "Paul Mubanga".
   String get initials => name
@@ -38,6 +43,7 @@ class AppUser {
         email: email,
         phone: clearPhone ? null : (phone ?? this.phone),
         createdAt: createdAt,
+        photo: photo,
       );
 
   @override
@@ -47,10 +53,21 @@ class AppUser {
       other.name == name &&
       other.email == email &&
       other.phone == phone &&
-      other.createdAt == createdAt;
+      other.createdAt == createdAt &&
+      _sameBytes(other.photo, photo);
+
+  static bool _sameBytes(Uint8List? a, Uint8List? b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null || a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 
   @override
-  int get hashCode => Object.hash(id, name, email, phone, createdAt);
+  int get hashCode =>
+      Object.hash(id, name, email, phone, createdAt, photo?.length);
 
   @override
   String toString() => 'AppUser($id, $name, $email)';

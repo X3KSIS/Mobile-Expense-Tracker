@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_expensetracker/data/services/sync/remote_store.dart';
 
 /// An in-memory server with the same rules as the Supabase migration:
@@ -17,6 +19,30 @@ class FakeRemoteStore implements RemoteStore {
   bool offline = false;
 
   int pushes = 0;
+
+  /// Stored photos by path.
+  final Map<String, Uint8List> photos = {};
+
+  @override
+  Future<void> uploadPhoto(String path, Uint8List bytes) async {
+    _check();
+    photos[path] = bytes;
+  }
+
+  @override
+  Future<Uint8List> downloadPhoto(String path) async {
+    _check();
+    final bytes = photos[path];
+    if (bytes == null) throw Exception('No photo at $path');
+    return bytes;
+  }
+
+  @override
+  Future<void> deletePhoto(String path) async {
+    _check();
+    photos.remove(path);
+  }
+
   DateTime _serverClock = DateTime.utc(2026, 11, 27, 8);
 
   String _stamp() {

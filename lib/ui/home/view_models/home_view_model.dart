@@ -144,6 +144,9 @@ class HomeViewModel extends ChangeNotifier {
   /// Up to two initials from [userName], e.g. "PM".
   String get userInitials => _authRepository.currentUser?.initials ?? '';
 
+  /// The profile photo, or null.
+  Uint8List? get userPhoto => _authRepository.currentUser?.photo;
+
   /// The colour theme the user picked.
   ThemePreference get themePreference => _settingsRepository.themePreference;
 

@@ -4106,6 +4106,44 @@ class $ProfilesTable extends Profiles
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _avatarPathMeta = const VerificationMeta(
+    'avatarPath',
+  );
+  @override
+  late final GeneratedColumn<String> avatarPath = GeneratedColumn<String>(
+    'avatar_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarBytesMeta = const VerificationMeta(
+    'avatarBytes',
+  );
+  @override
+  late final GeneratedColumn<Uint8List> avatarBytes =
+      GeneratedColumn<Uint8List>(
+        'avatar_bytes',
+        aliasedName,
+        true,
+        type: DriftSqlType.blob,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _avatarDirtyMeta = const VerificationMeta(
+    'avatarDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> avatarDirty = GeneratedColumn<bool>(
+    'avatar_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("avatar_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _hideAmountsMeta = const VerificationMeta(
     'hideAmounts',
   );
@@ -4167,6 +4205,9 @@ class $ProfilesTable extends Profiles
     budgetAlertPercent,
     defaultWalletId,
     showHabits,
+    avatarPath,
+    avatarBytes,
+    avatarDirty,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4246,6 +4287,30 @@ class $ProfilesTable extends Profiles
         showHabits.isAcceptableOrUnknown(data['show_habits']!, _showHabitsMeta),
       );
     }
+    if (data.containsKey('avatar_path')) {
+      context.handle(
+        _avatarPathMeta,
+        avatarPath.isAcceptableOrUnknown(data['avatar_path']!, _avatarPathMeta),
+      );
+    }
+    if (data.containsKey('avatar_bytes')) {
+      context.handle(
+        _avatarBytesMeta,
+        avatarBytes.isAcceptableOrUnknown(
+          data['avatar_bytes']!,
+          _avatarBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('avatar_dirty')) {
+      context.handle(
+        _avatarDirtyMeta,
+        avatarDirty.isAcceptableOrUnknown(
+          data['avatar_dirty']!,
+          _avatarDirtyMeta,
+        ),
+      );
+    }
     if (data.containsKey('hide_amounts')) {
       context.handle(
         _hideAmountsMeta,
@@ -4322,6 +4387,18 @@ class $ProfilesTable extends Profiles
         DriftSqlType.bool,
         data['${effectivePrefix}show_habits'],
       )!,
+      avatarPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_path'],
+      ),
+      avatarBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}avatar_bytes'],
+      ),
+      avatarDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}avatar_dirty'],
+      )!,
       hideAmounts: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hide_amounts'],
@@ -4366,6 +4443,15 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   /// Whether Home shows the spending habit card.
   final bool showHabits;
 
+  /// Where the photo is stored on the server, or null.
+  final String? avatarPath;
+
+  /// The photo itself, kept here so it shows offline.
+  final Uint8List? avatarBytes;
+
+  /// The photo changed here and has not been uploaded yet.
+  final bool avatarDirty;
+
   /// Whether Home hides money amounts until shown.
   final bool hideAmounts;
   final DateTime createdAt;
@@ -4381,6 +4467,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     required this.budgetAlertPercent,
     this.defaultWalletId,
     required this.showHabits,
+    this.avatarPath,
+    this.avatarBytes,
+    required this.avatarDirty,
     required this.hideAmounts,
     required this.createdAt,
     required this.modifiedAt,
@@ -4402,6 +4491,13 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       map['default_wallet_id'] = Variable<String>(defaultWalletId);
     }
     map['show_habits'] = Variable<bool>(showHabits);
+    if (!nullToAbsent || avatarPath != null) {
+      map['avatar_path'] = Variable<String>(avatarPath);
+    }
+    if (!nullToAbsent || avatarBytes != null) {
+      map['avatar_bytes'] = Variable<Uint8List>(avatarBytes);
+    }
+    map['avatar_dirty'] = Variable<bool>(avatarDirty);
     map['hide_amounts'] = Variable<bool>(hideAmounts);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['modified_at'] = Variable<DateTime>(modifiedAt);
@@ -4424,6 +4520,13 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ? const Value.absent()
           : Value(defaultWalletId),
       showHabits: Value(showHabits),
+      avatarPath: avatarPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarPath),
+      avatarBytes: avatarBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarBytes),
+      avatarDirty: Value(avatarDirty),
       hideAmounts: Value(hideAmounts),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
@@ -4446,6 +4549,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       budgetAlertPercent: serializer.fromJson<int>(json['budgetAlertPercent']),
       defaultWalletId: serializer.fromJson<String?>(json['defaultWalletId']),
       showHabits: serializer.fromJson<bool>(json['showHabits']),
+      avatarPath: serializer.fromJson<String?>(json['avatarPath']),
+      avatarBytes: serializer.fromJson<Uint8List?>(json['avatarBytes']),
+      avatarDirty: serializer.fromJson<bool>(json['avatarDirty']),
       hideAmounts: serializer.fromJson<bool>(json['hideAmounts']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
@@ -4465,6 +4571,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'budgetAlertPercent': serializer.toJson<int>(budgetAlertPercent),
       'defaultWalletId': serializer.toJson<String?>(defaultWalletId),
       'showHabits': serializer.toJson<bool>(showHabits),
+      'avatarPath': serializer.toJson<String?>(avatarPath),
+      'avatarBytes': serializer.toJson<Uint8List?>(avatarBytes),
+      'avatarDirty': serializer.toJson<bool>(avatarDirty),
       'hideAmounts': serializer.toJson<bool>(hideAmounts),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
@@ -4482,6 +4591,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     int? budgetAlertPercent,
     Value<String?> defaultWalletId = const Value.absent(),
     bool? showHabits,
+    Value<String?> avatarPath = const Value.absent(),
+    Value<Uint8List?> avatarBytes = const Value.absent(),
+    bool? avatarDirty,
     bool? hideAmounts,
     DateTime? createdAt,
     DateTime? modifiedAt,
@@ -4498,6 +4610,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
         ? defaultWalletId.value
         : this.defaultWalletId,
     showHabits: showHabits ?? this.showHabits,
+    avatarPath: avatarPath.present ? avatarPath.value : this.avatarPath,
+    avatarBytes: avatarBytes.present ? avatarBytes.value : this.avatarBytes,
+    avatarDirty: avatarDirty ?? this.avatarDirty,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -4520,6 +4635,15 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       showHabits: data.showHabits.present
           ? data.showHabits.value
           : this.showHabits,
+      avatarPath: data.avatarPath.present
+          ? data.avatarPath.value
+          : this.avatarPath,
+      avatarBytes: data.avatarBytes.present
+          ? data.avatarBytes.value
+          : this.avatarBytes,
+      avatarDirty: data.avatarDirty.present
+          ? data.avatarDirty.value
+          : this.avatarDirty,
       hideAmounts: data.hideAmounts.present
           ? data.hideAmounts.value
           : this.hideAmounts,
@@ -4543,6 +4667,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('budgetAlertPercent: $budgetAlertPercent, ')
           ..write('defaultWalletId: $defaultWalletId, ')
           ..write('showHabits: $showHabits, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('avatarBytes: $avatarBytes, ')
+          ..write('avatarDirty: $avatarDirty, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -4562,6 +4689,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     budgetAlertPercent,
     defaultWalletId,
     showHabits,
+    avatarPath,
+    $driftBlobEquality.hash(avatarBytes),
+    avatarDirty,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4580,6 +4710,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           other.budgetAlertPercent == this.budgetAlertPercent &&
           other.defaultWalletId == this.defaultWalletId &&
           other.showHabits == this.showHabits &&
+          other.avatarPath == this.avatarPath &&
+          $driftBlobEquality.equals(other.avatarBytes, this.avatarBytes) &&
+          other.avatarDirty == this.avatarDirty &&
           other.hideAmounts == this.hideAmounts &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt &&
@@ -4596,6 +4729,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<int> budgetAlertPercent;
   final Value<String?> defaultWalletId;
   final Value<bool> showHabits;
+  final Value<String?> avatarPath;
+  final Value<Uint8List?> avatarBytes;
+  final Value<bool> avatarDirty;
   final Value<bool> hideAmounts;
   final Value<DateTime> createdAt;
   final Value<DateTime> modifiedAt;
@@ -4611,6 +4747,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.budgetAlertPercent = const Value.absent(),
     this.defaultWalletId = const Value.absent(),
     this.showHabits = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    this.avatarBytes = const Value.absent(),
+    this.avatarDirty = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
@@ -4627,6 +4766,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.budgetAlertPercent = const Value.absent(),
     this.defaultWalletId = const Value.absent(),
     this.showHabits = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    this.avatarBytes = const Value.absent(),
+    this.avatarDirty = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     required DateTime createdAt,
     required DateTime modifiedAt,
@@ -4645,6 +4787,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<int>? budgetAlertPercent,
     Expression<String>? defaultWalletId,
     Expression<bool>? showHabits,
+    Expression<String>? avatarPath,
+    Expression<Uint8List>? avatarBytes,
+    Expression<bool>? avatarDirty,
     Expression<bool>? hideAmounts,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? modifiedAt,
@@ -4662,6 +4807,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
         'budget_alert_percent': budgetAlertPercent,
       if (defaultWalletId != null) 'default_wallet_id': defaultWalletId,
       if (showHabits != null) 'show_habits': showHabits,
+      if (avatarPath != null) 'avatar_path': avatarPath,
+      if (avatarBytes != null) 'avatar_bytes': avatarBytes,
+      if (avatarDirty != null) 'avatar_dirty': avatarDirty,
       if (hideAmounts != null) 'hide_amounts': hideAmounts,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
@@ -4680,6 +4828,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<int>? budgetAlertPercent,
     Value<String?>? defaultWalletId,
     Value<bool>? showHabits,
+    Value<String?>? avatarPath,
+    Value<Uint8List?>? avatarBytes,
+    Value<bool>? avatarDirty,
     Value<bool>? hideAmounts,
     Value<DateTime>? createdAt,
     Value<DateTime>? modifiedAt,
@@ -4696,6 +4847,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       budgetAlertPercent: budgetAlertPercent ?? this.budgetAlertPercent,
       defaultWalletId: defaultWalletId ?? this.defaultWalletId,
       showHabits: showHabits ?? this.showHabits,
+      avatarPath: avatarPath ?? this.avatarPath,
+      avatarBytes: avatarBytes ?? this.avatarBytes,
+      avatarDirty: avatarDirty ?? this.avatarDirty,
       hideAmounts: hideAmounts ?? this.hideAmounts,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -4734,6 +4888,15 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     if (showHabits.present) {
       map['show_habits'] = Variable<bool>(showHabits.value);
     }
+    if (avatarPath.present) {
+      map['avatar_path'] = Variable<String>(avatarPath.value);
+    }
+    if (avatarBytes.present) {
+      map['avatar_bytes'] = Variable<Uint8List>(avatarBytes.value);
+    }
+    if (avatarDirty.present) {
+      map['avatar_dirty'] = Variable<bool>(avatarDirty.value);
+    }
     if (hideAmounts.present) {
       map['hide_amounts'] = Variable<bool>(hideAmounts.value);
     }
@@ -4764,6 +4927,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('budgetAlertPercent: $budgetAlertPercent, ')
           ..write('defaultWalletId: $defaultWalletId, ')
           ..write('showHabits: $showHabits, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('avatarBytes: $avatarBytes, ')
+          ..write('avatarDirty: $avatarDirty, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -7072,6 +7238,9 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<int> budgetAlertPercent,
   Value<String?> defaultWalletId,
   Value<bool> showHabits,
+  Value<String?> avatarPath,
+  Value<Uint8List?> avatarBytes,
+  Value<bool> avatarDirty,
   Value<bool> hideAmounts,
   required DateTime createdAt,
   required DateTime modifiedAt,
@@ -7088,6 +7257,9 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<int> budgetAlertPercent,
   Value<String?> defaultWalletId,
   Value<bool> showHabits,
+  Value<String?> avatarPath,
+  Value<Uint8List?> avatarBytes,
+  Value<bool> avatarDirty,
   Value<bool> hideAmounts,
   Value<DateTime> createdAt,
   Value<DateTime> modifiedAt,
@@ -7146,6 +7318,21 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<bool> get showHabits => $composableBuilder(
     column: $table.showHabits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<Uint8List> get avatarBytes => $composableBuilder(
+    column: $table.avatarBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get avatarDirty => $composableBuilder(
+    column: $table.avatarDirty,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7224,6 +7411,21 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<Uint8List> get avatarBytes => $composableBuilder(
+    column: $table.avatarBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get avatarDirty => $composableBuilder(
+    column: $table.avatarDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => ColumnOrderings(column),
@@ -7287,6 +7489,21 @@ class $$ProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<Uint8List> get avatarBytes => $composableBuilder(
+    column: $table.avatarBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get avatarDirty => $composableBuilder(
+    column: $table.avatarDirty,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => column,
@@ -7344,6 +7561,9 @@ class $$ProfilesTableTableManager
                 Value<int> budgetAlertPercent = const Value.absent(),
                 Value<String?> defaultWalletId = const Value.absent(),
                 Value<bool> showHabits = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                Value<Uint8List?> avatarBytes = const Value.absent(),
+                Value<bool> avatarDirty = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> modifiedAt = const Value.absent(),
@@ -7359,6 +7579,9 @@ class $$ProfilesTableTableManager
                 budgetAlertPercent: budgetAlertPercent,
                 defaultWalletId: defaultWalletId,
                 showHabits: showHabits,
+                avatarPath: avatarPath,
+                avatarBytes: avatarBytes,
+                avatarDirty: avatarDirty,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
@@ -7376,6 +7599,9 @@ class $$ProfilesTableTableManager
                 Value<int> budgetAlertPercent = const Value.absent(),
                 Value<String?> defaultWalletId = const Value.absent(),
                 Value<bool> showHabits = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                Value<Uint8List?> avatarBytes = const Value.absent(),
+                Value<bool> avatarDirty = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime modifiedAt,
@@ -7391,6 +7617,9 @@ class $$ProfilesTableTableManager
                 budgetAlertPercent: budgetAlertPercent,
                 defaultWalletId: defaultWalletId,
                 showHabits: showHabits,
+                avatarPath: avatarPath,
+                avatarBytes: avatarBytes,
+                avatarDirty: avatarDirty,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,

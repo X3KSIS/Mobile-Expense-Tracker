@@ -231,7 +231,43 @@ class SyncRepositoryDrift extends SyncRepository {
     _db.profiles,
   )..where((p) => p.userId.equals(_remote.userId!))).getSingleOrNull();
 
+  /// Uploads a new photo (or removes a cleared one) before the profile
+  /// goes up, so the profile points at a file that exists. Each upload
+  /// gets a new name, so other devices notice the change.
+  Future<void> _pushPhoto() async {
+    final local = await _localProfile();
+    if (local == null || !local.avatarDirty) return;
+    final userId = _remote.userId!;
+    final bytes = local.avatarBytes;
+    final previous = local.avatarPath;
+    String? path;
+    if (bytes != null) {
+      path = '$userId/avatar-${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await _remote.uploadPhoto(path, bytes);
+    }
+    await (_db.update(_db.profiles)..where(
+          (p) =>
+              p.userId.equals(local.userId) &
+              p.modifiedAt.equals(local.modifiedAt),
+        ))
+        .write(
+          ProfilesCompanion(
+            avatarPath: Value(path),
+            avatarDirty: const Value(false),
+            dirty: const Value(true),
+          ),
+        );
+    if (previous != null && previous != path) {
+      try {
+        await _remote.deletePhoto(previous);
+      } on Exception {
+        // An old file left behind does no harm.
+      }
+    }
+  }
+
   Future<void> _pushProfile() async {
+    await _pushPhoto();
     final local = await _localProfile();
     if (local == null || !local.dirty) return;
     await _remote.pushProfile({
@@ -243,6 +279,7 @@ class SyncRepositoryDrift extends SyncRepository {
       'default_wallet_id': local.defaultWalletId,
       'show_habits': local.showHabits,
       'hide_amounts': local.hideAmounts,
+      'avatar_path': local.avatarPath,
       'modified_at': _serializer.toJson(local.modifiedAt),
     });
     await (_db.update(_db.profiles)..where(
@@ -268,6 +305,8 @@ class SyncRepositoryDrift extends SyncRepository {
     final wallet = remote['default_wallet_id'] as String?;
     final showHabits = remote['show_habits'] as bool? ?? true;
     final hideAmounts = remote['hide_amounts'] as bool? ?? false;
+    final avatarPath = remote['avatar_path'] as String?;
+    final photoChanged = !local.avatarDirty && avatarPath != local.avatarPath;
     final unchanged =
         !local.dirty &&
         local.name == name &&
@@ -278,6 +317,7 @@ class SyncRepositoryDrift extends SyncRepository {
         local.defaultWalletId == wallet &&
         local.showHabits == showHabits &&
         local.hideAmounts == hideAmounts &&
+        !photoChanged &&
         local.modifiedAt.isAtSameMomentAs(remoteModified);
     // Writing anyway would wake the change watcher and sync again forever.
     if (unchanged) return;
@@ -293,6 +333,14 @@ class SyncRepositoryDrift extends SyncRepository {
         defaultWalletId: Value(wallet),
         showHabits: Value(showHabits),
         hideAmounts: Value(hideAmounts),
+        avatarPath: photoChanged ? Value(avatarPath) : const Value.absent(),
+        avatarBytes: photoChanged
+            ? Value(
+                avatarPath == null
+                    ? null
+                    : await _remote.downloadPhoto(avatarPath),
+              )
+            : const Value.absent(),
         modifiedAt: Value(remoteModified),
         dirty: const Value(false),
       ),

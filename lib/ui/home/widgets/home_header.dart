@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../core/themes/dimens.dart';
@@ -13,6 +15,7 @@ class HomeHeader extends StatelessWidget {
     super.key,
     required this.userName,
     required this.initials,
+    this.photo,
     required this.onProfilePressed,
     required this.onNotificationsPressed,
     required this.isDarkMode,
@@ -22,6 +25,7 @@ class HomeHeader extends StatelessWidget {
 
   final String userName;
   final String initials;
+  final Uint8List? photo;
   final VoidCallback onProfilePressed;
   final VoidCallback onNotificationsPressed;
   final bool hasUnreadNotifications;
@@ -47,7 +51,7 @@ class HomeHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Dimens.radiusButton),
                 child: Row(
                   children: [
-                    UserAvatar(initials: initials),
+                    UserAvatar(initials: initials, photo: photo),
                     const SizedBox(width: Dimens.gapM),
                     Expanded(
                       child: Column(

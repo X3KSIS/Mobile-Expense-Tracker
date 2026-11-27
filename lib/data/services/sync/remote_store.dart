@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 /// The server side of sync: one user's rows in the backend's tables.
 ///
 /// Rows are JSON maps with the server's snake_case column names. Dates
@@ -23,4 +25,13 @@ abstract class RemoteStore {
 
   /// Updates the signed-in user's profile with [values].
   Future<void> pushProfile(Map<String, dynamic> values);
+
+  /// Stores a profile photo at [path] (inside the user's own folder).
+  Future<void> uploadPhoto(String path, Uint8List bytes);
+
+  /// The profile photo stored at [path].
+  Future<Uint8List> downloadPhoto(String path);
+
+  /// Removes the photo at [path]; missing files are fine.
+  Future<void> deletePhoto(String path);
 }

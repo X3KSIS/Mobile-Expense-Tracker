@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../utils/phone.dart';
 import '../../../utils/validators.dart';
@@ -9,8 +10,9 @@ import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
 import '../view_models/edit_profile_view_model.dart';
+import 'profile_photo_picker.dart';
 
-/// Edit the user's name and phone number. Email is read-only for now.
+/// Edit the user's photo, name and phone number. Email is read-only.
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key, required this.viewModel});
 
@@ -37,6 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       text: phone == null ? '' : formatPhone(phone),
     );
     widget.viewModel.save.addListener(_onSaveChanged);
+    widget.viewModel.setPhoto.addListener(_onPhotoChanged);
   }
 
   @override
@@ -51,6 +54,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     widget.viewModel.save.removeListener(_onSaveChanged);
+    widget.viewModel.setPhoto.removeListener(_onPhotoChanged);
     _name.dispose();
     _email.dispose();
     _phone.dispose();
@@ -66,6 +70,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ..showSnackBar(const SnackBar(content: Text('Profile updated')));
   }
 
+  void _onPhotoChanged() {
+    final command = widget.viewModel.setPhoto;
+    if (!mounted || command.running || command.result == null) return;
+    final message = command.completed
+        ? 'Photo saved'
+        : "Couldn't save the photo. Please try again.";
+    command.clearResult();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// Picks a photo from the gallery, shrunk to at most 512px so it is
+  /// small to store and sync.
+  Future<void> _choosePhoto() async {
+    final XFile? file;
+    try {
+      file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+    } on Exception {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't open your photos.")),
+      );
+      return;
+    }
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    widget.viewModel.setPhoto.execute(bytes);
+  }
+
   void _submit() {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -78,7 +117,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: viewModel.save,
+          listenable: Listenable.merge([
+            viewModel,
+            viewModel.save,
+            viewModel.setPhoto,
+          ]),
           builder: (context, _) => ListView(
             padding: const EdgeInsets.fromLTRB(
               Dimens.screenPadding,
@@ -89,6 +132,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               const ScreenHeader(title: 'Personal details'),
               const SizedBox(height: Dimens.sectionGap + 6),
+              ProfilePhotoPicker(
+                initials: viewModel.initials,
+                photo: viewModel.photo,
+                busy: viewModel.setPhoto.running,
+                onChoose: _choosePhoto,
+                onRemove: () => viewModel.setPhoto.execute(null),
+              ),
+              const SizedBox(height: Dimens.sectionGap),
               FormErrorSlot(message: viewModel.errorMessage),
               _EditProfileForm(
                 formKey: _formKey,

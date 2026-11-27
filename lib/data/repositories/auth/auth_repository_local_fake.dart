@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../domain/models/app_user.dart';
 import '../../../domain/models/auth_exception.dart';
 import '../../../utils/result.dart';
@@ -77,6 +79,27 @@ class AuthRepositoryLocalFake extends AuthRepository {
     _accounts[key] = user;
     _setUser(user);
     return Result.ok(user);
+  }
+
+  @override
+  Future<Result<AppUser>> setPhoto(Uint8List? photo) async {
+    await Future<void>.delayed(delay);
+    final user = _currentUser;
+    if (user == null) {
+      return const Result.error(AuthException(AuthErrorCode.notSignedIn));
+    }
+    final updated = AppUser(
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      createdAt: user.createdAt,
+      photo: photo,
+    );
+    _currentUser = updated;
+    _accounts[user.email] = updated;
+    notifyListeners();
+    return Result.ok(updated);
   }
 
   /// The only code [verifyEmail] accepts.

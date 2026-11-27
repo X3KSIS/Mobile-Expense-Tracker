@@ -132,6 +132,7 @@ class _HomeContent extends StatelessWidget {
         HomeHeader(
           userName: viewModel.userName,
           initials: viewModel.userInitials,
+          photo: viewModel.userPhoto,
           onProfilePressed: () => context.push(Routes.profile),
           onNotificationsPressed: onNotificationsPressed,
           isDarkMode: switch (viewModel.themePreference) {

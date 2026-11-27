@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'remote_store.dart';
@@ -34,6 +36,25 @@ class SupabaseRemoteStore implements RemoteStore {
     if (id == null) return null;
     return _client.from('profiles').select().eq('user_id', id).maybeSingle();
   }
+
+  static const String _photoBucket = 'avatars';
+
+  @override
+  Future<void> uploadPhoto(String path, Uint8List bytes) => _client.storage
+      .from(_photoBucket)
+      .uploadBinary(
+        path,
+        bytes,
+        fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true),
+      );
+
+  @override
+  Future<Uint8List> downloadPhoto(String path) =>
+      _client.storage.from(_photoBucket).download(path);
+
+  @override
+  Future<void> deletePhoto(String path) =>
+      _client.storage.from(_photoBucket).remove([path]);
 
   @override
   Future<void> pushProfile(Map<String, dynamic> values) async {

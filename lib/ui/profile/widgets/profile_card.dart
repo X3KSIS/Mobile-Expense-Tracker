@@ -29,7 +29,7 @@ class ProfileCard extends StatelessWidget {
       boxShadow: context.shadows.soft,
       child: Row(
         children: [
-          UserAvatar(initials: user.initials, large: true),
+          UserAvatar(initials: user.initials, photo: user.photo, large: true),
           const SizedBox(width: Dimens.gapL),
           Expanded(
             child: Column(

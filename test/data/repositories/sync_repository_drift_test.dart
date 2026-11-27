@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository_drift.dart';
 import 'package:flutter_expensetracker/data/repositories/category/default_categories.dart';
@@ -290,6 +293,52 @@ void main() {
     await pumpEventQueue();
     expect(writes, 0);
   });
+
+  test(
+    'a profile photo goes up, reaches other devices and can be removed',
+    () async {
+      final photo = Uint8List.fromList(List.generate(64, (i) => i));
+      await phone.db
+          .update(phone.db.profiles)
+          .write(
+            ProfilesCompanion(
+              avatarBytes: Value(photo),
+              avatarDirty: const Value(true),
+              dirty: const Value(true),
+              modifiedAt: Value(clock.now),
+            ),
+          );
+      await phone.sync.sync();
+
+      final path = remote.profile!['avatar_path'] as String;
+      expect(path, startsWith('user-1/avatar-'));
+      expect(remote.photos[path], photo);
+
+      await tablet.sync.sync();
+      final onTablet = await tablet.db.select(tablet.db.profiles).getSingle();
+      expect(onTablet.avatarBytes, photo);
+      expect(onTablet.avatarPath, path);
+
+      clock.tick();
+      await phone.db
+          .update(phone.db.profiles)
+          .write(
+            ProfilesCompanion(
+              avatarBytes: const Value(null),
+              avatarDirty: const Value(true),
+              dirty: const Value(true),
+              modifiedAt: Value(clock.now),
+            ),
+          );
+      await phone.sync.sync();
+      expect(remote.profile!['avatar_path'], isNull);
+      expect(remote.photos, isEmpty);
+
+      await tablet.sync.sync();
+      final cleared = await tablet.db.select(tablet.db.profiles).getSingle();
+      expect(cleared.avatarBytes, isNull);
+    },
+  );
 
   test('does nothing while signed out', () async {
     remote.userId = null;
