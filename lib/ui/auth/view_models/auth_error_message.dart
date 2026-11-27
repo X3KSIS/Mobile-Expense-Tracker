@@ -16,6 +16,10 @@ String authErrorMessage(Exception error) {
       "We've emailed you a code. Enter it to confirm your email.",
     AuthErrorCode.emailNotConfirmed =>
       'Confirm your email first with the code we sent you.',
+    AuthErrorCode.samePassword =>
+      'Choose a new password that is different from the current one.',
+    AuthErrorCode.wrongPassword =>
+      "Your current password isn't right. Check it and try again.",
     AuthErrorCode.invalidCode =>
       "That code is wrong or has expired. Check it, or send a new one.",
     AuthErrorCode.tooManyRequests =>

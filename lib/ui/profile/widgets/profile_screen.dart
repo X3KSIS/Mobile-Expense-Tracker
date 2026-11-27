@@ -144,8 +144,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ProfileMenuItem(
           icon: Icons.lock_outline_rounded,
           title: 'Security',
-          subtitle: 'Password and sign-in',
-          onTap: () => _comingSoon('Security settings'),
+          subtitle: 'Change your password',
+          onTap: () => context.push(Routes.security),
         ),
         ProfileMenuItem(
           icon: Icons.notifications_none_rounded,

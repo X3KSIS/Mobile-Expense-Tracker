@@ -43,6 +43,12 @@ abstract class AuthRepository extends ChangeNotifier {
   /// [email], so the app never reveals which emails are registered.
   Future<Result<void>> sendPasswordResetEmail(String email);
 
+  /// Changes the password after checking [currentPassword].
+  Future<Result<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
   /// Sets the profile photo (JPEG bytes), or removes it when null.
   Future<Result<AppUser>> setPhoto(Uint8List? photo);
 

@@ -150,6 +150,25 @@ class AuthRepositorySupabase extends AuthRepository {
   });
 
   @override
+  Future<Result<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _call(() async {
+    final email = _auth.currentUser?.email;
+    if (email == null) throw const AuthException(AuthErrorCode.notSignedIn);
+    // Signing in again proves the current password before it changes.
+    try {
+      await _auth.signInWithPassword(email: email, password: currentPassword);
+    } on sb.AuthException catch (e) {
+      if (e.code == 'invalid_credentials') {
+        throw const AuthException(AuthErrorCode.wrongPassword);
+      }
+      rethrow;
+    }
+    await _auth.updateUser(sb.UserAttributes(password: newPassword));
+  });
+
+  @override
   Future<Result<AppUser>> setPhoto(Uint8List? photo) => _call(() async {
     final user = _user;
     if (user == null) throw const AuthException(AuthErrorCode.notSignedIn);
@@ -236,6 +255,7 @@ class AuthRepositorySupabase extends AuthRepository {
     'email_not_confirmed' => AuthErrorCode.emailNotConfirmed,
     'user_already_exists' || 'email_exists' => AuthErrorCode.emailAlreadyInUse,
     'weak_password' => AuthErrorCode.weakPassword,
+    'same_password' => AuthErrorCode.samePassword,
     'otp_expired' || 'otp_disabled' => AuthErrorCode.invalidCode,
     'over_email_send_rate_limit' ||
     'over_request_rate_limit' => AuthErrorCode.tooManyRequests,

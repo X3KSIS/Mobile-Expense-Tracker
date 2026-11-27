@@ -81,6 +81,29 @@ class AuthRepositoryLocalFake extends AuthRepository {
     return Result.ok(user);
   }
 
+  /// The password [changePassword] treats as current; anything else is
+  /// wrong.
+  String currentPassword = 'kwacha2026';
+
+  @override
+  Future<Result<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await Future<void>.delayed(delay);
+    if (_currentUser == null) {
+      return const Result.error(AuthException(AuthErrorCode.notSignedIn));
+    }
+    if (currentPassword != this.currentPassword) {
+      return const Result.error(AuthException(AuthErrorCode.wrongPassword));
+    }
+    if (newPassword == currentPassword) {
+      return const Result.error(AuthException(AuthErrorCode.samePassword));
+    }
+    this.currentPassword = newPassword;
+    return const Result.ok(null);
+  }
+
   @override
   Future<Result<AppUser>> setPhoto(Uint8List? photo) async {
     await Future<void>.delayed(delay);

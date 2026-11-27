@@ -626,6 +626,27 @@ void main() {
     expect(Theme.of(context).brightness, Brightness.dark);
   });
 
+  testWidgets('Profile opens Security to change the password', (tester) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    await tester.tap(find.byTooltip('Profile'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Security'));
+    await tester.pumpAndSettle();
+    expect(find.text('Change password'), findsWidgets);
+
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'kwacha2026');
+    await tester.enterText(fields.at(1), 'newpass2026');
+    await tester.enterText(fields.at(2), 'newpass2026');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(PrimaryButton, 'Change password'));
+    await tester.pumpAndSettle();
+    expect(find.text('Password changed'), findsOneWidget);
+  });
+
   testWidgets('signing out from Profile returns to sign in', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);

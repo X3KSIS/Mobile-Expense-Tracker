@@ -22,6 +22,8 @@ abstract final class Routes {
   static const String profile = '/profile';
   static const String editProfileSegment = 'edit';
   static const String editProfile = '$profile/$editProfileSegment';
+  static const String securitySegment = 'security';
+  static const String security = '$profile/$securitySegment';
 
   /// Query parameters for [add].
   static const String typeParam = 'type';

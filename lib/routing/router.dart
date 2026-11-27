@@ -33,6 +33,8 @@ import '../ui/profile/widgets/edit_profile_screen.dart';
 import '../ui/history/view_models/history_view_model.dart';
 import '../ui/history/widgets/history_screen.dart';
 import '../ui/profile/widgets/profile_screen.dart';
+import '../ui/profile/view_models/security_view_model.dart';
+import '../ui/profile/widgets/security_screen.dart';
 import '../ui/preferences/view_models/preferences_view_model.dart';
 import '../ui/preferences/widgets/preferences_screen.dart';
 import '../ui/recurring/view_models/recurring_view_model.dart';
@@ -271,6 +273,19 @@ GoRouter router(AuthRepository authRepository) {
           ),
         ),
         routes: [
+          GoRoute(
+            path: Routes.securitySegment,
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) => ChangeNotifierProvider(
+              create: (context) =>
+                  SecurityViewModel(authRepository: context.read()),
+              child: Builder(
+                builder: (context) => SecurityScreen(
+                  viewModel: context.read<SecurityViewModel>(),
+                ),
+              ),
+            ),
+          ),
           GoRoute(
             path: Routes.editProfileSegment,
             parentNavigatorKey: rootNavigatorKey,

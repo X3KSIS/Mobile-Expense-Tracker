@@ -13,6 +13,12 @@ enum AuthErrorCode {
   /// was sent before signing in.
   confirmEmail,
 
+  /// The new password is the same as the current one.
+  samePassword,
+
+  /// The current password given to confirm a change is wrong.
+  wrongPassword,
+
   /// The email code is wrong or has expired.
   invalidCode,
 
