@@ -32,6 +32,9 @@ class AuthRepositoryLocalFake extends AuthRepository {
     if (signedIn) _currentUser = demo;
   }
 
+  @override
+  bool get isDemo => true;
+
   static const String demoName = 'Paul Mubanga';
   static const String demoEmail = 'demo@expensetrack.app';
 

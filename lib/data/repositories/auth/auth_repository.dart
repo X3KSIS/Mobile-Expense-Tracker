@@ -15,6 +15,10 @@ abstract class AuthRepository extends ChangeNotifier {
   /// The signed-in user, or null when signed out.
   AppUser? get currentUser;
 
+  /// True for the demo sign-in used when the app has no server: any
+  /// details sign in and nothing is checked.
+  bool get isDemo => false;
+
   Future<Result<AppUser>> signIn({
     required String email,
     required String password,
