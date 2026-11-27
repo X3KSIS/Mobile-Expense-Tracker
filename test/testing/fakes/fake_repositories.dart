@@ -1,3 +1,5 @@
+import 'package:flutter_expensetracker/data/repositories/account_link/account_link_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/account_link/account_link_repository_api.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository.dart';
@@ -66,4 +68,7 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
     create: (_) => DetectedPaymentRepositoryLocalFake(incoming: sampleMessages),
   ),
   Provider<CategoryRepository>(create: (_) => instantCategoryRepository()),
+  ChangeNotifierProvider<AccountLinkRepository>(
+    create: (_) => AccountLinkRepositoryApi(),
+  ),
 ];

@@ -1,6 +1,8 @@
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import '../data/repositories/account_link/account_link_repository.dart';
+import '../data/repositories/account_link/account_link_repository_api.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../data/repositories/auth/auth_repository_local_fake.dart';
 import '../data/repositories/budget/budget_repository.dart';
@@ -41,5 +43,10 @@ List<SingleChildWidget> get providersLocal => [
   // Real already: reads the phone's notifications (Android only).
   ChangeNotifierProvider<DetectedPaymentRepository>(
     create: (_) => DetectedPaymentRepositoryNotifications(),
+  ),
+  // Ready for institution APIs (MTN MoMo, Airtel Money, banks). Add a
+  // ProviderApiService for each one once API access is granted.
+  ChangeNotifierProvider<AccountLinkRepository>(
+    create: (_) => AccountLinkRepositoryApi(),
   ),
 ];
