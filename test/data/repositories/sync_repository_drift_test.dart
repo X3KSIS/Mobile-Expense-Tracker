@@ -269,6 +269,19 @@ void main() {
     expect(remote.tables['detected_payments']!['TX9']!['message'], isA<Map>());
   });
 
+  test('a sync with nothing new changes nothing on the device', () async {
+    await phone.transactions.addTransaction(_draft(640));
+    await phone.sync.sync();
+    await phone.sync.sync();
+
+    var writes = 0;
+    final watch = phone.db.tableUpdates().listen((_) => writes++);
+    addTearDown(watch.cancel);
+    await phone.sync.sync();
+    await pumpEventQueue();
+    expect(writes, 0);
+  });
+
   test('does nothing while signed out', () async {
     remote.userId = null;
     await phone.transactions.addTransaction(_draft(640));

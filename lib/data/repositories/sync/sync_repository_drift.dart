@@ -256,14 +256,27 @@ class SyncRepositoryDrift extends SyncRepository {
     final remoteModified = DateTime.parse(remote['modified_at'] as String)
         .toLocal();
     if (local.dirty && local.modifiedAt.isAfter(remoteModified)) return;
+    final name = remote['name'] as String? ?? '';
+    final phone = remote['phone'] as String?;
+    final payday = (remote['payday'] as num?)?.toInt() ?? 1;
+    final theme = remote['theme'] as String? ?? 'system';
+    final unchanged =
+        !local.dirty &&
+        local.name == name &&
+        local.phone == phone &&
+        local.payday == payday &&
+        local.theme == theme &&
+        local.modifiedAt.isAtSameMomentAs(remoteModified);
+    // Writing anyway would wake the change watcher and sync again forever.
+    if (unchanged) return;
     await (_db.update(
       _db.profiles,
     )..where((p) => p.userId.equals(local.userId))).write(
       ProfilesCompanion(
-        name: Value(remote['name'] as String? ?? ''),
-        phone: Value(remote['phone'] as String?),
-        payday: Value((remote['payday'] as num?)?.toInt() ?? 1),
-        theme: Value(remote['theme'] as String? ?? 'system'),
+        name: Value(name),
+        phone: Value(phone),
+        payday: Value(payday),
+        theme: Value(theme),
         modifiedAt: Value(remoteModified),
         dirty: const Value(false),
       ),
