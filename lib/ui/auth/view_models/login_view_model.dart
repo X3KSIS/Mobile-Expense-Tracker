@@ -22,9 +22,6 @@ class LoginViewModel extends ChangeNotifier {
   /// Sends a reset link to the given email.
   late final Command1<void, String> resetPassword;
 
-  /// Whether sign-in is the demo account (no server configured).
-  bool get isDemo => _authRepository.isDemo;
-
   /// Message for the last failed sign-in, or null.
   String? get errorMessage => commandErrorMessage(login);
 

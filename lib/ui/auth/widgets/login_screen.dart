@@ -11,7 +11,6 @@ import '../../core/ui/primary_button.dart';
 import '../view_models/login_view_model.dart';
 import 'auth_header.dart';
 import 'auth_switch_prompt.dart';
-import 'demo_mode_notice.dart';
 
 /// Email and password sign-in, with "Forgot password?" and a link to
 /// sign up.
@@ -107,10 +106,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   subtitle: 'Sign in to keep track of where your kwacha goes.',
                 ),
                 const SizedBox(height: Dimens.sectionGap + 10),
-                if (viewModel.isDemo) ...[
-                  const DemoModeNotice(),
-                  const SizedBox(height: Dimens.gapL),
-                ],
                 FormErrorSlot(message: viewModel.errorMessage),
                 _LoginForm(
                   formKey: _formKey,

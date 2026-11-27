@@ -34,12 +34,6 @@ void main() {
   );
 
   group('LoginScreen', () {
-    testWidgets('says when it is the demo sign-in', (tester) async {
-      await pumpLogin(tester);
-
-      expect(find.textContaining('Demo mode'), findsOneWidget);
-    });
-
     testWidgets('empty fields are checked before signing in', (tester) async {
       await pumpLogin(tester);
 
