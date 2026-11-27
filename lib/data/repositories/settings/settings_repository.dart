@@ -17,4 +17,28 @@ abstract class SettingsRepository extends ChangeNotifier {
   int get payday;
 
   Future<Result<void>> setPayday(int day);
+
+  /// Budgets at or above this percentage of their limit show a warning
+  /// (one of [budgetAlertChoices]).
+  int get budgetAlertPercent;
+
+  Future<Result<void>> setBudgetAlertPercent(int percent);
+
+  /// The wallet Add transaction picks first, or null for the first wallet.
+  String? get defaultWalletId;
+
+  Future<Result<void>> setDefaultWalletId(String? walletId);
+
+  /// Whether Home shows the spending habit card.
+  bool get showHabitsOnHome;
+
+  Future<Result<void>> setShowHabitsOnHome(bool show);
+
+  /// Whether Home hides money amounts.
+  bool get hideAmountsOnHome;
+
+  Future<Result<void>> setHideAmountsOnHome(bool hide);
+
+  /// The warning levels offered.
+  static const List<int> budgetAlertChoices = [70, 80, 90];
 }

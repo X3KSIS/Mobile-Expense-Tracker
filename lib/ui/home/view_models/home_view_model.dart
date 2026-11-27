@@ -65,7 +65,6 @@ class HomeViewModel extends ChangeNotifier {
   List<Transaction> _all = const [];
   List<Transaction> _recentTransactions = const [];
   List<WalletBalance> _wallets = const [];
-  bool _hideAmounts = false;
   bool _disposed = false;
 
   MonthlySummary? get summary => _summary;
@@ -86,7 +85,13 @@ class HomeViewModel extends ChangeNotifier {
   /// needs attention.
   BudgetAlert? get budgetAlert {
     final c = cycle;
-    final progress = BudgetProgress.forPeriod(_budgets, _all, c.start, c.end);
+    final progress = BudgetProgress.forPeriod(
+      _budgets,
+      _all,
+      c.start,
+      c.end,
+      alertAt: _settingsRepository.budgetAlertPercent / 100,
+    );
     return BudgetProgress.topAlert(progress)?.toAlert();
   }
 
@@ -119,7 +124,10 @@ class HomeViewModel extends ChangeNotifier {
   List<WalletBalance> get wallets => _wallets;
 
   /// Whether balance amounts are masked.
-  bool get hideAmounts => _hideAmounts;
+  bool get hideAmounts => _settingsRepository.hideAmountsOnHome;
+
+  /// Whether to show the spending habit card (a preference).
+  bool get showHabits => _settingsRepository.showHabitsOnHome;
 
   /// True on the first load, before any data is available.
   bool get isLoading => load.running && !hasData;
@@ -155,10 +163,9 @@ class HomeViewModel extends ChangeNotifier {
     if (!_disposed) load.execute();
   }
 
-  void toggleHideAmounts() {
-    _hideAmounts = !_hideAmounts;
-    notifyListeners();
-  }
+  /// Shows or hides amounts on Home; remembered as a preference.
+  void toggleHideAmounts() =>
+      _settingsRepository.setHideAmountsOnHome(!hideAmounts);
 
   Future<Result<void>> _load() async {
     try {

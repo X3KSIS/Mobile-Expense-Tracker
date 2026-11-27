@@ -607,6 +607,25 @@ void main() {
     expect(find.text('Welcome back'), findsOneWidget);
   });
 
+  testWidgets('Profile opens Preferences, which switches to dark', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+
+    await tester.tap(find.byTooltip('Profile'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('App preferences'), 200);
+    await tester.tap(find.text('App preferences'));
+    await tester.pumpAndSettle();
+    expect(find.text('Preferences'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Dark theme'));
+    await tester.pumpAndSettle();
+    final context = tester.element(find.text('Preferences'));
+    expect(Theme.of(context).brightness, Brightness.dark);
+  });
+
   testWidgets('signing out from Profile returns to sign in', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);

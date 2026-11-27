@@ -158,14 +158,15 @@ class _HomeContent extends StatelessWidget {
           hideAmounts: viewModel.hideAmounts,
           onToggleHideAmounts: viewModel.toggleHideAmounts,
         ),
-        if (viewModel.topInsight case final insight?) ...[
-          const SizedBox(height: Dimens.gapL),
-          HabitCard(
-            insight: insight,
-            month: summary.month,
-            onSeeAll: () => context.go(Routes.reports),
-          ),
-        ],
+        if (viewModel.showHabits)
+          if (viewModel.topInsight case final insight?) ...[
+            const SizedBox(height: Dimens.gapL),
+            HabitCard(
+              insight: insight,
+              month: summary.month,
+              onSeeAll: () => context.go(Routes.reports),
+            ),
+          ],
         if (viewModel.forecast case final forecast?) ...[
           const SizedBox(height: Dimens.gapL),
           SafeToSpendCard(

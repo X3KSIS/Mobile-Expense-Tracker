@@ -220,6 +220,10 @@ void main() {
     await phone.budgets.reorderBudgets(ids.reversed.toList());
     clock.tick();
     await phone.settings.setPayday(25);
+    await phone.settings.setBudgetAlertPercent(90);
+    await phone.settings.setDefaultWalletId('w-cash');
+    await phone.settings.setShowHabitsOnHome(false);
+    await phone.settings.setHideAmountsOnHome(true);
     await phone.sync.sync();
 
     await tablet.sync.sync();
@@ -232,6 +236,11 @@ void main() {
     expect(remote.profile!['payday'], 25);
     await tablet.settings.load();
     expect(tablet.settings.payday, 25);
+    expect(remote.profile!['budget_alert_percent'], 90);
+    expect(tablet.settings.budgetAlertPercent, 90);
+    expect(tablet.settings.defaultWalletId, 'w-cash');
+    expect(tablet.settings.showHabitsOnHome, isFalse);
+    expect(tablet.settings.hideAmountsOnHome, isTrue);
   });
 
   test('detected payments keep their message details', () async {

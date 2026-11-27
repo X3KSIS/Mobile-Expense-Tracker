@@ -66,22 +66,7 @@ void main() {
     });
   });
 
-  group('ProfileViewModel payday', () {
-    test('labels the payday and saves changes', () async {
-      final settings = SettingsRepositoryLocalFake();
-      final viewModel = ProfileViewModel(
-        authRepository: instantAuthRepository(signedIn: true),
-        settingsRepository: settings,
-      );
-      addTearDown(viewModel.dispose);
-
-      expect(viewModel.paydayLabel, '1st (calendar months)');
-      viewModel.setPayday(22);
-      await Future<void>.delayed(Duration.zero);
-      expect(settings.payday, 22);
-      expect(viewModel.paydayLabel, '22nd of the month');
-    });
-  });
+  group('ProfileViewModel payday', () {});
 
   group('EditProfileViewModel', () {
     test('saves the name and a normalised phone number', () async {

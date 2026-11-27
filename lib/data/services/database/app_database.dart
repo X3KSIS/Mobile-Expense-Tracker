@@ -128,6 +128,19 @@ class Profiles extends Table {
 
   /// `system`, `light` or `dark`.
   TextColumn get theme => text().withDefault(const Constant('system'))();
+
+  /// Budgets at or above this percentage of their limit show a warning.
+  IntColumn get budgetAlertPercent =>
+      integer().withDefault(const Constant(80))();
+
+  /// The wallet Add transaction picks first; null means the first wallet.
+  TextColumn get defaultWalletId => text().nullable()();
+
+  /// Whether Home shows the spending habit card.
+  BoolColumn get showHabits => boolean().withDefault(const Constant(true))();
+
+  /// Whether Home hides money amounts until shown.
+  BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get modifiedAt => dateTime()();
   BoolColumn get dirty => boolean().withDefault(const Constant(false))();
@@ -167,7 +180,19 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(profiles, profiles.budgetAlertPercent);
+        await m.addColumn(profiles, profiles.defaultWalletId);
+        await m.addColumn(profiles, profiles.showHabits);
+        await m.addColumn(profiles, profiles.hideAmounts);
+      }
+    },
+  );
 
   /// Profile id used before anyone signs in (or when the app runs without
   /// a server). Its data moves to the first account that signs in.

@@ -4069,6 +4069,58 @@ class $ProfilesTable extends Profiles
     requiredDuringInsert: false,
     defaultValue: const Constant('system'),
   );
+  static const VerificationMeta _budgetAlertPercentMeta =
+      const VerificationMeta('budgetAlertPercent');
+  @override
+  late final GeneratedColumn<int> budgetAlertPercent = GeneratedColumn<int>(
+    'budget_alert_percent',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(80),
+  );
+  static const VerificationMeta _defaultWalletIdMeta = const VerificationMeta(
+    'defaultWalletId',
+  );
+  @override
+  late final GeneratedColumn<String> defaultWalletId = GeneratedColumn<String>(
+    'default_wallet_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _showHabitsMeta = const VerificationMeta(
+    'showHabits',
+  );
+  @override
+  late final GeneratedColumn<bool> showHabits = GeneratedColumn<bool>(
+    'show_habits',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_habits" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _hideAmountsMeta = const VerificationMeta(
+    'hideAmounts',
+  );
+  @override
+  late final GeneratedColumn<bool> hideAmounts = GeneratedColumn<bool>(
+    'hide_amounts',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hide_amounts" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -4112,6 +4164,10 @@ class $ProfilesTable extends Profiles
     phone,
     payday,
     theme,
+    budgetAlertPercent,
+    defaultWalletId,
+    showHabits,
+    hideAmounts,
     createdAt,
     modifiedAt,
     dirty,
@@ -4164,6 +4220,39 @@ class $ProfilesTable extends Profiles
       context.handle(
         _themeMeta,
         theme.isAcceptableOrUnknown(data['theme']!, _themeMeta),
+      );
+    }
+    if (data.containsKey('budget_alert_percent')) {
+      context.handle(
+        _budgetAlertPercentMeta,
+        budgetAlertPercent.isAcceptableOrUnknown(
+          data['budget_alert_percent']!,
+          _budgetAlertPercentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('default_wallet_id')) {
+      context.handle(
+        _defaultWalletIdMeta,
+        defaultWalletId.isAcceptableOrUnknown(
+          data['default_wallet_id']!,
+          _defaultWalletIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('show_habits')) {
+      context.handle(
+        _showHabitsMeta,
+        showHabits.isAcceptableOrUnknown(data['show_habits']!, _showHabitsMeta),
+      );
+    }
+    if (data.containsKey('hide_amounts')) {
+      context.handle(
+        _hideAmountsMeta,
+        hideAmounts.isAcceptableOrUnknown(
+          data['hide_amounts']!,
+          _hideAmountsMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -4221,6 +4310,22 @@ class $ProfilesTable extends Profiles
         DriftSqlType.string,
         data['${effectivePrefix}theme'],
       )!,
+      budgetAlertPercent: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}budget_alert_percent'],
+      )!,
+      defaultWalletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_wallet_id'],
+      ),
+      showHabits: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}show_habits'],
+      )!,
+      hideAmounts: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hide_amounts'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -4251,6 +4356,18 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
 
   /// `system`, `light` or `dark`.
   final String theme;
+
+  /// Budgets at or above this percentage of their limit show a warning.
+  final int budgetAlertPercent;
+
+  /// The wallet Add transaction picks first; null means the first wallet.
+  final String? defaultWalletId;
+
+  /// Whether Home shows the spending habit card.
+  final bool showHabits;
+
+  /// Whether Home hides money amounts until shown.
+  final bool hideAmounts;
   final DateTime createdAt;
   final DateTime modifiedAt;
   final bool dirty;
@@ -4261,6 +4378,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     this.phone,
     required this.payday,
     required this.theme,
+    required this.budgetAlertPercent,
+    this.defaultWalletId,
+    required this.showHabits,
+    required this.hideAmounts,
     required this.createdAt,
     required this.modifiedAt,
     required this.dirty,
@@ -4276,6 +4397,12 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     }
     map['payday'] = Variable<int>(payday);
     map['theme'] = Variable<String>(theme);
+    map['budget_alert_percent'] = Variable<int>(budgetAlertPercent);
+    if (!nullToAbsent || defaultWalletId != null) {
+      map['default_wallet_id'] = Variable<String>(defaultWalletId);
+    }
+    map['show_habits'] = Variable<bool>(showHabits);
+    map['hide_amounts'] = Variable<bool>(hideAmounts);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['modified_at'] = Variable<DateTime>(modifiedAt);
     map['dirty'] = Variable<bool>(dirty);
@@ -4292,6 +4419,12 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           : Value(phone),
       payday: Value(payday),
       theme: Value(theme),
+      budgetAlertPercent: Value(budgetAlertPercent),
+      defaultWalletId: defaultWalletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultWalletId),
+      showHabits: Value(showHabits),
+      hideAmounts: Value(hideAmounts),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
       dirty: Value(dirty),
@@ -4310,6 +4443,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       phone: serializer.fromJson<String?>(json['phone']),
       payday: serializer.fromJson<int>(json['payday']),
       theme: serializer.fromJson<String>(json['theme']),
+      budgetAlertPercent: serializer.fromJson<int>(json['budgetAlertPercent']),
+      defaultWalletId: serializer.fromJson<String?>(json['defaultWalletId']),
+      showHabits: serializer.fromJson<bool>(json['showHabits']),
+      hideAmounts: serializer.fromJson<bool>(json['hideAmounts']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
       dirty: serializer.fromJson<bool>(json['dirty']),
@@ -4325,6 +4462,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'phone': serializer.toJson<String?>(phone),
       'payday': serializer.toJson<int>(payday),
       'theme': serializer.toJson<String>(theme),
+      'budgetAlertPercent': serializer.toJson<int>(budgetAlertPercent),
+      'defaultWalletId': serializer.toJson<String?>(defaultWalletId),
+      'showHabits': serializer.toJson<bool>(showHabits),
+      'hideAmounts': serializer.toJson<bool>(hideAmounts),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
       'dirty': serializer.toJson<bool>(dirty),
@@ -4338,6 +4479,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     Value<String?> phone = const Value.absent(),
     int? payday,
     String? theme,
+    int? budgetAlertPercent,
+    Value<String?> defaultWalletId = const Value.absent(),
+    bool? showHabits,
+    bool? hideAmounts,
     DateTime? createdAt,
     DateTime? modifiedAt,
     bool? dirty,
@@ -4348,6 +4493,12 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     phone: phone.present ? phone.value : this.phone,
     payday: payday ?? this.payday,
     theme: theme ?? this.theme,
+    budgetAlertPercent: budgetAlertPercent ?? this.budgetAlertPercent,
+    defaultWalletId: defaultWalletId.present
+        ? defaultWalletId.value
+        : this.defaultWalletId,
+    showHabits: showHabits ?? this.showHabits,
+    hideAmounts: hideAmounts ?? this.hideAmounts,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
     dirty: dirty ?? this.dirty,
@@ -4360,6 +4511,18 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       phone: data.phone.present ? data.phone.value : this.phone,
       payday: data.payday.present ? data.payday.value : this.payday,
       theme: data.theme.present ? data.theme.value : this.theme,
+      budgetAlertPercent: data.budgetAlertPercent.present
+          ? data.budgetAlertPercent.value
+          : this.budgetAlertPercent,
+      defaultWalletId: data.defaultWalletId.present
+          ? data.defaultWalletId.value
+          : this.defaultWalletId,
+      showHabits: data.showHabits.present
+          ? data.showHabits.value
+          : this.showHabits,
+      hideAmounts: data.hideAmounts.present
+          ? data.hideAmounts.value
+          : this.hideAmounts,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       modifiedAt: data.modifiedAt.present
           ? data.modifiedAt.value
@@ -4377,6 +4540,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('phone: $phone, ')
           ..write('payday: $payday, ')
           ..write('theme: $theme, ')
+          ..write('budgetAlertPercent: $budgetAlertPercent, ')
+          ..write('defaultWalletId: $defaultWalletId, ')
+          ..write('showHabits: $showHabits, ')
+          ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
           ..write('dirty: $dirty')
@@ -4392,6 +4559,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     phone,
     payday,
     theme,
+    budgetAlertPercent,
+    defaultWalletId,
+    showHabits,
+    hideAmounts,
     createdAt,
     modifiedAt,
     dirty,
@@ -4406,6 +4577,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           other.phone == this.phone &&
           other.payday == this.payday &&
           other.theme == this.theme &&
+          other.budgetAlertPercent == this.budgetAlertPercent &&
+          other.defaultWalletId == this.defaultWalletId &&
+          other.showHabits == this.showHabits &&
+          other.hideAmounts == this.hideAmounts &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt &&
           other.dirty == this.dirty);
@@ -4418,6 +4593,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<String?> phone;
   final Value<int> payday;
   final Value<String> theme;
+  final Value<int> budgetAlertPercent;
+  final Value<String?> defaultWalletId;
+  final Value<bool> showHabits;
+  final Value<bool> hideAmounts;
   final Value<DateTime> createdAt;
   final Value<DateTime> modifiedAt;
   final Value<bool> dirty;
@@ -4429,6 +4608,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.phone = const Value.absent(),
     this.payday = const Value.absent(),
     this.theme = const Value.absent(),
+    this.budgetAlertPercent = const Value.absent(),
+    this.defaultWalletId = const Value.absent(),
+    this.showHabits = const Value.absent(),
+    this.hideAmounts = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
     this.dirty = const Value.absent(),
@@ -4441,6 +4624,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.phone = const Value.absent(),
     this.payday = const Value.absent(),
     this.theme = const Value.absent(),
+    this.budgetAlertPercent = const Value.absent(),
+    this.defaultWalletId = const Value.absent(),
+    this.showHabits = const Value.absent(),
+    this.hideAmounts = const Value.absent(),
     required DateTime createdAt,
     required DateTime modifiedAt,
     this.dirty = const Value.absent(),
@@ -4455,6 +4642,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<String>? phone,
     Expression<int>? payday,
     Expression<String>? theme,
+    Expression<int>? budgetAlertPercent,
+    Expression<String>? defaultWalletId,
+    Expression<bool>? showHabits,
+    Expression<bool>? hideAmounts,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? modifiedAt,
     Expression<bool>? dirty,
@@ -4467,6 +4658,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       if (phone != null) 'phone': phone,
       if (payday != null) 'payday': payday,
       if (theme != null) 'theme': theme,
+      if (budgetAlertPercent != null)
+        'budget_alert_percent': budgetAlertPercent,
+      if (defaultWalletId != null) 'default_wallet_id': defaultWalletId,
+      if (showHabits != null) 'show_habits': showHabits,
+      if (hideAmounts != null) 'hide_amounts': hideAmounts,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
       if (dirty != null) 'dirty': dirty,
@@ -4481,6 +4677,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<String?>? phone,
     Value<int>? payday,
     Value<String>? theme,
+    Value<int>? budgetAlertPercent,
+    Value<String?>? defaultWalletId,
+    Value<bool>? showHabits,
+    Value<bool>? hideAmounts,
     Value<DateTime>? createdAt,
     Value<DateTime>? modifiedAt,
     Value<bool>? dirty,
@@ -4493,6 +4693,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       phone: phone ?? this.phone,
       payday: payday ?? this.payday,
       theme: theme ?? this.theme,
+      budgetAlertPercent: budgetAlertPercent ?? this.budgetAlertPercent,
+      defaultWalletId: defaultWalletId ?? this.defaultWalletId,
+      showHabits: showHabits ?? this.showHabits,
+      hideAmounts: hideAmounts ?? this.hideAmounts,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
       dirty: dirty ?? this.dirty,
@@ -4521,6 +4725,18 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     if (theme.present) {
       map['theme'] = Variable<String>(theme.value);
     }
+    if (budgetAlertPercent.present) {
+      map['budget_alert_percent'] = Variable<int>(budgetAlertPercent.value);
+    }
+    if (defaultWalletId.present) {
+      map['default_wallet_id'] = Variable<String>(defaultWalletId.value);
+    }
+    if (showHabits.present) {
+      map['show_habits'] = Variable<bool>(showHabits.value);
+    }
+    if (hideAmounts.present) {
+      map['hide_amounts'] = Variable<bool>(hideAmounts.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -4545,6 +4761,10 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('phone: $phone, ')
           ..write('payday: $payday, ')
           ..write('theme: $theme, ')
+          ..write('budgetAlertPercent: $budgetAlertPercent, ')
+          ..write('defaultWalletId: $defaultWalletId, ')
+          ..write('showHabits: $showHabits, ')
+          ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
           ..write('dirty: $dirty, ')
@@ -6849,6 +7069,10 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<String?> phone,
   Value<int> payday,
   Value<String> theme,
+  Value<int> budgetAlertPercent,
+  Value<String?> defaultWalletId,
+  Value<bool> showHabits,
+  Value<bool> hideAmounts,
   required DateTime createdAt,
   required DateTime modifiedAt,
   Value<bool> dirty,
@@ -6861,6 +7085,10 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<String?> phone,
   Value<int> payday,
   Value<String> theme,
+  Value<int> budgetAlertPercent,
+  Value<String?> defaultWalletId,
+  Value<bool> showHabits,
+  Value<bool> hideAmounts,
   Value<DateTime> createdAt,
   Value<DateTime> modifiedAt,
   Value<bool> dirty,
@@ -6903,6 +7131,26 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<String> get theme => $composableBuilder(
     column: $table.theme,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get budgetAlertPercent => $composableBuilder(
+    column: $table.budgetAlertPercent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultWalletId => $composableBuilder(
+    column: $table.defaultWalletId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showHabits => $composableBuilder(
+    column: $table.showHabits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hideAmounts => $composableBuilder(
+    column: $table.hideAmounts,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6961,6 +7209,26 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get budgetAlertPercent => $composableBuilder(
+    column: $table.budgetAlertPercent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultWalletId => $composableBuilder(
+    column: $table.defaultWalletId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get showHabits => $composableBuilder(
+    column: $table.showHabits,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hideAmounts => $composableBuilder(
+    column: $table.hideAmounts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -7003,6 +7271,26 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<String> get theme =>
       $composableBuilder(column: $table.theme, builder: (column) => column);
+
+  GeneratedColumn<int> get budgetAlertPercent => $composableBuilder(
+    column: $table.budgetAlertPercent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get defaultWalletId => $composableBuilder(
+    column: $table.defaultWalletId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get showHabits => $composableBuilder(
+    column: $table.showHabits,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hideAmounts => $composableBuilder(
+    column: $table.hideAmounts,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -7053,6 +7341,10 @@ class $$ProfilesTableTableManager
                 Value<String?> phone = const Value.absent(),
                 Value<int> payday = const Value.absent(),
                 Value<String> theme = const Value.absent(),
+                Value<int> budgetAlertPercent = const Value.absent(),
+                Value<String?> defaultWalletId = const Value.absent(),
+                Value<bool> showHabits = const Value.absent(),
+                Value<bool> hideAmounts = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> modifiedAt = const Value.absent(),
                 Value<bool> dirty = const Value.absent(),
@@ -7064,6 +7356,10 @@ class $$ProfilesTableTableManager
                 phone: phone,
                 payday: payday,
                 theme: theme,
+                budgetAlertPercent: budgetAlertPercent,
+                defaultWalletId: defaultWalletId,
+                showHabits: showHabits,
+                hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
                 dirty: dirty,
@@ -7077,6 +7373,10 @@ class $$ProfilesTableTableManager
                 Value<String?> phone = const Value.absent(),
                 Value<int> payday = const Value.absent(),
                 Value<String> theme = const Value.absent(),
+                Value<int> budgetAlertPercent = const Value.absent(),
+                Value<String?> defaultWalletId = const Value.absent(),
+                Value<bool> showHabits = const Value.absent(),
+                Value<bool> hideAmounts = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime modifiedAt,
                 Value<bool> dirty = const Value.absent(),
@@ -7088,6 +7388,10 @@ class $$ProfilesTableTableManager
                 phone: phone,
                 payday: payday,
                 theme: theme,
+                budgetAlertPercent: budgetAlertPercent,
+                defaultWalletId: defaultWalletId,
+                showHabits: showHabits,
+                hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
                 dirty: dirty,

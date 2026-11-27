@@ -139,6 +139,7 @@ class BudgetsViewModel extends ChangeNotifier {
           transactions,
           c.start,
           c.end,
+          alertAt: _settingsRepository.budgetAlertPercent / 100,
         );
         _expenseCategories = categories;
         _loaded = true;

@@ -27,6 +27,10 @@ class SettingsRepositoryDrift extends SettingsRepository {
 
   ThemePreference _themePreference = ThemePreference.system;
   int _payday = 1;
+  int _budgetAlertPercent = 80;
+  String? _defaultWalletId;
+  bool _showHabitsOnHome = true;
+  bool _hideAmountsOnHome = false;
   bool _disposed = false;
 
   /// Reads the stored values and notifies when they differ.
@@ -34,11 +38,19 @@ class SettingsRepositoryDrift extends SettingsRepository {
     final row = await _db.select(_db.profiles).getSingleOrNull();
     if (row == null || _disposed) return;
     final theme = ThemePreference.values.asNameMap()[row.theme];
-    final payday = row.payday;
     final changed =
-        (theme != null && theme != _themePreference) || payday != _payday;
+        (theme != null && theme != _themePreference) ||
+        row.payday != _payday ||
+        row.budgetAlertPercent != _budgetAlertPercent ||
+        row.defaultWalletId != _defaultWalletId ||
+        row.showHabits != _showHabitsOnHome ||
+        row.hideAmounts != _hideAmountsOnHome;
     if (theme != null) _themePreference = theme;
-    _payday = payday;
+    _payday = row.payday;
+    _budgetAlertPercent = row.budgetAlertPercent;
+    _defaultWalletId = row.defaultWalletId;
+    _showHabitsOnHome = row.showHabits;
+    _hideAmountsOnHome = row.hideAmounts;
     if (changed) notifyListeners();
   }
 
@@ -68,6 +80,53 @@ class SettingsRepositoryDrift extends SettingsRepository {
     await _write(ProfilesCompanion(payday: Value(day)));
   });
 
+  @override
+  int get budgetAlertPercent => _budgetAlertPercent;
+
+  @override
+  Future<Result<void>> setBudgetAlertPercent(int percent) => guard(() async {
+    if (!SettingsRepository.budgetAlertChoices.contains(percent)) {
+      throw Exception('Unsupported warning level');
+    }
+    if (percent == _budgetAlertPercent) return;
+    _budgetAlertPercent = percent;
+    notifyListeners();
+    await _write(ProfilesCompanion(budgetAlertPercent: Value(percent)));
+  });
+
+  @override
+  String? get defaultWalletId => _defaultWalletId;
+
+  @override
+  Future<Result<void>> setDefaultWalletId(String? walletId) => guard(() async {
+    if (walletId == _defaultWalletId) return;
+    _defaultWalletId = walletId;
+    notifyListeners();
+    await _write(ProfilesCompanion(defaultWalletId: Value(walletId)));
+  });
+
+  @override
+  bool get showHabitsOnHome => _showHabitsOnHome;
+
+  @override
+  Future<Result<void>> setShowHabitsOnHome(bool show) => guard(() async {
+    if (show == _showHabitsOnHome) return;
+    _showHabitsOnHome = show;
+    notifyListeners();
+    await _write(ProfilesCompanion(showHabits: Value(show)));
+  });
+
+  @override
+  bool get hideAmountsOnHome => _hideAmountsOnHome;
+
+  @override
+  Future<Result<void>> setHideAmountsOnHome(bool hide) => guard(() async {
+    if (hide == _hideAmountsOnHome) return;
+    _hideAmountsOnHome = hide;
+    notifyListeners();
+    await _write(ProfilesCompanion(hideAmounts: Value(hide)));
+  });
+
   /// Saves [change] on the profile. Signed out, it goes on a local
   /// profile that the first account to sign in takes over.
   Future<void> _write(ProfilesCompanion change) async {
@@ -85,6 +144,10 @@ class SettingsRepositoryDrift extends SettingsRepository {
             userId: AppDatabase.localUserId,
             theme: Value(_themePreference.name),
             payday: Value(_payday),
+            budgetAlertPercent: Value(_budgetAlertPercent),
+            defaultWalletId: Value(_defaultWalletId),
+            showHabits: Value(_showHabitsOnHome),
+            hideAmounts: Value(_hideAmountsOnHome),
             createdAt: now,
             modifiedAt: now,
             dirty: const Value(true),

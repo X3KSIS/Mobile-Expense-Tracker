@@ -6,7 +6,7 @@ import '../../../domain/models/app_user.dart';
 import '../../../utils/command.dart';
 import '../../../utils/dates.dart';
 
-/// State for the Profile screen: the signed-in user, payday and sign-out.
+/// State for the Profile screen: the signed-in user and sign-out.
 ///
 /// Rebuilds when the user changes, e.g. after editing personal details.
 class ProfileViewModel extends ChangeNotifier {
@@ -42,15 +42,6 @@ class ProfileViewModel extends ChangeNotifier {
     if (current == null) return '';
     return 'Member since ${formatMonthYear(current.createdAt)}';
   }
-
-  /// Day of the month pay arrives.
-  int get payday => _settingsRepository.payday;
-
-  /// e.g. '25th of the month', or '1st (calendar months)'.
-  String get paydayLabel =>
-      payday == 1 ? '1st (calendar months)' : '${ordinal(payday)} of the month';
-
-  void setPayday(int day) => _settingsRepository.setPayday(day);
 
   void _onAuthChanged() {
     if (!_disposed) notifyListeners();

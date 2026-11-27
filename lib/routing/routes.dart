@@ -17,6 +17,7 @@ abstract final class Routes {
   static const String recurring = '/recurring';
   static const String categoryTrend = '/category';
   static const String wallets = '/wallets';
+  static const String preferences = '/preferences';
   static const String detectedPayments = '/detected';
   static const String profile = '/profile';
   static const String editProfileSegment = 'edit';

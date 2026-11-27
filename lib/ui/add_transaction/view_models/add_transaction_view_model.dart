@@ -30,6 +30,7 @@ class AddTransactionViewModel extends ChangeNotifier {
     TransactionType initialType = TransactionType.expense,
     this._initialCategoryId,
     this._initialMessage,
+    this._defaultWalletId,
     Transaction? editing,
     DateTime Function()? clock,
   }) : _editing = editing,
@@ -54,6 +55,9 @@ class AddTransactionViewModel extends ChangeNotifier {
   final CategoryRepository _categoryRepository;
   final WalletRepository _walletRepository;
   final String? _initialCategoryId;
+
+  /// The wallet picked first for a new transaction (a preference).
+  final String? _defaultWalletId;
   final Transaction? _editing;
   final DateTime Function() _clock;
 
@@ -221,7 +225,9 @@ class AddTransactionViewModel extends ChangeNotifier {
     ).wait;
     if (wallets case Ok(:final value) when value.isNotEmpty) {
       _wallets = value;
-      _selectedWalletId ??= value.first.id;
+      _selectedWalletId ??=
+          value.where((w) => w.id == _defaultWalletId).firstOrNull?.id ??
+          value.first.id;
     }
     switch (result) {
       case Ok(:final value):

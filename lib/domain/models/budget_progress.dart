@@ -7,7 +7,7 @@ enum BudgetStatus {
   /// Nothing spent yet.
   notStarted,
 
-  /// Spending is below [BudgetProgress.alertThreshold].
+  /// Spending is below the warning level.
   onTrack,
 
   /// At or above the alert threshold, but not over the limit.
@@ -19,10 +19,17 @@ enum BudgetStatus {
 
 /// How much of a [Budget] has been spent in one month.
 class BudgetProgress {
-  const BudgetProgress({required this.budget, required this.spent});
+  const BudgetProgress({
+    required this.budget,
+    required this.spent,
+    this.alertAt = defaultAlertAt,
+  });
+
+  /// The warning level when the user has not chosen one: 80%.
+  static const double defaultAlertAt = 0.8;
 
   /// Budgets at or above this fraction of their limit raise an alert.
-  static const double alertThreshold = 0.8;
+  final double alertAt;
 
   final Budget budget;
 
@@ -43,7 +50,7 @@ class BudgetProgress {
 
   bool get isOverLimit => spent > budget.limit;
 
-  bool get needsAttention => percentUsed >= alertThreshold;
+  bool get needsAttention => percentUsed >= alertAt;
 
   BudgetStatus get status {
     if (isOverLimit) return BudgetStatus.overLimit;
@@ -62,12 +69,14 @@ class BudgetProgress {
   static List<BudgetProgress> forMonth(
     List<Budget> budgets,
     List<Transaction> transactions,
-    DateTime month,
-  ) => forPeriod(
+    DateTime month, {
+    double alertAt = defaultAlertAt,
+  }) => forPeriod(
     budgets,
     transactions,
     DateTime(month.year, month.month),
     DateTime(month.year, month.month + 1),
+    alertAt: alertAt,
   );
 
   /// Progress for each budget from the expenses on or after [start] and
@@ -76,8 +85,9 @@ class BudgetProgress {
     List<Budget> budgets,
     List<Transaction> transactions,
     DateTime start,
-    DateTime end,
-  ) {
+    DateTime end, {
+    double alertAt = defaultAlertAt,
+  }) {
     final spentByCategory = <String, double>{};
     for (final t in transactions) {
       if (t.isIncome || !t.isBetween(start, end)) continue;
@@ -92,12 +102,13 @@ class BudgetProgress {
         BudgetProgress(
           budget: budget,
           spent: spentByCategory[budget.categoryName] ?? 0,
+          alertAt: alertAt,
         ),
     ];
   }
 
   /// The budget furthest towards (or over) its limit, or null when none has
-  /// reached [alertThreshold].
+  /// reached its warning level.
   static BudgetProgress? topAlert(List<BudgetProgress> progress) {
     BudgetProgress? top;
     for (final p in progress) {

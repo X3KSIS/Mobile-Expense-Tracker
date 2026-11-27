@@ -331,6 +331,24 @@ abstract final class AppTheme {
       ),
       canvasColor: c.background,
       dividerTheme: DividerThemeData(color: c.border, thickness: 1, space: 1),
+      // Off switches keep a visible thumb and outline (3:1 against the card).
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? c.onAccentStrong
+              : c.textSecondary,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? c.accentStrong
+              : c.surfaceMuted,
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? c.accentStrong
+              : c.textSecondary,
+        ),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: c.background,
         foregroundColor: c.textPrimary,

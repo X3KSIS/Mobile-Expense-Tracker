@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
+import '../data/repositories/settings/settings_repository.dart';
 import '../domain/models/money_message.dart';
 import '../domain/models/transaction.dart';
 import '../ui/activity/view_models/activity_view_model.dart';
@@ -32,6 +33,8 @@ import '../ui/profile/widgets/edit_profile_screen.dart';
 import '../ui/history/view_models/history_view_model.dart';
 import '../ui/history/widgets/history_screen.dart';
 import '../ui/profile/widgets/profile_screen.dart';
+import '../ui/preferences/view_models/preferences_view_model.dart';
+import '../ui/preferences/widgets/preferences_screen.dart';
 import '../ui/recurring/view_models/recurring_view_model.dart';
 import '../ui/recurring/widgets/recurring_screen.dart';
 import '../ui/reports/view_models/reports_view_model.dart';
@@ -131,6 +134,9 @@ GoRouter router(AuthRepository authRepository) {
                   ? TransactionType.income
                   : TransactionType.expense,
               initialCategoryId: query[Routes.categoryParam],
+              defaultWalletId: context
+                  .read<SettingsRepository>()
+                  .defaultWalletId,
               initialMessage: switch (state.extra) {
                 final MoneyMessage message => message,
                 _ => null,
@@ -216,6 +222,21 @@ GoRouter router(AuthRepository authRepository) {
           child: Builder(
             builder: (context) => DetectedPaymentsScreen(
               viewModel: context.read<DetectedPaymentsViewModel>(),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.preferences,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => PreferencesViewModel(
+            settingsRepository: context.read(),
+            walletRepository: context.read(),
+          ),
+          child: Builder(
+            builder: (context) => PreferencesScreen(
+              viewModel: context.read<PreferencesViewModel>(),
             ),
           ),
         ),

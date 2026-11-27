@@ -239,6 +239,10 @@ class SyncRepositoryDrift extends SyncRepository {
       'phone': local.phone,
       'payday': local.payday,
       'theme': local.theme,
+      'budget_alert_percent': local.budgetAlertPercent,
+      'default_wallet_id': local.defaultWalletId,
+      'show_habits': local.showHabits,
+      'hide_amounts': local.hideAmounts,
       'modified_at': _serializer.toJson(local.modifiedAt),
     });
     await (_db.update(_db.profiles)..where(
@@ -260,12 +264,20 @@ class SyncRepositoryDrift extends SyncRepository {
     final phone = remote['phone'] as String?;
     final payday = (remote['payday'] as num?)?.toInt() ?? 1;
     final theme = remote['theme'] as String? ?? 'system';
+    final alert = (remote['budget_alert_percent'] as num?)?.toInt() ?? 80;
+    final wallet = remote['default_wallet_id'] as String?;
+    final showHabits = remote['show_habits'] as bool? ?? true;
+    final hideAmounts = remote['hide_amounts'] as bool? ?? false;
     final unchanged =
         !local.dirty &&
         local.name == name &&
         local.phone == phone &&
         local.payday == payday &&
         local.theme == theme &&
+        local.budgetAlertPercent == alert &&
+        local.defaultWalletId == wallet &&
+        local.showHabits == showHabits &&
+        local.hideAmounts == hideAmounts &&
         local.modifiedAt.isAtSameMomentAs(remoteModified);
     // Writing anyway would wake the change watcher and sync again forever.
     if (unchanged) return;
@@ -277,6 +289,10 @@ class SyncRepositoryDrift extends SyncRepository {
         phone: Value(phone),
         payday: Value(payday),
         theme: Value(theme),
+        budgetAlertPercent: Value(alert),
+        defaultWalletId: Value(wallet),
+        showHabits: Value(showHabits),
+        hideAmounts: Value(hideAmounts),
         modifiedAt: Value(remoteModified),
         dirty: const Value(false),
       ),
