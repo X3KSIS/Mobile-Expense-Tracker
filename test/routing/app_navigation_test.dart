@@ -255,6 +255,25 @@ void main() {
     expect(find.text('DStv Compact'), findsWidgets);
   });
 
+  testWidgets('Reports opens a category trend from the breakdown', (
+    tester,
+  ) async {
+    await pumpApp(tester, signedIn: true);
+    await finishSplash(tester);
+    await tester.tap(find.bySemanticsLabel('Reports'));
+    await tester.pumpAndSettle();
+
+    final groceries = find.bySemanticsLabel(RegExp(r'^Groceries: '));
+    await scrollTo(tester, groceries);
+    await tester.tap(groceries);
+    await tester.pumpAndSettle();
+
+    expect(find.text('SPENT SO FAR IN NOVEMBER'), findsOneWidget);
+    expect(find.text('Last 6 months'), findsOneWidget);
+    await scrollTo(tester, find.text('Where it went'));
+    expect(find.text('Where it went'), findsOneWidget);
+  });
+
   testWidgets('Activity shows the week and opens the full History', (
     tester,
   ) async {

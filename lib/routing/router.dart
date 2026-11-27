@@ -15,6 +15,8 @@ import '../ui/auth/widgets/login_screen.dart';
 import '../ui/auth/widgets/sign_up_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
+import '../ui/category_trend/view_models/category_trend_view_model.dart';
+import '../ui/category_trend/widgets/category_trend_screen.dart';
 import '../ui/detected_payments/view_models/detected_payments_view_model.dart';
 import '../ui/detected_payments/widgets/detected_payments_screen.dart';
 import '../ui/core/themes/motion.dart';
@@ -162,6 +164,25 @@ GoRouter router(AuthRepository authRepository) {
                 RecurringScreen(viewModel: context.read<RecurringViewModel>()),
           ),
         ),
+      ),
+      GoRoute(
+        path: Routes.categoryTrend,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final query = state.uri.queryParameters;
+          return ChangeNotifierProvider(
+            create: (context) => CategoryTrendViewModel(
+              transactionRepository: context.read(),
+              categoryName: query[Routes.nameParam] ?? '',
+              month: Routes.parseMonth(query[Routes.monthParam]),
+            ),
+            child: Builder(
+              builder: (context) => CategoryTrendScreen(
+                viewModel: context.read<CategoryTrendViewModel>(),
+              ),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: Routes.detectedPayments,

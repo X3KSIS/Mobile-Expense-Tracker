@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../routing/routes.dart';
 
 import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
@@ -69,7 +72,7 @@ class ReportsScreen extends StatelessWidget {
                               viewModel.hasError,
                             )),
                             crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: _body(),
+                            children: _body(context),
                           ),
                         ),
                       ],
@@ -81,7 +84,7 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _body() {
+  List<Widget> _body(BuildContext context) {
     if (viewModel.hasError) {
       return [
         EmptyState(
@@ -122,8 +125,13 @@ class ReportsScreen extends StatelessWidget {
       const SizedBox(height: Dimens.sectionGap + 4),
       ReportSection(
         title: 'Spending by category',
-        subtitle: 'Where the money went in $month',
-        child: CategoryBreakdown(categories: viewModel.categories),
+        subtitle: 'Where the money went in $month · tap one for its trend',
+        child: CategoryBreakdown(
+          categories: viewModel.categories,
+          onSelected: (category) => context.push(
+            Routes.categoryTrendFor(category.name, month: viewModel.month),
+          ),
+        ),
       ),
       const SizedBox(height: Dimens.sectionGap + 4),
       ReportSection(
