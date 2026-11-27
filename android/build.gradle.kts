@@ -16,14 +16,18 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 // Some plugins pin an older compileSdk (notification_listener_service asks
-// for 34). Compile every Android library against the app's SDK (Flutter's
-// default, 36) so only one SDK platform needs installing. Registered before
-// the block below, which evaluates :app straight away.
+// for 34) or NDK (jni, from the Supabase packages, asks for 28.2). Build
+// every Android library with the app's SDK (Flutter's default, 36) and NDK
+// so only one of each needs installing. Registered before the block below,
+// which evaluates :app straight away.
 subprojects {
     val useAppCompileSdk: Project.() -> Unit = {
         extensions
             .findByType(com.android.build.gradle.LibraryExtension::class.java)
-            ?.compileSdk = 36
+            ?.apply {
+                compileSdk = 36
+                ndkVersion = "30.0.16248370"
+            }
     }
     if (state.executed) useAppCompileSdk() else afterEvaluate { useAppCompileSdk() }
 }
