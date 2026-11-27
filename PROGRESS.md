@@ -6,18 +6,20 @@ Running log of what has been built and what comes next. Newest session first.
 
 **Core objective:** expense tracking and spending habits (see `CLAUDE.md`).
 
-**Data now lives in a database.** Everything is saved on the phone in Drift (works offline) and synced to Supabase (row-level security, email and password sign-in). Fake repositories are kept for tests only. `flutter analyze` is clean and 259 tests pass.
+**Data now lives in a database.** Everything is saved on the phone in Drift (works offline) and synced to Supabase (row-level security, email and password sign-in). Fake repositories are kept for tests only. `flutter analyze` is clean and 261 tests pass.
 
 **Built:** sign-in and sign-up (Supabase Auth, validation restored), Home, Activity and History, search, Add and Edit transaction (with wallet, fill from an SMS), budgets per pay cycle (expand, reorder), Reports (habits, regular payments, categories, trend, heatmap), category trends, wallets and transfers, payday and safe to spend, payment capture from notifications, Profile, dark mode, motion throughout.
 
 **Pick up next time:**
 
-1. **Set up Supabase** (`supabase/README.md`): create the project, run the migration, fill in `supabase.json`, then run `flutter run -d 1519137578004351 --dart-define-from-file=supabase.json`. Sign up, add a few transactions, check they appear in the Supabase table editor, and try airplane mode.
-2. Not yet verified on the phone: everything since session 3, including the database and sync.
-3. Confirm a transaction added on the phone reaches Supabase (the first one never saved on the device; cause unknown). Then show sync status somewhere (Profile: "Saved online" / "Waiting for connection"). `SyncRepository.status` is ready.
-4. Password reset links open Supabase's default page; a deep link back into the app (to set a new password) is still to do.
-5. Tracking features: managing categories, receipts (Supabase Storage), reminders (`flutter_local_notifications`, ask first), personal inflation.
-6. Real MoMo, Airtel and bank messages to tune the parser.
+1. On the phone: restart, add a transaction (check "Expense saved" and "Saved online" in Profile), try the photo, categories, export, Spend again, Undo and the privacy switch.
+2. Recommended next, each needing a package or a decision:
+   - **App lock** with fingerprint or PIN when the app opens (`local_auth`).
+   - **Reminders**: before regular payments are due, and a gentle evening "anything to record today?" (`flutter_local_notifications`).
+   - **Receipts**: attach a photo to a transaction (Supabase Storage; `image_picker` is already in).
+   - **Custom SMTP** in Supabase, then switch the confirmation email to a code (`{{ .Token }}`); also enables code-based password reset.
+   - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
+3. Later: personal inflation with the price tracker, grocery lists.
 
 ## Session 7: 27 Nov 2026
 
@@ -31,6 +33,7 @@ Running log of what has been built and what comes next. Newest session first.
 - **Change password** (Profile, Security), checking the current one first.
 - **Manage categories** (`/categories`): add, rename (moves past transactions and budgets), icon, reorder, delete with guards. 14 more icons.
 - **Export data** (`/export`): CSV via the share sheet (`share_plus`).
+- **Undo delete** on every "Transaction deleted" message; **Spend again** on transaction details; **Hide in recent apps** (Android FLAG_SECURE via a method channel, Preferences, Privacy; migration `20261128020000_privacy_screen.sql`, applied).
 - **Preferences page** (`/preferences`, from Profile): theme, payday, budget warning level, default wallet, show habits on Home, hide amounts on Home (now remembered). New profile columns in Drift (schema 2) and Supabase (`20261128000000_preferences.sql`, applied).
 
 - **Database for everything (offline-first):** a Drift database on the phone (`lib/data/services/database/app_database.dart`) holds transactions, categories, budgets and their order, wallets, transfers, settings (theme, payday), the profile, payments read from notifications and account links. Drift repositories replace the fakes in the app. Writes are marked dirty with a `modifiedAt`; deletes become marks so they sync.
