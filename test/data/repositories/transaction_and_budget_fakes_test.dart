@@ -1,4 +1,4 @@
-import 'package:flutter_expensetracker/data/repositories/category/fake_categories.dart';
+import 'package:flutter_expensetracker/data/repositories/category/default_categories.dart';
 import 'package:flutter_expensetracker/domain/models/budget.dart';
 import 'package:flutter_expensetracker/domain/models/budget_progress.dart';
 import 'package:flutter_expensetracker/domain/models/transaction.dart';
@@ -63,7 +63,7 @@ void main() {
           TransactionDraft(
             title: '  ',
             amount: 75,
-            category: FakeCategories.eatingOut,
+            category: DefaultCategories.eatingOut,
             date: DateTime.now(),
             note: ' Lunch ',
           ),

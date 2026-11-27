@@ -1,0 +1,7 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Keep milliseconds and time zones, as ISO 8601 text.
+          store_date_time_values_as_text: true

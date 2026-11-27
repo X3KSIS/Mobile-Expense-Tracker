@@ -1,5 +1,5 @@
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
-import 'package:flutter_expensetracker/data/repositories/category/fake_categories.dart';
+import 'package:flutter_expensetracker/data/repositories/category/default_categories.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
 import 'package:flutter_expensetracker/domain/models/budget_progress.dart';
 import 'package:flutter_expensetracker/domain/models/transaction_draft.dart';
@@ -63,7 +63,7 @@ void main() {
 
       await viewModel.save.execute((
         budget: null,
-        category: FakeCategories.housing,
+        category: DefaultCategories.housing,
         limit: '4,000',
       ));
       await viewModel.load.execute();
@@ -111,7 +111,7 @@ void main() {
         TransactionDraft(
           title: 'Spar',
           amount: 300,
-          category: FakeCategories.groceries,
+          category: DefaultCategories.groceries,
           date: now,
         ),
       );

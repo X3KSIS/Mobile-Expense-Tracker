@@ -1,7 +1,7 @@
 import '../../../domain/models/budget.dart';
 import '../../../domain/models/transaction_category.dart';
 import '../../../utils/result.dart';
-import '../category/fake_categories.dart';
+import '../category/default_categories.dart';
 import 'budget_repository.dart';
 
 /// In-memory [BudgetRepository] with realistic ZMW mock budgets.
@@ -15,11 +15,11 @@ class BudgetRepositoryLocalFake extends BudgetRepository {
   final Duration delay;
 
   final List<Budget> _budgets = [
-    _budget(FakeCategories.groceries, 3300),
-    _budget(FakeCategories.transport, 1500),
-    _budget(FakeCategories.utilities, 800),
-    _budget(FakeCategories.airtime, 300),
-    _budget(FakeCategories.eatingOut, 600),
+    _budget(DefaultCategories.groceries, 3300),
+    _budget(DefaultCategories.transport, 1500),
+    _budget(DefaultCategories.utilities, 800),
+    _budget(DefaultCategories.airtime, 300),
+    _budget(DefaultCategories.eatingOut, 600),
   ];
   int _nextId = 1;
 

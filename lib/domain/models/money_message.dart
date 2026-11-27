@@ -58,4 +58,39 @@ class MoneyMessage {
   final String? categoryHint;
 
   bool get isIncome => kind == MoneyMessageKind.received;
+
+  /// For storage: plain JSON values, dates as ISO 8601.
+  Map<String, Object?> toJson() => {
+    'kind': kind.name,
+    'amount': amount,
+    'provider': provider,
+    'providerKind': providerKind?.name,
+    'counterparty': counterparty,
+    'fee': fee,
+    'balance': balance,
+    'reference': reference,
+    'date': date?.toIso8601String(),
+    'categoryHint': categoryHint,
+  };
+
+  /// Reads what [toJson] wrote.
+  factory MoneyMessage.fromJson(Map<String, Object?> json) {
+    double? number(String key) => (json[key] as num?)?.toDouble();
+    final providerKind = json['providerKind'] as String?;
+    final date = json['date'] as String?;
+    return MoneyMessage(
+      kind: MoneyMessageKind.values.byName(json['kind']! as String),
+      amount: number('amount')!,
+      provider: json['provider'] as String?,
+      providerKind: providerKind == null
+          ? null
+          : WalletKind.values.byName(providerKind),
+      counterparty: json['counterparty'] as String?,
+      fee: number('fee'),
+      balance: number('balance'),
+      reference: json['reference'] as String?,
+      date: date == null ? null : DateTime.parse(date),
+      categoryHint: json['categoryHint'] as String?,
+    );
+  }
 }

@@ -1,9 +1,10 @@
 import '../../../domain/models/transaction_category.dart';
 import '../../../domain/models/transaction.dart';
 
-/// Mock categories shared by the local fake repositories, so transactions,
+/// The categories every new account starts with (the Supabase migration
+/// seeds the same ids). Also used by the fake repositories, so transactions,
 /// budgets and the category picker all agree.
-abstract final class FakeCategories {
+abstract final class DefaultCategories {
   static const TransactionCategory groceries = TransactionCategory(
     id: 'c-groceries',
     name: 'Groceries',

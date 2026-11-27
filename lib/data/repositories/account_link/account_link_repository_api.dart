@@ -1,23 +1,61 @@
+import 'package:drift/drift.dart';
+
 import '../../../domain/models/account_link.dart';
 import '../../../domain/models/detected_payment.dart';
 import '../../../utils/result.dart';
+import '../../services/database/app_database.dart';
+import '../../services/database/mappers.dart';
 import '../../services/provider_api/provider_api_service.dart';
 import 'account_link_repository.dart';
 
 /// [AccountLinkRepository] backed by institution APIs.
 ///
 /// [services] is empty until an institution grants API access, so nothing
-/// can be linked yet. Links are kept in memory until Drift lands.
+/// can be linked yet. With a [database], links are stored and synced;
+/// without one (tests) they live in memory.
 class AccountLinkRepositoryApi extends AccountLinkRepository {
   AccountLinkRepositoryApi({
     List<ProviderApiService> services = const [],
+    AppDatabase? database,
     DateTime Function()? clock,
   }) : _services = {for (final s in services) s.providerName: s},
-       _clock = clock ?? DateTime.now;
+       _db = database,
+       _clock = clock ?? DateTime.now {
+    _restore();
+  }
 
   final Map<String, ProviderApiService> _services;
+  final AppDatabase? _db;
   final DateTime Function() _clock;
   final Map<String, AccountLink> _links = {};
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  Future<void> _restore() async {
+    final db = _db;
+    if (db == null) return;
+    final rows = await (db.select(
+      db.accountLinks,
+    )..where((l) => l.deleted.equals(false))).get();
+    if (_disposed) return;
+    for (final row in rows) {
+      _links.putIfAbsent(row.id, row.toDomain);
+    }
+    if (rows.isNotEmpty) notifyListeners();
+  }
+
+  Future<void> _store(AccountLink link) async {
+    final db = _db;
+    if (db == null) return;
+    await db
+        .into(db.accountLinks)
+        .insertOnConflictUpdate(link.toCompanion(modifiedAt: _clock()));
+  }
 
   @override
   List<String> get availableProviders => _services.keys.toList()..sort();
@@ -48,14 +86,27 @@ class AccountLinkRepositoryApi extends AccountLinkRepository {
     );
     _links[walletId] = link;
     notifyListeners();
-    return Result.ok(link);
+    return guard(() async {
+      await _store(link);
+      return link;
+    });
   }
 
   @override
-  Future<Result<void>> unlink(String walletId) async {
+  Future<Result<void>> unlink(String walletId) => guard(() async {
     if (_links.remove(walletId) != null) notifyListeners();
-    return const Result.ok(null);
-  }
+    final db = _db;
+    if (db == null) return;
+    await (db.update(
+      db.accountLinks,
+    )..where((l) => l.id.equals(walletId))).write(
+      AccountLinksCompanion(
+        deleted: const Value(true),
+        dirty: const Value(true),
+        modifiedAt: Value(_clock()),
+      ),
+    );
+  });
 
   @override
   Future<Result<List<DetectedPayment>>> sync(String walletId) async {
@@ -79,8 +130,10 @@ class AccountLinkRepositoryApi extends AccountLinkRepository {
     );
     switch (result) {
       case Ok(:final value):
-        _links[walletId] = link.copyWith(lastSyncedAt: now);
+        final synced = link.copyWith(lastSyncedAt: now);
+        _links[walletId] = synced;
         notifyListeners();
+        await _store(synced);
         return Result.ok([
           for (final (i, message) in value.indexed)
             DetectedPayment(

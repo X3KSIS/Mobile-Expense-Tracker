@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:drift/native.dart';
 import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository_notifications.dart';
+import 'package:flutter_expensetracker/data/services/database/app_database.dart';
 import 'package:flutter_expensetracker/data/services/notification_listener_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -43,12 +45,18 @@ PostedNotification _sms(
 );
 
 void main() {
+  AppDatabase db() {
+    final database = AppDatabase(NativeDatabase.memory());
+    addTearDown(database.close);
+    return database;
+  }
+
   const payment =
       'You have paid ZMW 150.00 to SHOPRITE MANDA HILL. Txn ID: 987654.';
 
   test('does nothing until notification access is allowed', () async {
     final client = _FakeClient(granted: false, tray: [_sms(payment)]);
-    final repo = DetectedPaymentRepositoryNotifications(client: client);
+    final repo = DetectedPaymentRepositoryNotifications(db(), client: client);
     addTearDown(repo.dispose);
 
     await repo.refresh();
@@ -69,7 +77,7 @@ void main() {
         _sms('Your OTP is 4455', title: 'Zanaco'),
       ],
     );
-    final repo = DetectedPaymentRepositoryNotifications(client: client);
+    final repo = DetectedPaymentRepositoryNotifications(db(), client: client);
     addTearDown(repo.dispose);
     await repo.refresh();
     expect(repo.pending, hasLength(1));
@@ -87,7 +95,7 @@ void main() {
 
   test('offers each payment once, and not again after dismissing', () async {
     final client = _FakeClient(tray: [_sms(payment), _sms(payment)]);
-    final repo = DetectedPaymentRepositoryNotifications(client: client);
+    final repo = DetectedPaymentRepositoryNotifications(db(), client: client);
     addTearDown(repo.dispose);
 
     await repo.refresh();
@@ -105,10 +113,40 @@ void main() {
         _sms(payment, package: 'com.example.flutter_expensetracker'),
       ],
     );
-    final repo = DetectedPaymentRepositoryNotifications(client: client);
+    final repo = DetectedPaymentRepositoryNotifications(db(), client: client);
     addTearDown(repo.dispose);
 
     await repo.refresh();
     expect(repo.pending, isEmpty);
+  });
+
+  test('pending and handled payments survive a restart', () async {
+    final database = db();
+    final client = _FakeClient(
+      tray: [
+        _sms(payment),
+        _sms(
+          'Money received. Amt: K500.00 From: 0971234567 MARY PHIRI. '
+          'TID: MP1.A2',
+          title: 'AirtelMoney',
+        ),
+      ],
+    );
+    final first = DetectedPaymentRepositoryNotifications(
+      database,
+      client: client,
+    );
+    await first.refresh();
+    expect(first.pending, hasLength(2));
+    await first.dismiss('987654');
+    first.dispose();
+
+    final second = DetectedPaymentRepositoryNotifications(
+      database,
+      client: client,
+    );
+    addTearDown(second.dispose);
+    await second.refresh();
+    expect(second.pending.single.message.amount, 500);
   });
 }

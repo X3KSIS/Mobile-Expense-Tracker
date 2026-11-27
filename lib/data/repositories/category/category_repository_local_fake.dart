@@ -2,9 +2,9 @@ import '../../../domain/models/transaction_category.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../utils/result.dart';
 import 'category_repository.dart';
-import 'fake_categories.dart';
+import 'default_categories.dart';
 
-/// In-memory [CategoryRepository] backed by [FakeCategories].
+/// In-memory [CategoryRepository] backed by [DefaultCategories].
 class CategoryRepositoryLocalFake implements CategoryRepository {
   CategoryRepositoryLocalFake({this.delay = const Duration(milliseconds: 200)});
 
@@ -18,7 +18,7 @@ class CategoryRepositoryLocalFake implements CategoryRepository {
     await Future<void>.delayed(delay);
     return Result.ok(
       List.unmodifiable(
-        FakeCategories.all.where((c) => type == null || c.type == type),
+        DefaultCategories.all.where((c) => type == null || c.type == type),
       ),
     );
   }

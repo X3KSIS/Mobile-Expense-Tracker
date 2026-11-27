@@ -36,3 +36,13 @@ final class Error<T> extends Result<T> {
   @override
   String toString() => 'Result<$T>.error($error)';
 }
+
+/// Runs [body] and wraps its value in [Result.ok], or a thrown [Exception]
+/// in [Result.error].
+Future<Result<T>> guard<T>(Future<T> Function() body) async {
+  try {
+    return Result.ok(await body());
+  } on Exception catch (e) {
+    return Result.error(e);
+  }
+}
