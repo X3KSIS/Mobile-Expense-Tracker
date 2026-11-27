@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     widget.viewModel.resetPassword.addListener(_onResetChanged);
+    widget.viewModel.login.addListener(_onLoginChanged);
   }
 
   @override
@@ -39,16 +40,26 @@ class _LoginScreenState extends State<LoginScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.viewModel != widget.viewModel) {
       oldWidget.viewModel.resetPassword.removeListener(_onResetChanged);
+      oldWidget.viewModel.login.removeListener(_onLoginChanged);
       widget.viewModel.resetPassword.addListener(_onResetChanged);
+      widget.viewModel.login.addListener(_onLoginChanged);
     }
   }
 
   @override
   void dispose() {
+    widget.viewModel.login.removeListener(_onLoginChanged);
     widget.viewModel.resetPassword.removeListener(_onResetChanged);
     _email.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  /// Opens the code screen when the email is not confirmed yet.
+  void _onLoginChanged() {
+    final email = widget.viewModel.emailToConfirm;
+    if (!mounted || !widget.viewModel.login.completed || email == null) return;
+    context.push(Routes.verifyEmailFor(email));
   }
 
   void _onResetChanged() {

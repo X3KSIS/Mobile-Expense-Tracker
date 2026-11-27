@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth/auth_repository.dart';
+import '../../../domain/models/auth_exception.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 import 'auth_error_message.dart';
@@ -22,6 +23,11 @@ class LoginViewModel extends ChangeNotifier {
   /// Sends a reset link to the given email.
   late final Command1<void, String> resetPassword;
 
+  /// Set when the account's email is not confirmed yet: a new code has
+  /// been sent and the view opens the code screen.
+  String? get emailToConfirm => _emailToConfirm;
+  String? _emailToConfirm;
+
   /// Message for the last failed sign-in, or null.
   String? get errorMessage => commandErrorMessage(login);
 
@@ -33,10 +39,17 @@ class LoginViewModel extends ChangeNotifier {
       email: credentials.email.trim(),
       password: credentials.password,
     );
-    return switch (result) {
-      Ok() => const Result.ok(null),
-      Error(:final error) => Result.error(error),
-    };
+    switch (result) {
+      case Ok():
+        return const Result.ok(null);
+      case Error(error: AuthException(code: AuthErrorCode.emailNotConfirmed)):
+        final email = credentials.email.trim();
+        await _authRepository.resendEmailCode(email);
+        _emailToConfirm = email;
+        return const Result.ok(null);
+      case Error(:final error):
+        return Result.error(error);
+    }
   }
 
   Future<Result<void>> _resetPassword(String email) =>

@@ -92,6 +92,27 @@ class AuthRepositorySupabase extends AuthRepository {
   });
 
   @override
+  Future<Result<AppUser>> verifyEmail({
+    required String email,
+    required String code,
+  }) => _call(() async {
+    final response = await _auth.verifyOTP(
+      type: sb.OtpType.signup,
+      email: email.trim(),
+      token: code.trim(),
+    );
+    final user = response.user;
+    if (user == null || response.session == null) {
+      throw const AuthException(AuthErrorCode.invalidCode);
+    }
+    return _open(user);
+  });
+
+  @override
+  Future<Result<void>> resendEmailCode(String email) =>
+      _call(() => _auth.resend(type: sb.OtpType.signup, email: email.trim()));
+
+  @override
   Future<Result<void>> signOut() => _call(() async {
     await beforeSignOut?.call();
     if (await _db.hasUnsyncedChanges()) {
@@ -197,6 +218,9 @@ class AuthRepositorySupabase extends AuthRepository {
     'email_not_confirmed' => AuthErrorCode.emailNotConfirmed,
     'user_already_exists' || 'email_exists' => AuthErrorCode.emailAlreadyInUse,
     'weak_password' => AuthErrorCode.weakPassword,
+    'otp_expired' || 'otp_disabled' => AuthErrorCode.invalidCode,
+    'over_email_send_rate_limit' ||
+    'over_request_rate_limit' => AuthErrorCode.tooManyRequests,
     _ => AuthErrorCode.unknown,
   };
 

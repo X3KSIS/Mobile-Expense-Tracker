@@ -3,6 +3,7 @@ abstract final class Routes {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String signUp = '/signup';
+  static const String verifyEmail = '/verify-email';
   static const String home = '/home';
   static const String activity = '/activity';
   static const String budgets = '/budgets';
@@ -57,6 +58,13 @@ abstract final class Routes {
     return DateTime(int.parse(match.group(1)!), month);
   }
 
+  /// Query parameter for [verifyEmail].
+  static const String emailParam = 'email';
+
+  /// [verifyEmail] for the account [email].
+  static String verifyEmailFor(String email) =>
+      Uri(path: verifyEmail, queryParameters: {emailParam: email}).toString();
+
   /// Routes a signed-out user may visit.
-  static const Set<String> signedOut = {login, signUp};
+  static const Set<String> signedOut = {login, signUp, verifyEmail};
 }

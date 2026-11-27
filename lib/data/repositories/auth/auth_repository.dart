@@ -27,6 +27,16 @@ abstract class AuthRepository extends ChangeNotifier {
     required String password,
   });
 
+  /// Confirms [email] with the [code] emailed after sign-up, and signs
+  /// the account in.
+  Future<Result<AppUser>> verifyEmail({
+    required String email,
+    required String code,
+  });
+
+  /// Emails a new sign-up confirmation code to [email].
+  Future<Result<void>> resendEmailCode(String email);
+
   Future<Result<void>> signOut();
 
   /// Sends a password reset link. Succeeds even when no account exists for

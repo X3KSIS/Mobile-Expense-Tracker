@@ -79,6 +79,30 @@ class AuthRepositoryLocalFake extends AuthRepository {
     return Result.ok(user);
   }
 
+  /// The only code [verifyEmail] accepts.
+  static const String validCode = '123456';
+
+  @override
+  Future<Result<AppUser>> verifyEmail({
+    required String email,
+    required String code,
+  }) async {
+    await Future<void>.delayed(delay);
+    final account = _accounts[_normalise(email)];
+    if (code.trim() != validCode || account == null) {
+      return const Result.error(AuthException(AuthErrorCode.invalidCode));
+    }
+    _currentUser = account;
+    notifyListeners();
+    return Result.ok(account);
+  }
+
+  @override
+  Future<Result<void>> resendEmailCode(String email) async {
+    await Future<void>.delayed(delay);
+    return const Result.ok(null);
+  }
+
   @override
   Future<Result<void>> signOut() async {
     await Future<void>.delayed(delay);

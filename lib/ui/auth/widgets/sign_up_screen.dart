@@ -31,7 +31,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _confirm = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    widget.viewModel.signUp.addListener(_onSignUpChanged);
+  }
+
+  /// Opens the code screen when the email needs confirming.
+  void _onSignUpChanged() {
+    final email = widget.viewModel.emailToConfirm;
+    if (!mounted || !widget.viewModel.signUp.completed || email == null) {
+      return;
+    }
+    context.go(Routes.verifyEmailFor(email));
+  }
+
+  @override
   void dispose() {
+    widget.viewModel.signUp.removeListener(_onSignUpChanged);
     _name.dispose();
     _email.dispose();
     _password.dispose();

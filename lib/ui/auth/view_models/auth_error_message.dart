@@ -13,9 +13,13 @@ String authErrorMessage(Exception error) {
     AuthErrorCode.weakPassword =>
       'Choose a stronger password with at least 8 characters.',
     AuthErrorCode.confirmEmail =>
-      "We've sent you a link to confirm your email. Open it, then sign in.",
+      "We've emailed you a code. Enter it to confirm your email.",
     AuthErrorCode.emailNotConfirmed =>
-      'Confirm your email first: open the link we sent you, then sign in.',
+      'Confirm your email first with the code we sent you.',
+    AuthErrorCode.invalidCode =>
+      "That code is wrong or has expired. Check it, or send a new one.",
+    AuthErrorCode.tooManyRequests =>
+      'Too many tries. Wait a minute, then try again.',
     AuthErrorCode.unsyncedChanges =>
       "Some changes haven't been saved online yet. Connect to the internet "
           'and try again, so nothing is lost.',

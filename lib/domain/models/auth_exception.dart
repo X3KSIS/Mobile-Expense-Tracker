@@ -9,9 +9,15 @@ enum AuthErrorCode {
   /// The password does not meet the strength rules.
   weakPassword,
 
-  /// Sign-up worked, but the email must be confirmed (a link was sent)
-  /// before signing in.
+  /// Sign-up worked, but the email must be confirmed with the code that
+  /// was sent before signing in.
   confirmEmail,
+
+  /// The email code is wrong or has expired.
+  invalidCode,
+
+  /// Too many emails or attempts in a short time.
+  tooManyRequests,
 
   /// Sign-in before the email was confirmed.
   emailNotConfirmed,

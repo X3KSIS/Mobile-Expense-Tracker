@@ -13,6 +13,8 @@ import '../ui/auth/view_models/login_view_model.dart';
 import '../ui/auth/view_models/sign_up_view_model.dart';
 import '../ui/auth/widgets/login_screen.dart';
 import '../ui/auth/widgets/sign_up_screen.dart';
+import '../ui/auth/view_models/verify_email_view_model.dart';
+import '../ui/auth/widgets/verify_email_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
 import '../ui/category_trend/view_models/category_trend_view_model.dart';
@@ -93,6 +95,23 @@ GoRouter router(AuthRepository authRepository) {
             child: Builder(
               builder: (context) =>
                   SignUpScreen(viewModel: context.read<SignUpViewModel>()),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.verifyEmail,
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          ChangeNotifierProvider(
+            create: (context) => VerifyEmailViewModel(
+              authRepository: context.read(),
+              email: state.uri.queryParameters[Routes.emailParam] ?? '',
+            ),
+            child: Builder(
+              builder: (context) => VerifyEmailScreen(
+                viewModel: context.read<VerifyEmailViewModel>(),
+              ),
             ),
           ),
         ),
