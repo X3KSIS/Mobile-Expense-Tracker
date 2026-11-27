@@ -2,26 +2,30 @@
 
 Running log of what has been built and what comes next. Newest session first.
 
-## Where things stand (27 Nov 2026, later)
+## Where things stand (27 Nov 2026, end of day)
 
 **Core objective:** expense tracking and spending habits (see `CLAUDE.md`).
 
-**Built, on fake repositories:** auth screens (interface only), Home, Activity (last 7 days) and History, full-screen search, Add transaction (with wallet, fill from an SMS), budgets per pay cycle (expand, reorder), Reports (habits, regular payments, categories, trend, heatmap), category trends, wallets and transfers, payday and safe to spend, payment capture from notifications, Profile, dark mode, one coral icon style, motion throughout. Launcher icon and the name Expense Tracker on every platform. `flutter analyze` is clean and 209 tests pass.
+**Data now lives in a database.** Everything is saved on the phone in Drift (works offline) and synced to Supabase (row-level security, email and password sign-in). Fake repositories are kept for tests only. `flutter analyze` is clean and 229 tests pass.
 
-**Not yet verified on the phone:** everything since session 3. The APK build could not finish from Claude's sandbox, so run it from a terminal: `flutter run -d 1519137578004351`.
+**Built:** sign-in and sign-up (Supabase Auth, validation restored), Home, Activity and History, search, Add and Edit transaction (with wallet, fill from an SMS), budgets per pay cycle (expand, reorder), Reports (habits, regular payments, categories, trend, heatmap), category trends, wallets and transfers, payday and safe to spend, payment capture from notifications, Profile, dark mode, motion throughout.
 
 **Pick up next time:**
 
-1. Run on the phone; turn on notification access (Profile → Payment messages) and check real MoMo, Airtel and bank messages are read. Share a few real messages (details changed) to tune the parser.
-2. Personal inflation with the price tracker (category trends are done).
-3. Reminders before regular payments are due (needs `flutter_local_notifications`; ask first).
-4. Wallet follow-ups: edit or delete wallets with transactions, show the wallet on transaction details, filter by wallet.
-5. Backend phase: Drift storage (nothing persists yet), Supabase tables with row-level security, Supabase Auth (restore form validation), then the Drift to Supabase sync.
-6. Still open from earlier: visual corrections for Home, splash and the nav bar; notifications screen, receipts, grocery lists, price tracker, categories management.
+1. **Set up Supabase** (`supabase/README.md`): create the project, run the migration, fill in `supabase.json`, then run `flutter run -d 1519137578004351 --dart-define-from-file=supabase.json`. Sign up, add a few transactions, check they appear in the Supabase table editor, and try airplane mode.
+2. Not yet verified on the phone: everything since session 3, including the database and sync.
+3. Show sync status somewhere (Profile: "Saved online" / "Waiting for connection"). `SyncRepository.status` is ready.
+4. Password reset links open Supabase's default page; a deep link back into the app (to set a new password) is still to do.
+5. Tracking features: managing categories, receipts (Supabase Storage), reminders (`flutter_local_notifications`, ask first), personal inflation.
+6. Real MoMo, Airtel and bank messages to tune the parser.
 
 ## Session 7: 27 Nov 2026
 
 ### Done
+
+- **Database for everything (offline-first):** a Drift database on the phone (`lib/data/services/database/app_database.dart`) holds transactions, categories, budgets and their order, wallets, transfers, settings (theme, payday), the profile, payments read from notifications and account links. Drift repositories replace the fakes in the app. Writes are marked dirty with a `modifiedAt`; deletes become marks so they sync.
+- **Supabase:** migration `supabase/migrations/20261127000000_init.sql` (tables, RLS, `sync_guard` trigger keeping the later edit, new-user seeding of profile, default categories and Cash). `SyncRepositoryDrift` pushes dirty rows and pulls rows stored since the last pull (cursor per table), later edit wins on both sides, retries after failures, runs after changes, every 5 minutes and on resume. Tested with a fake server and two simulated devices.
+- **Auth:** `AuthRepositorySupabase` (email and password, email confirmation, password reset email). The device database belongs to the signed-in account; data from before the first sign-in moves to it; sign-out sends unsaved changes and is refused while offline with unsent changes. Form validation restored. Without `--dart-define-from-file=supabase.json` the app runs on the device only with the demo sign-in.
 
 - **Category trends:** tapping a category in Reports' Spending by category opens its page (`/category?name=…&month=yyyy-mm`). `CategoryTrends.compute` (domain) gives the last 6 months, what was spent in the selected month against a usual month (the average of earlier months with spending in the category, cut at today's date while the month is still running), where the money went (places grouped by name, how often, average each) and the payments. The page has a navy summary card with the comparison in words, the 6-month column chart (tap a month), Where it went and Payments (tap for details and delete).
 - **Provider APIs deferred:** direct MoMo and bank connections wait until the institutions grant API access. The seam is ready: `ProviderApiService` (one per institution, maps records to `MoneyMessage`) and `AccountLinkRepositoryApi` (links a wallet, syncs into payments to review). No institutions wired in, no UI.
