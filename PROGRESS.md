@@ -6,7 +6,7 @@ Running log of what has been built and what comes next. Newest session first.
 
 **Core objective:** expense tracking and spending habits (see `CLAUDE.md`).
 
-**Data now lives in a database.** Everything is saved on the phone in Drift (works offline) and synced to Supabase (row-level security, email and password sign-in). Fake repositories are kept for tests only. `flutter analyze` is clean and 229 tests pass.
+**Data now lives in a database.** Everything is saved on the phone in Drift (works offline) and synced to Supabase (row-level security, email and password sign-in). Fake repositories are kept for tests only. `flutter analyze` is clean and 259 tests pass.
 
 **Built:** sign-in and sign-up (Supabase Auth, validation restored), Home, Activity and History, search, Add and Edit transaction (with wallet, fill from an SMS), budgets per pay cycle (expand, reorder), Reports (habits, regular payments, categories, trend, heatmap), category trends, wallets and transfers, payday and safe to spend, payment capture from notifications, Profile, dark mode, motion throughout.
 
@@ -26,6 +26,11 @@ Running log of what has been built and what comes next. Newest session first.
 - **Running on the phone with Supabase:** project ambfmaujbnraqiujckoh, migration applied and verified. Build fixes: plugins use NDK 30, Kotlin compiles in-process without incremental caches. The project URL and publishable key are built in (`SupabaseConfig`), so F5 connects; no demo sign-in in the app.
 - **Email confirmation by code:** Confirm your email screen (`/verify-email`) with resend. Supabase still sends its default link email until custom SMTP is set up (templates are locked without it); the link confirms anyway.
 - **Sync loop fixed:** pulls no longer rewrite an unchanged profile (it re-triggered sync every 2 s).
+- **Profile photo** (gallery, `image_picker`): kept in the device database, synced through a private `avatars` Storage bucket (migration `20261128010000_profile_photos.sql`, applied).
+- **Sync status** card in Profile with Sync now. Sync now starts after the first frame.
+- **Change password** (Profile, Security), checking the current one first.
+- **Manage categories** (`/categories`): add, rename (moves past transactions and budgets), icon, reorder, delete with guards. 14 more icons.
+- **Export data** (`/export`): CSV via the share sheet (`share_plus`).
 - **Preferences page** (`/preferences`, from Profile): theme, payday, budget warning level, default wallet, show habits on Home, hide amounts on Home (now remembered). New profile columns in Drift (schema 2) and Supabase (`20261128000000_preferences.sql`, applied).
 
 - **Database for everything (offline-first):** a Drift database on the phone (`lib/data/services/database/app_database.dart`) holds transactions, categories, budgets and their order, wallets, transfers, settings (theme, payday), the profile, payments read from notifications and account links. Drift repositories replace the fakes in the app. Writes are marked dirty with a `modifiedAt`; deletes become marks so they sync.

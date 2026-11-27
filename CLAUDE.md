@@ -84,7 +84,7 @@ test/
 
 ## Packages
 
-`provider`, `go_router`, `intl`, `notification_listener_service` (Android notification access for payment messages), `drift` and `drift_flutter` (on-device database), `supabase_flutter` (backend), `flutter_native_splash` (dev), `flutter_lints` (dev), `drift_dev` and `build_runner` (dev, Drift code generation).
+`provider`, `go_router`, `intl`, `notification_listener_service` (Android notification access for payment messages), `drift` and `drift_flutter` (on-device database), `supabase_flutter` (backend), `image_picker` (profile photo, gallery only), `share_plus` (CSV export), `flutter_native_splash` (dev), `flutter_lints` (dev), `drift_dev` and `build_runner` (dev, Drift code generation).
 
 Added in later phases: `fl_chart`, `connectivity_plus`, `flutter_local_notifications`.
 
