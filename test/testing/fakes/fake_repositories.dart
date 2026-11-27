@@ -14,8 +14,14 @@ import 'package:flutter_expensetracker/data/repositories/transaction/transaction
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/wallet/wallet_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/wallet/wallet_repository_local_fake.dart';
+import 'package:flutter_expensetracker/data/repositories/sync/sync_repository.dart';
+
+import 'fake_sync_repository.dart';
+
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+
+export 'fake_sync_repository.dart';
 
 /// Fake repositories with no simulated latency, so tests run instantly.
 TransactionRepositoryLocalFake instantTransactionRepository({DateTime? now}) =>
@@ -71,4 +77,5 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ChangeNotifierProvider<AccountLinkRepository>(
     create: (_) => AccountLinkRepositoryApi(),
   ),
+  ChangeNotifierProvider<SyncRepository>(create: (_) => FakeSyncRepository()),
 ];

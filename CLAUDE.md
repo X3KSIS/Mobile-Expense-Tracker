@@ -15,7 +15,7 @@ Features, now and planned: dashboard, transactions (recurring, receipts, tags), 
 
 Direct connections to mobile money providers and banks wait until those institutions grant API access. Until then, money movements are captured by hand, from SMS (`MoneyMessageParser`) and from notifications. The integration point is ready: implement `ProviderApiService` (`lib/data/services/provider_api/`) per institution and pass it to `AccountLinkRepositoryApi`. Don't build more on it until an API is available; keep effort on tracking.
 
-Later phases will add sign-in, offline-first storage with Drift (SQLite), and sync to the app's own backend. The backend is Supabase (Postgres with row-level security, auth, storage). Until then, all data comes from fake repositories.
+**Everything the user creates, reads, updates or deletes is stored in the database.** Data is offline-first: repositories read and write the on-device Drift (SQLite) database, and `SyncRepositoryDrift` syncs it with Supabase (Postgres with row-level security, email and password auth). Never keep user data only in memory or in a widget. A new kind of data means a Drift table, a Supabase table in a new migration (with `user_id`, `modified_at`, `updated_at`, `deleted`, the `sync_guard` trigger and RLS policies), and an entry in the sync table list. Setup and sync rules: `supabase/README.md`.
 
 ## Working rules
 
@@ -35,7 +35,9 @@ Follows https://docs.flutter.dev/app-architecture.
   - ViewModels depend only on repositories, never on services directly.
   - Async actions use a `Command` class (running, error and completed state) from `lib/utils/command.dart`.
 - **Data layer:**
-  - Repositories are the single source of truth. Each is an abstract class plus implementations: `*_local_fake.dart` now, real ones later.
+  - Repositories are the single source of truth. Each is an abstract class plus implementations: `*_drift.dart` (or `*_supabase.dart` for auth) in the app, `*_local_fake.dart` for tests.
+  - Writes mark rows `dirty` with a `modifiedAt`; deletes set `deleted` instead of removing the row, so they sync. New ids come from `newId()` (`lib/utils/ids.dart`).
+  - After changing tables in `lib/data/services/database/app_database.dart`, run `dart run build_runner build` and bump `schemaVersion` with a migration.
   - Services wrap external sources (backend client, local DB, notifications). They are stateless and used only by repositories.
 - **Domain models:** immutable plain Dart classes in `lib/domain/models/`, shared by both layers.
 - **Dependency injection:** `provider`, configured in `lib/config/dependencies.dart`. Repositories are provided at app level, and ViewModels are created in the route builders.
@@ -58,7 +60,8 @@ lib/
     repositories/
       <name>/
         <name>_repository.dart          # abstract
-        <name>_repository_local_fake.dart
+        <name>_repository_drift.dart          # real (Drift + sync)
+        <name>_repository_local_fake.dart     # tests
     services/
   ui/
     core/
@@ -81,9 +84,9 @@ test/
 
 ## Packages
 
-`provider`, `go_router`, `intl`, `notification_listener_service` (Android notification access for payment messages), `flutter_native_splash` (dev), `flutter_lints` (dev).
+`provider`, `go_router`, `intl`, `notification_listener_service` (Android notification access for payment messages), `drift` and `drift_flutter` (on-device database), `supabase_flutter` (backend), `flutter_native_splash` (dev), `flutter_lints` (dev), `drift_dev` and `build_runner` (dev, Drift code generation).
 
-Added in later phases: `drift`, `fl_chart`, `connectivity_plus`, `flutter_local_notifications`, `supabase_flutter`.
+Added in later phases: `fl_chart`, `connectivity_plus`, `flutter_local_notifications`.
 
 ## Design system: coral and navy
 

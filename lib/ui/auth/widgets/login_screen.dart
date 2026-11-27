@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
+import '../../../utils/validators.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/centered_scroll_body.dart';
 import '../../core/ui/form_error_slot.dart';
@@ -13,9 +14,6 @@ import 'auth_switch_prompt.dart';
 
 /// Email and password sign-in, with "Forgot password?" and a link to
 /// sign up.
-///
-/// Interface only for now: the form is not validated and any input signs
-/// in (see `AuthRepositoryLocalFake`).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.viewModel});
 
@@ -73,15 +71,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    // TODO(auth): validate the form (Validators.email, existingPassword)
-    // once real authentication is wired in.
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     widget.viewModel.login.execute((
       email: _email.text,
       password: _password.text,
     ));
   }
 
-  void _forgotPassword() => widget.viewModel.resetPassword.execute(_email.text);
+  void _forgotPassword() {
+    if (Validators.email(_email.text) != null) {
+      _showSnackBar('Enter your email above, then tap "Forgot password?".');
+      return;
+    }
+    widget.viewModel.resetPassword.execute(_email.text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +171,7 @@ class _LoginForm extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.email],
+              validator: Validators.email,
               onChanged: onChanged,
             ),
             const SizedBox(height: Dimens.gapL),
@@ -175,6 +179,7 @@ class _LoginForm extends StatelessWidget {
               controller: password,
               hint: 'Your password',
               textInputAction: TextInputAction.done,
+              validator: Validators.existingPassword,
               onChanged: onChanged,
               onFieldSubmitted: (_) => onSubmit(),
             ),

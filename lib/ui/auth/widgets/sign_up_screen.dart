@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
+import '../../../utils/validators.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/centered_scroll_body.dart';
 import '../../core/ui/form_error_slot.dart';
@@ -13,9 +14,6 @@ import 'auth_header.dart';
 import 'auth_switch_prompt.dart';
 
 /// Create an account with name, email and password.
-///
-/// Interface only for now: the form is not validated and any input creates
-/// an account (see `AuthRepositoryLocalFake`).
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key, required this.viewModel});
 
@@ -43,8 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    // TODO(auth): validate the form (Validators.name, email, newPassword,
-    // confirmPassword) once real authentication is wired in.
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     widget.viewModel.signUp.execute((
       name: _name.text,
       email: _email.text,
@@ -167,6 +164,7 @@ class _SignUpForm extends StatelessWidget {
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.name],
+              validator: Validators.name,
               onChanged: onChanged,
             ),
             const SizedBox(height: Dimens.gapL),
@@ -178,6 +176,7 @@ class _SignUpForm extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.email],
+              validator: Validators.email,
               onChanged: onChanged,
             ),
             const SizedBox(height: Dimens.gapL),
@@ -187,6 +186,7 @@ class _SignUpForm extends StatelessWidget {
               helper: 'Use 8 or more characters with a letter and a number.',
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.newPassword],
+              validator: Validators.newPassword,
               onChanged: onChanged,
             ),
             const SizedBox(height: Dimens.gapL),
@@ -196,6 +196,8 @@ class _SignUpForm extends StatelessWidget {
               hint: 'Type it again',
               textInputAction: TextInputAction.done,
               autofillHints: const [AutofillHints.newPassword],
+              validator: (value) =>
+                  Validators.confirmPassword(value, password.text),
               onChanged: onChanged,
               onFieldSubmitted: (_) => onSubmit(),
             ),

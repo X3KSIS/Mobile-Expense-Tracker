@@ -34,14 +34,15 @@ void main() {
   );
 
   group('LoginScreen', () {
-    testWidgets('empty fields still sign in (interface only)', (tester) async {
+    testWidgets('empty fields are checked before signing in', (tester) async {
       await pumpLogin(tester);
 
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Enter your email'), findsNothing);
-      expect(auth.isAuthenticated, isTrue);
+      expect(find.text('Enter your email'), findsOneWidget);
+      expect(find.text('Enter your password'), findsOneWidget);
+      expect(auth.isAuthenticated, isFalse);
     });
 
     testWidgets('any typed credentials sign in', (tester) async {

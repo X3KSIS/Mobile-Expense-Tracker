@@ -9,6 +9,16 @@ enum AuthErrorCode {
   /// The password does not meet the strength rules.
   weakPassword,
 
+  /// Sign-up worked, but the email must be confirmed (a link was sent)
+  /// before signing in.
+  confirmEmail,
+
+  /// Sign-in before the email was confirmed.
+  emailNotConfirmed,
+
+  /// Signing out now would lose changes not yet saved to the server.
+  unsyncedChanges,
+
   /// The call needs a signed-in user and there is none.
   notSignedIn,
 

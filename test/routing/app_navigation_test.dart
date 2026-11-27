@@ -82,10 +82,17 @@ void main() {
     expect(brightness(), Brightness.light);
   });
 
-  testWidgets('tapping Sign in with empty fields goes to Home', (tester) async {
+  testWidgets('empty fields are checked before signing in', (tester) async {
     await pumpApp(tester);
     await finishSplash(tester);
 
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter your email'), findsOneWidget);
+    expect(find.text('Enter your password'), findsOneWidget);
+
+    await tester.enterText(field('Email'), AuthRepositoryLocalFake.demoEmail);
+    await tester.enterText(find.byType(TextFormField).last, 'secret123');
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
 
@@ -106,6 +113,12 @@ void main() {
 
     await tester.enterText(field('Full name'), 'Mwila Banda');
     await tester.enterText(field('Email'), 'mwila@example.com');
+    final passwords = find.byType(TextFormField);
+    await tester.enterText(passwords.at(2), 'kwacha2026');
+    await tester.enterText(passwords.at(3), 'kwacha2026');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await scrollTo(tester, find.text('Create account'));
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();
 

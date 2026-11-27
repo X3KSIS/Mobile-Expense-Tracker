@@ -3,7 +3,9 @@ import '../../../domain/models/auth_exception.dart';
 import '../../../utils/result.dart';
 import 'auth_repository.dart';
 
-/// In-memory [AuthRepository] for testing the interface.
+/// In-memory [AuthRepository] for tests, and for builds without Supabase
+/// settings (see `SupabaseConfig`). The real one is
+/// `AuthRepositorySupabase`.
 ///
 /// Every sign-in and sign-up succeeds, whatever is typed:
 /// - Signing in with the email of an account created this session opens
@@ -13,8 +15,6 @@ import 'auth_repository.dart';
 ///
 /// Nothing is persisted, so the app starts signed out unless [signedIn] is
 /// true.
-// TODO(auth): replace with a Firebase-backed repository, which enforces
-// real credentials.
 class AuthRepositoryLocalFake extends AuthRepository {
   AuthRepositoryLocalFake({
     this.delay = const Duration(milliseconds: 600),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../routing/routes.dart';
+import '../../auth/view_models/auth_error_message.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/app_logo.dart';
 import '../../core/ui/header_icon_button.dart';
@@ -47,9 +48,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// A successful sign-out is handled by the router; only errors show here.
   void _onSignOutChanged() {
     final command = widget.viewModel.signOut;
-    if (!command.error) return;
+    final message = commandErrorMessage(command);
+    if (message == null) return;
     command.clearResult();
-    _showSnackBar("Couldn't sign out. Please try again.");
+    _showSnackBar(message);
   }
 
   void _showSnackBar(String message) {

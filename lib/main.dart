@@ -7,15 +7,17 @@ import 'config/dependencies.dart';
 import 'data/repositories/auth/auth_repository.dart';
 import 'data/repositories/detected_payment/detected_payment_repository.dart';
 import 'data/repositories/settings/settings_repository.dart';
+import 'data/repositories/sync/sync_repository.dart';
+import 'data/services/supabase/supabase_config.dart';
 import 'domain/models/theme_preference.dart';
 import 'routing/router.dart';
 import 'ui/core/themes/motion.dart';
 import 'ui/core/themes/theme.dart';
 
-void main() {
-  runApp(
-    MultiProvider(providers: providersLocal, child: const ExpenseTrackApp()),
-  );
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final providers = await createProviders(SupabaseConfig.fromEnvironment());
+  runApp(MultiProvider(providers: providers, child: const ExpenseTrackApp()));
 }
 
 class ExpenseTrackApp extends StatefulWidget {
@@ -28,20 +30,36 @@ class ExpenseTrackApp extends StatefulWidget {
 class _ExpenseTrackAppState extends State<ExpenseTrackApp>
     with WidgetsBindingObserver {
   late final GoRouter _router = router(context.read<AuthRepository>());
+  late final AuthRepository _auth = context.read<AuthRepository>();
+  late final SyncRepository _sync = context.read<SyncRepository>();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _auth.addListener(_onAuthChanged);
+    _onAuthChanged();
     _refreshDetectedPayments();
+  }
+
+  /// Syncs while someone is signed in.
+  void _onAuthChanged() {
+    if (_auth.isAuthenticated) {
+      _sync.start();
+    } else {
+      _sync.stop();
+    }
   }
 
   /// Payment notifications only arrive while the app runs, so on start
   /// and every return to the foreground pick up those still in the tray
   /// (and notice if notification access was just turned on or off).
+  /// Coming back is also a good moment to fetch other devices' changes.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _refreshDetectedPayments();
+    if (state != AppLifecycleState.resumed) return;
+    _refreshDetectedPayments();
+    if (_auth.isAuthenticated) _sync.sync();
   }
 
   void _refreshDetectedPayments() =>
@@ -50,6 +68,7 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _auth.removeListener(_onAuthChanged);
     _router.dispose();
     super.dispose();
   }

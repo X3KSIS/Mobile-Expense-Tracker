@@ -12,9 +12,16 @@ String authErrorMessage(Exception error) {
       'An account with this email already exists. Sign in instead.',
     AuthErrorCode.weakPassword =>
       'Choose a stronger password with at least 8 characters.',
+    AuthErrorCode.confirmEmail =>
+      "We've sent you a link to confirm your email. Open it, then sign in.",
+    AuthErrorCode.emailNotConfirmed =>
+      'Confirm your email first: open the link we sent you, then sign in.',
+    AuthErrorCode.unsyncedChanges =>
+      "Some changes haven't been saved online yet. Connect to the internet "
+          'and try again, so nothing is lost.',
     AuthErrorCode.notSignedIn => 'Your session has ended. Sign in again.',
     AuthErrorCode.network =>
-      "Couldn't reach ExpenseTrack. Check your connection and try again.",
+      "Couldn't reach Expense Tracker. Check your connection and try again.",
     AuthErrorCode.unknown => 'Something went wrong. Please try again.',
   };
 }
