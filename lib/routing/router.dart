@@ -27,6 +27,8 @@ import '../ui/detected_payments/widgets/detected_payments_screen.dart';
 import '../ui/core/themes/motion.dart';
 import '../ui/core/ui/animated_branch_container.dart';
 import '../ui/core/ui/app_shell.dart';
+import '../ui/export/view_models/export_view_model.dart';
+import '../ui/export/widgets/export_screen.dart';
 import '../ui/home/view_models/home_view_model.dart';
 import '../ui/home/widgets/home_screen.dart';
 import '../ui/profile/view_models/edit_profile_view_model.dart';
@@ -240,6 +242,20 @@ GoRouter router(AuthRepository authRepository) {
             builder: (context) => CategoriesScreen(
               viewModel: context.read<CategoriesViewModel>(),
             ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.export,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => ExportViewModel(
+            transactionRepository: context.read(),
+            walletRepository: context.read(),
+          ),
+          child: Builder(
+            builder: (context) =>
+                ExportScreen(viewModel: context.read<ExportViewModel>()),
           ),
         ),
       ),

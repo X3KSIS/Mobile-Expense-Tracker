@@ -185,8 +185,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ProfileMenuItem(
           icon: Icons.file_download_outlined,
           title: 'Export data',
-          subtitle: 'Download your transactions',
-          onTap: () => _comingSoon('Export'),
+          subtitle: 'Share your transactions as a CSV file',
+          onTap: () => context.push(Routes.export),
         ),
       ],
     ),
