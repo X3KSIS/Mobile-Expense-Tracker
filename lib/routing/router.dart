@@ -151,6 +151,10 @@ GoRouter router(AuthRepository authRepository) {
                 final Transaction transaction => transaction,
                 _ => null,
               },
+              repeat: switch (state.extra) {
+                RepeatTransaction(:final transaction) => transaction,
+                _ => null,
+              },
             ),
             child: Builder(
               builder: (context) => AddTransactionScreen(

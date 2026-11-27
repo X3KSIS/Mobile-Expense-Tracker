@@ -16,12 +16,21 @@ import '../../../utils/result.dart';
 
 typedef TransactionInput = ({String amount, String title, String note});
 
+/// Route `extra` asking Add transaction to start from [transaction] (same
+/// amount, category, wallet, title and note) as a new one dated now.
+class RepeatTransaction {
+  const RepeatTransaction(this.transaction);
+
+  final Transaction transaction;
+}
+
 /// The text fields filled from a message; the view puts them in its
 /// controllers.
 typedef MessagePrefill = ({String amount, String title, String note});
 
 /// State for the transaction form: type, category, wallet, date and
-/// saving. Adds a new transaction, or edits [editing] when given.
+/// saving. Adds a new transaction (from [repeat] when given), or edits
+/// [editing].
 class AddTransactionViewModel extends ChangeNotifier {
   AddTransactionViewModel({
     required this._transactionRepository,
@@ -32,19 +41,22 @@ class AddTransactionViewModel extends ChangeNotifier {
     this._initialMessage,
     this._defaultWalletId,
     Transaction? editing,
+    Transaction? repeat,
     DateTime Function()? clock,
   }) : _editing = editing,
-       _type = editing?.type ?? initialType,
+       _source = editing ?? repeat,
+       _type = (editing ?? repeat)?.type ?? initialType,
        _clock = clock ?? DateTime.now {
     _date = editing?.date ?? _clock();
-    if (editing != null) {
+    final source = _source;
+    if (source != null) {
       _initialMessage = null;
-      _selectedWalletId = editing.walletId;
-      final amount = editing.amount;
+      _selectedWalletId = source.walletId;
+      final amount = source.amount;
       _initialPrefill = (
         amount: amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2),
-        title: editing.title,
-        note: editing.note ?? '',
+        title: source.title,
+        note: source.note ?? '',
       );
     }
     loadCategories = Command0<void>(_loadCategories)..execute();
@@ -59,6 +71,9 @@ class AddTransactionViewModel extends ChangeNotifier {
   /// The wallet picked first for a new transaction (a preference).
   final String? _defaultWalletId;
   final Transaction? _editing;
+
+  /// The transaction being edited or repeated, whose values fill the form.
+  final Transaction? _source;
   final DateTime Function() _clock;
 
   late final Command0<void> loadCategories;
@@ -233,9 +248,9 @@ class AddTransactionViewModel extends ChangeNotifier {
       case Ok(:final value):
         _categories = value;
         final initial = value.where((c) => c.id == _initialCategoryId);
-        final editing = _editing;
-        if (editing != null) {
-          _selectedCategory = _categoryOf(editing);
+        final source = _source;
+        if (source != null) {
+          _selectedCategory = _categoryOf(source);
         } else if (initial.isNotEmpty) {
           _type = initial.first.type;
           _selectedCategory = initial.first;

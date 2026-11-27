@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/models/transaction.dart';
 import '../../../routing/routes.dart';
+import '../../add_transaction/view_models/add_transaction_view_model.dart';
 import '../../../utils/currency.dart';
 import '../../../utils/dates.dart';
 import '../themes/colors.dart';
@@ -29,6 +30,10 @@ Future<void> showTransactionDetails(
         Navigator.of(sheetContext).pop();
         context.push(Routes.add, extra: transaction);
       },
+      onRepeat: () {
+        Navigator.of(sheetContext).pop();
+        context.push(Routes.add, extra: RepeatTransaction(transaction));
+      },
       onDelete: () {
         Navigator.of(sheetContext).pop();
         onDelete();
@@ -43,11 +48,15 @@ class TransactionDetailsSheet extends StatelessWidget {
     super.key,
     required this.transaction,
     required this.onEdit,
+    required this.onRepeat,
     required this.onDelete,
   });
 
   final Transaction transaction;
   final VoidCallback onEdit;
+
+  /// Opens Add transaction filled with this one's details, dated now.
+  final VoidCallback onRepeat;
   final VoidCallback onDelete;
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -117,6 +126,22 @@ class TransactionDetailsSheet extends StatelessWidget {
                   size: Dimens.iconSizeSmall + 2,
                 ),
                 label: const Text('Edit transaction'),
+              ),
+            ),
+            const SizedBox(height: Dimens.gapM),
+            Pressable(
+              child: OutlinedButton.icon(
+                onPressed: onRepeat,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: context.colors.textPrimary,
+                  minimumSize: const Size.fromHeight(Dimens.buttonHeight + 4),
+                  shape: const StadiumBorder(),
+                ),
+                icon: const Icon(
+                  Icons.replay_rounded,
+                  size: Dimens.iconSizeSmall + 2,
+                ),
+                label: Text(transaction.isIncome ? 'Add again' : 'Spend again'),
               ),
             ),
             const SizedBox(height: Dimens.gapM),

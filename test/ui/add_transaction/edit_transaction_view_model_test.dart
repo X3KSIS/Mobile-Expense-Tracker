@@ -99,4 +99,34 @@ void main() {
     expect(viewModel.selectedCategory!.name, 'Gambling');
     expect(viewModel.categories.first.name, 'Gambling');
   });
+
+  test('repeating starts a new transaction dated now', () async {
+    final shoprite = await existing('Shoprite');
+    final before = (await repository.getTransactions() as Ok).value.length;
+    final viewModel = AddTransactionViewModel(
+      transactionRepository: repository,
+      categoryRepository: instantCategoryRepository(),
+      walletRepository: instantWalletRepository(now: now),
+      repeat: shoprite,
+      clock: () => now,
+    );
+    addTearDown(viewModel.dispose);
+    await viewModel.loadCategories.execute();
+
+    expect(viewModel.isEditing, isFalse);
+    expect(viewModel.selectedCategory!.name, shoprite.categoryName);
+    expect(viewModel.selectedWalletId, shoprite.walletId);
+    expect(viewModel.date, now);
+    final prefill = viewModel.takeInitialPrefill()!;
+    expect(prefill.title, 'Shoprite');
+
+    await viewModel.save.execute((
+      amount: prefill.amount,
+      title: prefill.title,
+      note: prefill.note,
+    ));
+    final all = (await repository.getTransactions() as Ok).value;
+    expect(all, hasLength(before + 1));
+    expect(all.where((t) => t.id == shoprite.id), hasLength(1));
+  });
 }
