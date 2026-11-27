@@ -80,8 +80,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 AuthHeader(
                   title: 'Confirm your email',
                   subtitle:
-                      'We sent a code to ${viewModel.email}. Enter it '
-                      'below to finish creating your account.',
+                      'We emailed ${viewModel.email}. Enter the code from '
+                      'it below, or open its link and then sign in.',
                 ),
                 const SizedBox(height: Dimens.sectionGap + 10),
                 FormErrorSlot(message: viewModel.errorMessage),
