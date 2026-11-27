@@ -16,6 +16,19 @@ class SettingsRepositoryLocalFake extends SettingsRepository {
   String? _defaultWalletId;
   bool _showHabitsOnHome = true;
   bool _hideAmountsOnHome = false;
+  bool _privacyScreen = false;
+
+  @override
+  bool get privacyScreen => _privacyScreen;
+
+  @override
+  Future<Result<void>> setPrivacyScreen(bool enabled) async {
+    if (enabled != _privacyScreen) {
+      _privacyScreen = enabled;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
 
   @override
   bool get hideAmountsOnHome => _hideAmountsOnHome;

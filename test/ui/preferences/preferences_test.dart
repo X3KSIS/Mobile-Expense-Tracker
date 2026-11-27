@@ -7,6 +7,7 @@ import 'package:flutter_expensetracker/domain/models/transaction.dart';
 import 'package:flutter_expensetracker/ui/add_transaction/view_models/add_transaction_view_model.dart';
 import 'package:flutter_expensetracker/ui/core/themes/theme.dart';
 import 'package:flutter_expensetracker/ui/preferences/view_models/preferences_view_model.dart';
+import 'package:flutter_expensetracker/ui/preferences/widgets/preference_row.dart';
 import 'package:flutter_expensetracker/ui/preferences/widgets/preferences_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -117,8 +118,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(settings.budgetAlertPercent, 90);
 
-    await tester.tap(find.byType(Switch).last);
+    await tester.tap(find.byType(Switch).at(1));
     await tester.pumpAndSettle();
     expect(settings.hideAmountsOnHome, isTrue);
+
+    final privacySwitch = find.descendant(
+      of: find.widgetWithText(PreferenceRow, 'Hide in recent apps'),
+      matching: find.byType(Switch),
+    );
+    await tester.ensureVisible(privacySwitch);
+    await tester.pumpAndSettle();
+    await tester.tap(privacySwitch);
+    await tester.pumpAndSettle();
+    expect(settings.privacyScreen, isTrue);
   });
 }

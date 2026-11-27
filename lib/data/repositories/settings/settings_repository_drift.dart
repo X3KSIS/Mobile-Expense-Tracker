@@ -6,6 +6,7 @@ import '../../../domain/models/pay_cycle.dart';
 import '../../../domain/models/theme_preference.dart';
 import '../../../utils/result.dart';
 import '../../services/database/app_database.dart';
+import '../../services/privacy_screen_service.dart';
 import 'settings_repository.dart';
 
 /// [SettingsRepository] kept on the signed-in user's profile row, so the
@@ -14,14 +15,18 @@ import 'settings_repository.dart';
 /// Values are cached for the synchronous getters: call [load] before the
 /// app starts.
 class SettingsRepositoryDrift extends SettingsRepository {
-  SettingsRepositoryDrift(this._db, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now {
+  SettingsRepositoryDrift(
+    this._db, {
+    this._privacy = const PrivacyScreenService(),
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now {
     _updates = _db
         .tableUpdates(TableUpdateQuery.onTable(_db.profiles))
         .listen((_) => load());
   }
 
   final AppDatabase _db;
+  final PrivacyScreenService _privacy;
   final DateTime Function() _clock;
   late final StreamSubscription<Set<TableUpdate>> _updates;
 
@@ -31,6 +36,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
   String? _defaultWalletId;
   bool _showHabitsOnHome = true;
   bool _hideAmountsOnHome = false;
+  bool _privacyScreen = false;
   bool _disposed = false;
 
   /// Reads the stored values and notifies when they differ.
@@ -44,13 +50,17 @@ class SettingsRepositoryDrift extends SettingsRepository {
         row.budgetAlertPercent != _budgetAlertPercent ||
         row.defaultWalletId != _defaultWalletId ||
         row.showHabits != _showHabitsOnHome ||
-        row.hideAmounts != _hideAmountsOnHome;
+        row.hideAmounts != _hideAmountsOnHome ||
+        row.privacyScreen != _privacyScreen;
+    final privacyChanged = row.privacyScreen != _privacyScreen;
     if (theme != null) _themePreference = theme;
     _payday = row.payday;
     _budgetAlertPercent = row.budgetAlertPercent;
     _defaultWalletId = row.defaultWalletId;
     _showHabitsOnHome = row.showHabits;
     _hideAmountsOnHome = row.hideAmounts;
+    _privacyScreen = row.privacyScreen;
+    if (privacyChanged) await _privacy.setEnabled(_privacyScreen);
     if (changed) notifyListeners();
   }
 
@@ -127,6 +137,18 @@ class SettingsRepositoryDrift extends SettingsRepository {
     await _write(ProfilesCompanion(hideAmounts: Value(hide)));
   });
 
+  @override
+  bool get privacyScreen => _privacyScreen;
+
+  @override
+  Future<Result<void>> setPrivacyScreen(bool enabled) => guard(() async {
+    if (enabled == _privacyScreen) return;
+    _privacyScreen = enabled;
+    notifyListeners();
+    await _privacy.setEnabled(enabled);
+    await _write(ProfilesCompanion(privacyScreen: Value(enabled)));
+  });
+
   /// Saves [change] on the profile. Signed out, it goes on a local
   /// profile that the first account to sign in takes over.
   Future<void> _write(ProfilesCompanion change) async {
@@ -148,6 +170,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
             defaultWalletId: Value(_defaultWalletId),
             showHabits: Value(_showHabitsOnHome),
             hideAmounts: Value(_hideAmountsOnHome),
+            privacyScreen: Value(_privacyScreen),
             createdAt: now,
             modifiedAt: now,
             dirty: const Value(true),

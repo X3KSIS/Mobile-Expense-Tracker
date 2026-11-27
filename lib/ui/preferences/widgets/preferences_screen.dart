@@ -48,6 +48,8 @@ class PreferencesScreen extends StatelessWidget {
               ],
               const SizedBox(height: Dimens.sectionGap),
               _home(),
+              const SizedBox(height: Dimens.sectionGap),
+              _privacy(),
             ],
           ),
         ),
@@ -102,6 +104,21 @@ class PreferencesScreen extends StatelessWidget {
           wallets: viewModel.wallets,
           selectedId: viewModel.defaultWalletId,
           onSelected: viewModel.setDefaultWallet,
+        ),
+      ),
+    ],
+  );
+
+  Widget _privacy() => PreferenceSection(
+    title: 'Privacy',
+    children: [
+      PreferenceRow(
+        title: 'Hide in recent apps',
+        subtitle:
+            'Shows a blank card in the app switcher and blocks screenshots',
+        trailing: Switch(
+          value: viewModel.privacyScreen,
+          onChanged: viewModel.setPrivacyScreen,
         ),
       ),
     ],

@@ -11,6 +11,7 @@ import 'package:flutter_expensetracker/data/repositories/sync/sync_repository_dr
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_drift.dart';
 import 'package:flutter_expensetracker/data/services/database/app_database.dart';
 import 'package:flutter_expensetracker/data/services/notification_listener_client.dart';
+import 'package:flutter_expensetracker/data/services/privacy_screen_service.dart';
 import 'package:flutter_expensetracker/domain/models/budget.dart';
 import 'package:flutter_expensetracker/domain/models/money_message.dart';
 import 'package:flutter_expensetracker/domain/models/transaction.dart';
@@ -27,7 +28,11 @@ class _Device {
     : db = AppDatabase(NativeDatabase.memory()) {
     transactions = TransactionRepositoryDrift(db, clock: () => clock.now);
     budgets = BudgetRepositoryDrift(db, clock: () => clock.now);
-    settings = SettingsRepositoryDrift(db, clock: () => clock.now);
+    settings = SettingsRepositoryDrift(
+      db,
+      privacy: const _NoPrivacy(),
+      clock: () => clock.now,
+    );
     sync = SyncRepositoryDrift(db, remote);
   }
 
@@ -58,6 +63,14 @@ class _Device {
     sync.dispose();
     await db.close();
   }
+}
+
+/// Android's secure flag, left alone in tests.
+class _NoPrivacy extends PrivacyScreenService {
+  const _NoPrivacy();
+
+  @override
+  Future<void> setEnabled(bool enabled) async {}
 }
 
 /// Notification access turned off.
@@ -227,6 +240,7 @@ void main() {
     await phone.settings.setDefaultWalletId('w-cash');
     await phone.settings.setShowHabitsOnHome(false);
     await phone.settings.setHideAmountsOnHome(true);
+    await phone.settings.setPrivacyScreen(true);
     await phone.sync.sync();
 
     await tablet.sync.sync();
@@ -244,6 +258,8 @@ void main() {
     expect(tablet.settings.defaultWalletId, 'w-cash');
     expect(tablet.settings.showHabitsOnHome, isFalse);
     expect(tablet.settings.hideAmountsOnHome, isTrue);
+    expect(remote.profile!['privacy_screen'], isTrue);
+    expect(tablet.settings.privacyScreen, isTrue);
   });
 
   test('detected payments keep their message details', () async {

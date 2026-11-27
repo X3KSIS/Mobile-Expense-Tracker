@@ -148,6 +148,11 @@ class Profiles extends Table {
   /// The photo changed here and has not been uploaded yet.
   BoolColumn get avatarDirty => boolean().withDefault(const Constant(false))();
 
+  /// Whether the app hides its content in recent apps and blocks
+  /// screenshots.
+  BoolColumn get privacyScreen =>
+      boolean().withDefault(const Constant(false))();
+
   /// Whether Home hides money amounts until shown.
   BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
@@ -189,7 +194,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -204,6 +209,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(profiles, profiles.avatarPath);
         await m.addColumn(profiles, profiles.avatarBytes);
         await m.addColumn(profiles, profiles.avatarDirty);
+      }
+      if (from < 4) {
+        await m.addColumn(profiles, profiles.privacyScreen);
       }
     },
   );

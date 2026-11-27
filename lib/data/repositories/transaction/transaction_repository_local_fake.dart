@@ -188,6 +188,17 @@ List<Transaction> _currentMonth(DateTime now) {
     ('t9', 'Rent', DefaultCategories.housing, 3500, const Duration(days: 18)),
   ];
   final monthStart = DateTime(now.year, now.month);
+  final today = DateTime(now.year, now.month, now.day);
+  DateTime when(int i) {
+    final offset = entries[i].$5;
+    final at = now.subtract(offset);
+    // "Today" entries stay today, even just after midnight.
+    if (offset < const Duration(days: 1) && at.isBefore(today)) {
+      return now.subtract(Duration(seconds: i + 1));
+    }
+    return _clamp(at, monthStart, entries.length - i);
+  }
+
   return [
     for (var i = 0; i < entries.length; i++)
       _make(
@@ -195,7 +206,7 @@ List<Transaction> _currentMonth(DateTime now) {
         entries[i].$2,
         entries[i].$3,
         entries[i].$4,
-        _clamp(now.subtract(entries[i].$5), monthStart, entries.length - i),
+        when(i),
       ),
   ];
 }

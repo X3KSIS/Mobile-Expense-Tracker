@@ -39,6 +39,12 @@ abstract class SettingsRepository extends ChangeNotifier {
 
   Future<Result<void>> setHideAmountsOnHome(bool hide);
 
+  /// Whether the app hides its content in recent apps and blocks
+  /// screenshots (Android).
+  bool get privacyScreen;
+
+  Future<Result<void>> setPrivacyScreen(bool enabled);
+
   /// The warning levels offered.
   static const List<int> budgetAlertChoices = [70, 80, 90];
 }

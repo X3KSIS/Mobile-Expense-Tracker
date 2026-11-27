@@ -80,6 +80,13 @@ class PreferencesViewModel extends ChangeNotifier {
   void setHideAmountsOnHome(bool hide) =>
       _settingsRepository.setHideAmountsOnHome(hide);
 
+  // Privacy -------------------------------------------------------------------
+
+  bool get privacyScreen => _settingsRepository.privacyScreen;
+
+  void setPrivacyScreen(bool enabled) =>
+      _settingsRepository.setPrivacyScreen(enabled);
+
   // -------------------------------------------------------------------------
 
   void _onWalletsChanged() {
