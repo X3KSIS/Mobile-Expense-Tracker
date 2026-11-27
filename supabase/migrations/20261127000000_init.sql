@@ -31,7 +31,9 @@ begin
     -- An older edit arrived late: keep what is stored.
     return null;
   end if;
-  new.updated_at := now();
+  -- clock_timestamp(), not now(): rows stored together still get
+  -- distinct times, so paging by updated_at never skips one.
+  new.updated_at := clock_timestamp();
   return new;
 end;
 $$;
@@ -201,6 +203,8 @@ begin
     execute format(
       'create index %1$s_user_updated on public.%1$s (user_id, updated_at)', t);
     execute format('alter table public.%1$s enable row level security', t);
+    execute format(
+      'grant select, insert, update on public.%1$s to authenticated', t);
     execute format(
       'create policy "Own rows: read" on public.%1$s
          for select to authenticated using ((select auth.uid()) = user_id)', t);
