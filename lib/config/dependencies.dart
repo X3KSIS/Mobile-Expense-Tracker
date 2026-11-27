@@ -63,7 +63,9 @@ Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
     ChangeNotifierProvider<BudgetRepository>(
       create: (_) => BudgetRepositoryDrift(db),
     ),
-    Provider<CategoryRepository>(create: (_) => CategoryRepositoryDrift(db)),
+    ChangeNotifierProvider<CategoryRepository>(
+      create: (_) => CategoryRepositoryDrift(db),
+    ),
     ChangeNotifierProvider<WalletRepository>(
       create: (_) => WalletRepositoryDrift(db),
     ),

@@ -73,7 +73,9 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ChangeNotifierProvider<DetectedPaymentRepository>(
     create: (_) => DetectedPaymentRepositoryLocalFake(incoming: sampleMessages),
   ),
-  Provider<CategoryRepository>(create: (_) => instantCategoryRepository()),
+  ChangeNotifierProvider<CategoryRepository>(
+    create: (_) => instantCategoryRepository(),
+  ),
   ChangeNotifierProvider<AccountLinkRepository>(
     create: (_) => AccountLinkRepositoryApi(),
   ),

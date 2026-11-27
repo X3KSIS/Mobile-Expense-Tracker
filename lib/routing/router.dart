@@ -18,6 +18,8 @@ import '../ui/auth/view_models/verify_email_view_model.dart';
 import '../ui/auth/widgets/verify_email_screen.dart';
 import '../ui/budgets/view_models/budgets_view_model.dart';
 import '../ui/budgets/widgets/budgets_screen.dart';
+import '../ui/categories/view_models/categories_view_model.dart';
+import '../ui/categories/widgets/categories_screen.dart';
 import '../ui/category_trend/view_models/category_trend_view_model.dart';
 import '../ui/category_trend/widgets/category_trend_screen.dart';
 import '../ui/detected_payments/view_models/detected_payments_view_model.dart';
@@ -224,6 +226,19 @@ GoRouter router(AuthRepository authRepository) {
           child: Builder(
             builder: (context) => DetectedPaymentsScreen(
               viewModel: context.read<DetectedPaymentsViewModel>(),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.categories,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              CategoriesViewModel(categoryRepository: context.read()),
+          child: Builder(
+            builder: (context) => CategoriesScreen(
+              viewModel: context.read<CategoriesViewModel>(),
             ),
           ),
         ),

@@ -179,8 +179,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ProfileMenuItem(
           icon: Icons.category_outlined,
           title: 'Categories',
-          subtitle: 'Names, icons and colours',
-          onTap: () => _comingSoon('Categories'),
+          subtitle: 'Add, rename, reorder and choose icons',
+          onTap: () => context.push(Routes.categories),
         ),
         ProfileMenuItem(
           icon: Icons.file_download_outlined,
