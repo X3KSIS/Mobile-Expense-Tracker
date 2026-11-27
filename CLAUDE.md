@@ -1,6 +1,6 @@
 # ExpenseTrack (Flutter)
 
-Personal finance app for tracking income and expenses in Zambian Kwacha (ZMW). Mobile companion to an existing Django web app.
+Personal finance app for tracking income and expenses in Zambian Kwacha (ZMW). A standalone mobile app with its own backend (no web app).
 
 ## Core objective
 
@@ -15,7 +15,7 @@ Features, now and planned: dashboard, transactions (recurring, receipts, tags), 
 
 Direct connections to mobile money providers and banks wait until those institutions grant API access. Until then, money movements are captured by hand, from SMS (`MoneyMessageParser`) and from notifications. The integration point is ready: implement `ProviderApiService` (`lib/data/services/provider_api/`) per institution and pass it to `AccountLinkRepositoryApi`. Don't build more on it until an API is available; keep effort on tracking.
 
-Later phases will add Firebase Auth, offline-first storage with Drift (SQLite), and sync to a Django REST API. Until then, all data comes from fake repositories.
+Later phases will add sign-in, offline-first storage with Drift (SQLite), and sync to the app's own backend. The backend is not chosen yet: Supabase (Postgres, row-level security, auth, storage) is the recommended option over Firebase. Until then, all data comes from fake repositories.
 
 ## Working rules
 
@@ -36,7 +36,7 @@ Follows https://docs.flutter.dev/app-architecture.
   - Async actions use a `Command` class (running, error and completed state) from `lib/utils/command.dart`.
 - **Data layer:**
   - Repositories are the single source of truth. Each is an abstract class plus implementations: `*_local_fake.dart` now, real ones later.
-  - Services wrap external sources (API client, local DB, Firebase). They are stateless and used only by repositories.
+  - Services wrap external sources (backend client, local DB, notifications). They are stateless and used only by repositories.
 - **Domain models:** immutable plain Dart classes in `lib/domain/models/`, shared by both layers.
 - **Dependency injection:** `provider`, configured in `lib/config/dependencies.dart`. Repositories are provided at app level, and ViewModels are created in the route builders.
 - **Navigation:** `go_router` in `lib/routing/`. Route paths live as constants in `routes.dart`. The main tabs use a `StatefulShellRoute`.
@@ -83,7 +83,7 @@ test/
 
 `provider`, `go_router`, `intl`, `notification_listener_service` (Android notification access for payment messages), `flutter_native_splash` (dev), `flutter_lints` (dev).
 
-Added in later phases: `drift`, `firebase_auth`, `dio`, `fl_chart`, `connectivity_plus`, `flutter_local_notifications`.
+Added in later phases: `drift`, `fl_chart`, `connectivity_plus`, `flutter_local_notifications`, plus the backend's client package once the backend is chosen (e.g. `supabase_flutter`; ask first).
 
 ## Design system: coral and navy
 
