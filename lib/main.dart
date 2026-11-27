@@ -13,10 +13,16 @@ import 'domain/models/theme_preference.dart';
 import 'routing/router.dart';
 import 'ui/core/themes/motion.dart';
 import 'ui/core/themes/theme.dart';
+import 'ui/setup/setup_required_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final providers = await createProviders(SupabaseConfig.fromEnvironment());
+  final config = SupabaseConfig.fromEnvironment();
+  if (!config.isConfigured) {
+    runApp(const SetupRequiredApp());
+    return;
+  }
+  final providers = await createProviders(config);
   runApp(MultiProvider(providers: providers, child: const ExpenseTrackApp()));
 }
 

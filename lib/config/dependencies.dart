@@ -5,7 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/repositories/account_link/account_link_repository.dart';
 import '../data/repositories/account_link/account_link_repository_api.dart';
 import '../data/repositories/auth/auth_repository.dart';
-import '../data/repositories/auth/auth_repository_local_fake.dart';
 import '../data/repositories/auth/auth_repository_supabase.dart';
 import '../data/repositories/budget/budget_repository.dart';
 import '../data/repositories/budget/budget_repository_drift.dart';
@@ -23,45 +22,32 @@ import '../data/repositories/wallet/wallet_repository.dart';
 import '../data/repositories/wallet/wallet_repository_drift.dart';
 import '../data/services/database/app_database.dart';
 import '../data/services/supabase/supabase_config.dart';
-import '../data/services/sync/remote_store.dart';
 import '../data/services/sync/supabase_remote_store.dart';
 
 /// App-level providers. Repositories live here; ViewModels are created in
 /// the route builders.
 ///
 /// Everything is saved in the on-device database first (so the app works
-/// offline) and synced to Supabase. Built without Supabase settings (see
-/// [SupabaseConfig]), the app keeps data on this device only and signs in
-/// with a demo account.
+/// offline) and synced to Supabase. [config] must be set (see
+/// [SupabaseConfig]); `main` shows a setup screen when it is not.
 Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
+  assert(config.isConfigured, 'Supabase settings are missing');
   final db = AppDatabase();
 
-  SupabaseClient? client;
-  if (config.isConfigured) {
-    await Supabase.initialize(
-      url: config.url,
-      publishableKey: config.publishableKey,
-    );
-    client = Supabase.instance.client;
-  }
-
-  final syncRepository = SyncRepositoryDrift(
-    db,
-    client == null ? const NoRemoteStore() : SupabaseRemoteStore(client),
+  await Supabase.initialize(
+    url: config.url,
+    publishableKey: config.publishableKey,
   );
+  final client = Supabase.instance.client;
 
-  final AuthRepository auth;
-  if (client == null) {
-    auth = AuthRepositoryLocalFake(delay: const Duration(milliseconds: 300));
-  } else {
-    final supabaseAuth = AuthRepositorySupabase(
-      client.auth,
-      db,
-      beforeSignOut: () => syncRepository.sync(),
-    );
-    await supabaseAuth.load();
-    auth = supabaseAuth;
-  }
+  final syncRepository = SyncRepositoryDrift(db, SupabaseRemoteStore(client));
+
+  final auth = AuthRepositorySupabase(
+    client.auth,
+    db,
+    beforeSignOut: () => syncRepository.sync(),
+  );
+  await auth.load();
 
   final settings = SettingsRepositoryDrift(db);
   await settings.load();

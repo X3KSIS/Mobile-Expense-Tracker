@@ -24,28 +24,3 @@ abstract class RemoteStore {
   /// Updates the signed-in user's profile with [values].
   Future<void> pushProfile(Map<String, dynamic> values);
 }
-
-/// A [RemoteStore] for builds without a server: nobody is ever signed in
-/// to it, so nothing syncs.
-class NoRemoteStore implements RemoteStore {
-  const NoRemoteStore();
-
-  @override
-  String? get userId => null;
-
-  @override
-  Future<List<Map<String, dynamic>>> pull(
-    String table, {
-    required DateTime since,
-    int limit = 500,
-  }) async => const [];
-
-  @override
-  Future<void> push(String table, List<Map<String, dynamic>> rows) async {}
-
-  @override
-  Future<Map<String, dynamic>?> pullProfile() async => null;
-
-  @override
-  Future<void> pushProfile(Map<String, dynamic> values) async {}
-}

@@ -3,8 +3,7 @@ import '../../../domain/models/auth_exception.dart';
 import '../../../utils/result.dart';
 import 'auth_repository.dart';
 
-/// In-memory [AuthRepository] for tests, and for builds without Supabase
-/// settings (see `SupabaseConfig`). The real one is
+/// In-memory [AuthRepository] for tests only. The app always uses
 /// `AuthRepositorySupabase`.
 ///
 /// Every sign-in and sign-up succeeds, whatever is typed:

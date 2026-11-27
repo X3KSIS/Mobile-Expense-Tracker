@@ -23,6 +23,6 @@ class SupabaseConfig {
   final String publishableKey;
 
   /// False when the app was built without the Supabase values; it then
-  /// runs on this device only, with a demo sign-in and no sync.
+  /// shows a setup screen and nobody can sign in.
   bool get isConfigured => url.isNotEmpty && publishableKey.isNotEmpty;
 }

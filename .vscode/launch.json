@@ -6,13 +6,9 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "toolArgs": ["--dart-define-from-file=supabase.json"]
-    },
-    {
-      "name": "Expense Tracker (this device only)",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main.dart"
+      "toolArgs": [
+        "--dart-define-from-file=supabase.json"
+      ]
     }
   ]
 }

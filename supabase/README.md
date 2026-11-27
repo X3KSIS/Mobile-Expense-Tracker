@@ -34,7 +34,7 @@ In **Authentication → Sign In / Providers → Email**:
 
 Never put the **secret** or **service_role** key in the app or in `supabase.json`. It bypasses row-level security.
 
-Without `--dart-define-from-file`, the app still runs: data is kept on the phone only, sign-in uses a demo account, and nothing syncs.
+Without `--dart-define-from-file`, the app shows a "Not connected to the server" screen; there is no demo sign-in.
 
 ## How sync works
 
