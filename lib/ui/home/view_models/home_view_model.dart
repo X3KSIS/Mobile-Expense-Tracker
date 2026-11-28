@@ -1,3 +1,5 @@
+import '../../../domain/models/app_notification.dart';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth/auth_repository.dart';
@@ -134,6 +136,28 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<Transaction> get recentTransactions => _recentTransactions;
+
+  /// What needs a look in the user's spending (see Notifications).
+  List<AppNotification> get notifications {
+    final c = cycle;
+    return SpendingNotifications.compute(
+      budgets: _budgets,
+      transactions: _all,
+      cycleStart: c.start,
+      cycleEnd: c.end,
+      alertAt: _settingsRepository.budgetAlertPercent / 100,
+      toReview: _detectedPaymentRepository.pending,
+      now: _clock(),
+      budgetAlerts: _settingsRepository.budgetAlerts,
+    );
+  }
+
+  /// Whether the bell shows its dot: something new since Notifications
+  /// was last opened.
+  bool get hasUnreadNotifications {
+    final seenAt = _settingsRepository.notificationsSeenAt;
+    return notifications.any((n) => n.isNewSince(seenAt));
+  }
 
   /// Payments read from notifications, waiting to be added.
   int get detectedPaymentCount => _detectedPaymentRepository.pending.length;

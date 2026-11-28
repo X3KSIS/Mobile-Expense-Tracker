@@ -4174,6 +4174,74 @@ class $ProfilesTable extends Profiles
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _dailyReminderMeta = const VerificationMeta(
+    'dailyReminder',
+  );
+  @override
+  late final GeneratedColumn<bool> dailyReminder = GeneratedColumn<bool>(
+    'daily_reminder',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("daily_reminder" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _reminderMinutesMeta = const VerificationMeta(
+    'reminderMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> reminderMinutes = GeneratedColumn<int>(
+    'reminder_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(20 * 60),
+  );
+  static const VerificationMeta _billRemindersMeta = const VerificationMeta(
+    'billReminders',
+  );
+  @override
+  late final GeneratedColumn<bool> billReminders = GeneratedColumn<bool>(
+    'bill_reminders',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("bill_reminders" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _budgetAlertsMeta = const VerificationMeta(
+    'budgetAlerts',
+  );
+  @override
+  late final GeneratedColumn<bool> budgetAlerts = GeneratedColumn<bool>(
+    'budget_alerts',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("budget_alerts" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _notificationsSeenAtMeta =
+      const VerificationMeta('notificationsSeenAt');
+  @override
+  late final GeneratedColumn<DateTime> notificationsSeenAt =
+      GeneratedColumn<DateTime>(
+        'notifications_seen_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _hideAmountsMeta = const VerificationMeta(
     'hideAmounts',
   );
@@ -4240,6 +4308,11 @@ class $ProfilesTable extends Profiles
     avatarDirty,
     privacyScreen,
     appLock,
+    dailyReminder,
+    reminderMinutes,
+    billReminders,
+    budgetAlerts,
+    notificationsSeenAt,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4358,6 +4431,51 @@ class $ProfilesTable extends Profiles
         appLock.isAcceptableOrUnknown(data['app_lock']!, _appLockMeta),
       );
     }
+    if (data.containsKey('daily_reminder')) {
+      context.handle(
+        _dailyReminderMeta,
+        dailyReminder.isAcceptableOrUnknown(
+          data['daily_reminder']!,
+          _dailyReminderMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_minutes')) {
+      context.handle(
+        _reminderMinutesMeta,
+        reminderMinutes.isAcceptableOrUnknown(
+          data['reminder_minutes']!,
+          _reminderMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bill_reminders')) {
+      context.handle(
+        _billRemindersMeta,
+        billReminders.isAcceptableOrUnknown(
+          data['bill_reminders']!,
+          _billRemindersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('budget_alerts')) {
+      context.handle(
+        _budgetAlertsMeta,
+        budgetAlerts.isAcceptableOrUnknown(
+          data['budget_alerts']!,
+          _budgetAlertsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notifications_seen_at')) {
+      context.handle(
+        _notificationsSeenAtMeta,
+        notificationsSeenAt.isAcceptableOrUnknown(
+          data['notifications_seen_at']!,
+          _notificationsSeenAtMeta,
+        ),
+      );
+    }
     if (data.containsKey('hide_amounts')) {
       context.handle(
         _hideAmountsMeta,
@@ -4454,6 +4572,26 @@ class $ProfilesTable extends Profiles
         DriftSqlType.bool,
         data['${effectivePrefix}app_lock'],
       )!,
+      dailyReminder: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}daily_reminder'],
+      )!,
+      reminderMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minutes'],
+      )!,
+      billReminders: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}bill_reminders'],
+      )!,
+      budgetAlerts: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}budget_alerts'],
+      )!,
+      notificationsSeenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}notifications_seen_at'],
+      ),
       hideAmounts: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hide_amounts'],
@@ -4515,6 +4653,21 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   /// phone's screen lock.
   final bool appLock;
 
+  /// Whether the phone reminds the user each evening to record spending.
+  final bool dailyReminder;
+
+  /// When the daily reminder comes, in minutes after midnight.
+  final int reminderMinutes;
+
+  /// Whether the phone reminds the user before a regular payment is due.
+  final bool billReminders;
+
+  /// Whether budgets near or over their limit show in Notifications.
+  final bool budgetAlerts;
+
+  /// When the user last opened Notifications.
+  final DateTime? notificationsSeenAt;
+
   /// Whether Home hides money amounts until shown.
   final bool hideAmounts;
   final DateTime createdAt;
@@ -4535,6 +4688,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     required this.avatarDirty,
     required this.privacyScreen,
     required this.appLock,
+    required this.dailyReminder,
+    required this.reminderMinutes,
+    required this.billReminders,
+    required this.budgetAlerts,
+    this.notificationsSeenAt,
     required this.hideAmounts,
     required this.createdAt,
     required this.modifiedAt,
@@ -4565,6 +4723,13 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     map['avatar_dirty'] = Variable<bool>(avatarDirty);
     map['privacy_screen'] = Variable<bool>(privacyScreen);
     map['app_lock'] = Variable<bool>(appLock);
+    map['daily_reminder'] = Variable<bool>(dailyReminder);
+    map['reminder_minutes'] = Variable<int>(reminderMinutes);
+    map['bill_reminders'] = Variable<bool>(billReminders);
+    map['budget_alerts'] = Variable<bool>(budgetAlerts);
+    if (!nullToAbsent || notificationsSeenAt != null) {
+      map['notifications_seen_at'] = Variable<DateTime>(notificationsSeenAt);
+    }
     map['hide_amounts'] = Variable<bool>(hideAmounts);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['modified_at'] = Variable<DateTime>(modifiedAt);
@@ -4596,6 +4761,13 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       avatarDirty: Value(avatarDirty),
       privacyScreen: Value(privacyScreen),
       appLock: Value(appLock),
+      dailyReminder: Value(dailyReminder),
+      reminderMinutes: Value(reminderMinutes),
+      billReminders: Value(billReminders),
+      budgetAlerts: Value(budgetAlerts),
+      notificationsSeenAt: notificationsSeenAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notificationsSeenAt),
       hideAmounts: Value(hideAmounts),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
@@ -4623,6 +4795,13 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       avatarDirty: serializer.fromJson<bool>(json['avatarDirty']),
       privacyScreen: serializer.fromJson<bool>(json['privacyScreen']),
       appLock: serializer.fromJson<bool>(json['appLock']),
+      dailyReminder: serializer.fromJson<bool>(json['dailyReminder']),
+      reminderMinutes: serializer.fromJson<int>(json['reminderMinutes']),
+      billReminders: serializer.fromJson<bool>(json['billReminders']),
+      budgetAlerts: serializer.fromJson<bool>(json['budgetAlerts']),
+      notificationsSeenAt: serializer.fromJson<DateTime?>(
+        json['notificationsSeenAt'],
+      ),
       hideAmounts: serializer.fromJson<bool>(json['hideAmounts']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
@@ -4647,6 +4826,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'avatarDirty': serializer.toJson<bool>(avatarDirty),
       'privacyScreen': serializer.toJson<bool>(privacyScreen),
       'appLock': serializer.toJson<bool>(appLock),
+      'dailyReminder': serializer.toJson<bool>(dailyReminder),
+      'reminderMinutes': serializer.toJson<int>(reminderMinutes),
+      'billReminders': serializer.toJson<bool>(billReminders),
+      'budgetAlerts': serializer.toJson<bool>(budgetAlerts),
+      'notificationsSeenAt': serializer.toJson<DateTime?>(notificationsSeenAt),
       'hideAmounts': serializer.toJson<bool>(hideAmounts),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
@@ -4669,6 +4853,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     bool? avatarDirty,
     bool? privacyScreen,
     bool? appLock,
+    bool? dailyReminder,
+    int? reminderMinutes,
+    bool? billReminders,
+    bool? budgetAlerts,
+    Value<DateTime?> notificationsSeenAt = const Value.absent(),
     bool? hideAmounts,
     DateTime? createdAt,
     DateTime? modifiedAt,
@@ -4690,6 +4879,13 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     avatarDirty: avatarDirty ?? this.avatarDirty,
     privacyScreen: privacyScreen ?? this.privacyScreen,
     appLock: appLock ?? this.appLock,
+    dailyReminder: dailyReminder ?? this.dailyReminder,
+    reminderMinutes: reminderMinutes ?? this.reminderMinutes,
+    billReminders: billReminders ?? this.billReminders,
+    budgetAlerts: budgetAlerts ?? this.budgetAlerts,
+    notificationsSeenAt: notificationsSeenAt.present
+        ? notificationsSeenAt.value
+        : this.notificationsSeenAt,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -4725,6 +4921,21 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ? data.privacyScreen.value
           : this.privacyScreen,
       appLock: data.appLock.present ? data.appLock.value : this.appLock,
+      dailyReminder: data.dailyReminder.present
+          ? data.dailyReminder.value
+          : this.dailyReminder,
+      reminderMinutes: data.reminderMinutes.present
+          ? data.reminderMinutes.value
+          : this.reminderMinutes,
+      billReminders: data.billReminders.present
+          ? data.billReminders.value
+          : this.billReminders,
+      budgetAlerts: data.budgetAlerts.present
+          ? data.budgetAlerts.value
+          : this.budgetAlerts,
+      notificationsSeenAt: data.notificationsSeenAt.present
+          ? data.notificationsSeenAt.value
+          : this.notificationsSeenAt,
       hideAmounts: data.hideAmounts.present
           ? data.hideAmounts.value
           : this.hideAmounts,
@@ -4753,6 +4964,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('avatarDirty: $avatarDirty, ')
           ..write('privacyScreen: $privacyScreen, ')
           ..write('appLock: $appLock, ')
+          ..write('dailyReminder: $dailyReminder, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
+          ..write('billReminders: $billReminders, ')
+          ..write('budgetAlerts: $budgetAlerts, ')
+          ..write('notificationsSeenAt: $notificationsSeenAt, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -4762,7 +4978,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     userId,
     name,
     email,
@@ -4777,11 +4993,16 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     avatarDirty,
     privacyScreen,
     appLock,
+    dailyReminder,
+    reminderMinutes,
+    billReminders,
+    budgetAlerts,
+    notificationsSeenAt,
     hideAmounts,
     createdAt,
     modifiedAt,
     dirty,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4800,6 +5021,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           other.avatarDirty == this.avatarDirty &&
           other.privacyScreen == this.privacyScreen &&
           other.appLock == this.appLock &&
+          other.dailyReminder == this.dailyReminder &&
+          other.reminderMinutes == this.reminderMinutes &&
+          other.billReminders == this.billReminders &&
+          other.budgetAlerts == this.budgetAlerts &&
+          other.notificationsSeenAt == this.notificationsSeenAt &&
           other.hideAmounts == this.hideAmounts &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt &&
@@ -4821,6 +5047,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<bool> avatarDirty;
   final Value<bool> privacyScreen;
   final Value<bool> appLock;
+  final Value<bool> dailyReminder;
+  final Value<int> reminderMinutes;
+  final Value<bool> billReminders;
+  final Value<bool> budgetAlerts;
+  final Value<DateTime?> notificationsSeenAt;
   final Value<bool> hideAmounts;
   final Value<DateTime> createdAt;
   final Value<DateTime> modifiedAt;
@@ -4841,6 +5072,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.avatarDirty = const Value.absent(),
     this.privacyScreen = const Value.absent(),
     this.appLock = const Value.absent(),
+    this.dailyReminder = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
+    this.billReminders = const Value.absent(),
+    this.budgetAlerts = const Value.absent(),
+    this.notificationsSeenAt = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
@@ -4862,6 +5098,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.avatarDirty = const Value.absent(),
     this.privacyScreen = const Value.absent(),
     this.appLock = const Value.absent(),
+    this.dailyReminder = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
+    this.billReminders = const Value.absent(),
+    this.budgetAlerts = const Value.absent(),
+    this.notificationsSeenAt = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     required DateTime createdAt,
     required DateTime modifiedAt,
@@ -4885,6 +5126,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<bool>? avatarDirty,
     Expression<bool>? privacyScreen,
     Expression<bool>? appLock,
+    Expression<bool>? dailyReminder,
+    Expression<int>? reminderMinutes,
+    Expression<bool>? billReminders,
+    Expression<bool>? budgetAlerts,
+    Expression<DateTime>? notificationsSeenAt,
     Expression<bool>? hideAmounts,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? modifiedAt,
@@ -4907,6 +5153,12 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       if (avatarDirty != null) 'avatar_dirty': avatarDirty,
       if (privacyScreen != null) 'privacy_screen': privacyScreen,
       if (appLock != null) 'app_lock': appLock,
+      if (dailyReminder != null) 'daily_reminder': dailyReminder,
+      if (reminderMinutes != null) 'reminder_minutes': reminderMinutes,
+      if (billReminders != null) 'bill_reminders': billReminders,
+      if (budgetAlerts != null) 'budget_alerts': budgetAlerts,
+      if (notificationsSeenAt != null)
+        'notifications_seen_at': notificationsSeenAt,
       if (hideAmounts != null) 'hide_amounts': hideAmounts,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
@@ -4930,6 +5182,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<bool>? avatarDirty,
     Value<bool>? privacyScreen,
     Value<bool>? appLock,
+    Value<bool>? dailyReminder,
+    Value<int>? reminderMinutes,
+    Value<bool>? billReminders,
+    Value<bool>? budgetAlerts,
+    Value<DateTime?>? notificationsSeenAt,
     Value<bool>? hideAmounts,
     Value<DateTime>? createdAt,
     Value<DateTime>? modifiedAt,
@@ -4951,6 +5208,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       avatarDirty: avatarDirty ?? this.avatarDirty,
       privacyScreen: privacyScreen ?? this.privacyScreen,
       appLock: appLock ?? this.appLock,
+      dailyReminder: dailyReminder ?? this.dailyReminder,
+      reminderMinutes: reminderMinutes ?? this.reminderMinutes,
+      billReminders: billReminders ?? this.billReminders,
+      budgetAlerts: budgetAlerts ?? this.budgetAlerts,
+      notificationsSeenAt: notificationsSeenAt ?? this.notificationsSeenAt,
       hideAmounts: hideAmounts ?? this.hideAmounts,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -5004,6 +5266,23 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     if (appLock.present) {
       map['app_lock'] = Variable<bool>(appLock.value);
     }
+    if (dailyReminder.present) {
+      map['daily_reminder'] = Variable<bool>(dailyReminder.value);
+    }
+    if (reminderMinutes.present) {
+      map['reminder_minutes'] = Variable<int>(reminderMinutes.value);
+    }
+    if (billReminders.present) {
+      map['bill_reminders'] = Variable<bool>(billReminders.value);
+    }
+    if (budgetAlerts.present) {
+      map['budget_alerts'] = Variable<bool>(budgetAlerts.value);
+    }
+    if (notificationsSeenAt.present) {
+      map['notifications_seen_at'] = Variable<DateTime>(
+        notificationsSeenAt.value,
+      );
+    }
     if (hideAmounts.present) {
       map['hide_amounts'] = Variable<bool>(hideAmounts.value);
     }
@@ -5039,6 +5318,11 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('avatarDirty: $avatarDirty, ')
           ..write('privacyScreen: $privacyScreen, ')
           ..write('appLock: $appLock, ')
+          ..write('dailyReminder: $dailyReminder, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
+          ..write('billReminders: $billReminders, ')
+          ..write('budgetAlerts: $budgetAlerts, ')
+          ..write('notificationsSeenAt: $notificationsSeenAt, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -7352,6 +7636,11 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<bool> avatarDirty,
   Value<bool> privacyScreen,
   Value<bool> appLock,
+  Value<bool> dailyReminder,
+  Value<int> reminderMinutes,
+  Value<bool> billReminders,
+  Value<bool> budgetAlerts,
+  Value<DateTime?> notificationsSeenAt,
   Value<bool> hideAmounts,
   required DateTime createdAt,
   required DateTime modifiedAt,
@@ -7373,6 +7662,11 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<bool> avatarDirty,
   Value<bool> privacyScreen,
   Value<bool> appLock,
+  Value<bool> dailyReminder,
+  Value<int> reminderMinutes,
+  Value<bool> billReminders,
+  Value<bool> budgetAlerts,
+  Value<DateTime?> notificationsSeenAt,
   Value<bool> hideAmounts,
   Value<DateTime> createdAt,
   Value<DateTime> modifiedAt,
@@ -7456,6 +7750,31 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<bool> get appLock => $composableBuilder(
     column: $table.appLock,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dailyReminder => $composableBuilder(
+    column: $table.dailyReminder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get billReminders => $composableBuilder(
+    column: $table.billReminders,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get budgetAlerts => $composableBuilder(
+    column: $table.budgetAlerts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get notificationsSeenAt => $composableBuilder(
+    column: $table.notificationsSeenAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7559,6 +7878,31 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get dailyReminder => $composableBuilder(
+    column: $table.dailyReminder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get billReminders => $composableBuilder(
+    column: $table.billReminders,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get budgetAlerts => $composableBuilder(
+    column: $table.budgetAlerts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get notificationsSeenAt => $composableBuilder(
+    column: $table.notificationsSeenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => ColumnOrderings(column),
@@ -7645,6 +7989,31 @@ class $$ProfilesTableAnnotationComposer
   GeneratedColumn<bool> get appLock =>
       $composableBuilder(column: $table.appLock, builder: (column) => column);
 
+  GeneratedColumn<bool> get dailyReminder => $composableBuilder(
+    column: $table.dailyReminder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get billReminders => $composableBuilder(
+    column: $table.billReminders,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get budgetAlerts => $composableBuilder(
+    column: $table.budgetAlerts,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get notificationsSeenAt => $composableBuilder(
+    column: $table.notificationsSeenAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => column,
@@ -7707,6 +8076,11 @@ class $$ProfilesTableTableManager
                 Value<bool> avatarDirty = const Value.absent(),
                 Value<bool> privacyScreen = const Value.absent(),
                 Value<bool> appLock = const Value.absent(),
+                Value<bool> dailyReminder = const Value.absent(),
+                Value<int> reminderMinutes = const Value.absent(),
+                Value<bool> billReminders = const Value.absent(),
+                Value<bool> budgetAlerts = const Value.absent(),
+                Value<DateTime?> notificationsSeenAt = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> modifiedAt = const Value.absent(),
@@ -7727,6 +8101,11 @@ class $$ProfilesTableTableManager
                 avatarDirty: avatarDirty,
                 privacyScreen: privacyScreen,
                 appLock: appLock,
+                dailyReminder: dailyReminder,
+                reminderMinutes: reminderMinutes,
+                billReminders: billReminders,
+                budgetAlerts: budgetAlerts,
+                notificationsSeenAt: notificationsSeenAt,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
@@ -7749,6 +8128,11 @@ class $$ProfilesTableTableManager
                 Value<bool> avatarDirty = const Value.absent(),
                 Value<bool> privacyScreen = const Value.absent(),
                 Value<bool> appLock = const Value.absent(),
+                Value<bool> dailyReminder = const Value.absent(),
+                Value<int> reminderMinutes = const Value.absent(),
+                Value<bool> billReminders = const Value.absent(),
+                Value<bool> budgetAlerts = const Value.absent(),
+                Value<DateTime?> notificationsSeenAt = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime modifiedAt,
@@ -7769,6 +8153,11 @@ class $$ProfilesTableTableManager
                 avatarDirty: avatarDirty,
                 privacyScreen: privacyScreen,
                 appLock: appLock,
+                dailyReminder: dailyReminder,
+                reminderMinutes: reminderMinutes,
+                billReminders: billReminders,
+                budgetAlerts: budgetAlerts,
+                notificationsSeenAt: notificationsSeenAt,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,

@@ -150,8 +150,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ProfileMenuItem(
           icon: Icons.notifications_none_rounded,
           title: 'Notifications',
-          subtitle: 'Bill reminders and budget alerts',
-          onTap: () => _comingSoon('Notification settings'),
+          subtitle: 'Daily and bill reminders, budget alerts',
+          onTap: () => context.push(Routes.notificationSettings),
         ),
       ],
     ),

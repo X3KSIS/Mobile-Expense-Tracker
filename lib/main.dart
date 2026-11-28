@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,7 @@ import 'config/dependencies.dart';
 import 'data/repositories/app_lock/app_lock_repository.dart';
 import 'data/repositories/auth/auth_repository.dart';
 import 'data/repositories/detected_payment/detected_payment_repository.dart';
+import 'data/repositories/reminder/reminder_repository.dart';
 import 'data/repositories/settings/settings_repository.dart';
 import 'data/repositories/sync/sync_repository.dart';
 import 'data/services/supabase/supabase_config.dart';
@@ -41,6 +44,8 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
   late final GoRouter _router = router(context.read<AuthRepository>());
   late final AuthRepository _auth = context.read<AuthRepository>();
   late final SyncRepository _sync = context.read<SyncRepository>();
+  late final ReminderRepository _reminders = context.read<ReminderRepository>();
+  StreamSubscription<String>? _reminderTaps;
   late final AppLockViewModel _appLock = AppLockViewModel(
     appLockRepository: context.read<AppLockRepository>(),
   );
@@ -56,7 +61,21 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
       if (!mounted) return;
       _onAuthChanged();
       _refreshDetectedPayments();
+      _startReminders();
     });
+  }
+
+  /// Schedules phone reminders, and opens the page a tapped one points
+  /// to (also when a reminder opened the app).
+  Future<void> _startReminders() async {
+    await _reminders.start();
+    _reminderTaps = _reminders.openRequests.listen(_openFromReminder);
+    final route = await _reminders.launchRoute();
+    if (route != null) _openFromReminder(route);
+  }
+
+  void _openFromReminder(String route) {
+    if (mounted && _auth.isAuthenticated) _router.push(route);
   }
 
   /// Syncs while someone is signed in.
@@ -86,6 +105,7 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _auth.removeListener(_onAuthChanged);
+    _reminderTaps?.cancel();
     _router.dispose();
     _appLock.dispose();
     super.dispose();

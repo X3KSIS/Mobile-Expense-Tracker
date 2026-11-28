@@ -242,6 +242,11 @@ void main() {
     await phone.settings.setHideAmountsOnHome(true);
     await phone.settings.setPrivacyScreen(true);
     await phone.settings.setAppLock(true);
+    await phone.settings.setDailyReminder(true);
+    await phone.settings.setReminderMinutes(21 * 60 + 30);
+    await phone.settings.setBillReminders(true);
+    await phone.settings.setBudgetAlerts(false);
+    await phone.settings.markNotificationsSeen(clock.now);
     await phone.sync.sync();
 
     await tablet.sync.sync();
@@ -263,6 +268,14 @@ void main() {
     expect(tablet.settings.privacyScreen, isTrue);
     expect(remote.profile!['app_lock'], isTrue);
     expect(tablet.settings.appLock, isTrue);
+    expect(tablet.settings.dailyReminder, isTrue);
+    expect(tablet.settings.reminderMinutes, 21 * 60 + 30);
+    expect(tablet.settings.billReminders, isTrue);
+    expect(tablet.settings.budgetAlerts, isFalse);
+    expect(
+      tablet.settings.notificationsSeenAt!.isAtSameMomentAs(clock.now),
+      isTrue,
+    );
   });
 
   test('detected payments keep their message details', () async {

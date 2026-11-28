@@ -51,6 +51,35 @@ abstract class SettingsRepository extends ChangeNotifier {
 
   Future<Result<void>> setAppLock(bool enabled);
 
+  /// Whether the phone reminds the user each evening to record spending.
+  bool get dailyReminder;
+
+  Future<Result<void>> setDailyReminder(bool enabled);
+
+  /// When the daily reminder comes, in minutes after midnight.
+  int get reminderMinutes;
+
+  Future<Result<void>> setReminderMinutes(int minutes);
+
+  /// Whether the phone reminds the user the evening before a regular
+  /// payment is due.
+  bool get billReminders;
+
+  Future<Result<void>> setBillReminders(bool enabled);
+
+  /// Whether budgets near or over their limit show in Notifications.
+  bool get budgetAlerts;
+
+  Future<Result<void>> setBudgetAlerts(bool enabled);
+
+  /// When the user last opened Notifications; newer ones count as new.
+  DateTime? get notificationsSeenAt;
+
+  Future<Result<void>> markNotificationsSeen(DateTime at);
+
+  /// The daily reminder's time when none was chosen: 8 pm.
+  static const int defaultReminderMinutes = 20 * 60;
+
   /// The warning levels offered.
   static const List<int> budgetAlertChoices = [70, 80, 90];
 }

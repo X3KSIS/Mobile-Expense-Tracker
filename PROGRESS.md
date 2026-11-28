@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 274 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 293 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -33,11 +33,12 @@ This is where the next session starts.
   2. `20261128000000_preferences.sql`: preference columns on `profiles`.
   3. `20261128010000_profile_photos.sql`: `avatar_path`, private `avatars` Storage bucket and its policies.
   4. `20261128020000_privacy_screen.sql`: `privacy_screen`.
-  5. `20261128030000_app_lock.sql`: `app_lock`. **Not applied yet: apply it before running the app-lock build,** or profile sync fails on the unknown column.
+  5. `20261128030000_app_lock.sql`: `app_lock`.
+  6. `20261129000000_notifications.sql`: reminder and alert settings, `notifications_seen_at`. **Not applied yet: apply it before running the notifications build,** or profile sync fails on the unknown columns.
 - **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project does not grant access by default.
 - **Config:** the project URL and publishable key are built into `SupabaseConfig`, so F5 or `flutter run` connects. `supabase.json` (gitignored) can point a build at another project. Never put the secret key in the app.
 - **Email:** Supabase's built-in sender only sends its default link email and is rate-limited. Templates can only be edited after custom SMTP is set up. Clicking the link does confirm the account, even though the page it opens shows "localhost".
-- **Device database:** Drift schema version 5 (profile columns were added in versions 2 to 5).
+- **Device database:** Drift schema version 6 (profile columns were added in versions 2 to 6).
 
 ### How to run and check
 
@@ -65,11 +66,20 @@ This is where the next session starts.
 
 1. **On the phone:** apply migration 5, build, turn on Preferences → Lock with fingerprint or PIN and try it (cold start, away under and over a minute, cancel the prompt). Then fully restart, add a transaction (see open issue 1), then try the profile photo, categories, export, Spend again, Undo and Hide in recent apps.
 2. **Recommended features,** each needing a package or a decision:
-   - **Reminders** before regular payments are due, and an evening "anything to record today?" (`flutter_local_notifications`).
    - **Receipts:** attach a photo to a transaction (Supabase Storage; `image_picker` is already in).
    - **Custom SMTP** in Supabase, then switch the confirmation email to a code (`{{ .Token }}`; the app's code screen is ready) and add code-based password reset.
    - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
 3. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
+
+## Session 10: 28 Nov 2026 (night)
+
+### Done
+
+- **Notifications page** (`/notifications`, from the Home bell): budgets near or over their limit this pay cycle, regular payments due soon or late, and payments to review, grouped New and Earlier; each opens Budgets, Regular payments or Payment messages. Worked out from the data (`SpendingNotifications.compute`, `domain/models/app_notification.dart`); only `notifications_seen_at` is stored. The bell's dot shows only when something is new.
+- **Notification settings** (`/notification-settings`, from Profile and the page's header): daily reminder with a time (default 20:00), bill reminders, budget alerts. Profile columns (Drift schema 6, Supabase migration 6), synced.
+- **Phone reminders** (`flutter_local_notifications` 23.0.4, `timezone` 0.11.2): `ReminderRepositoryLocal` reschedules on any settings or transaction change: the daily reminder for the next 7 days, skipping today once something was recorded; bills at 18:00 the day before they are due. Tapping one opens Add or Regular payments. Inexact alarms, so no exact-alarm permission. Turning a reminder on asks for notification permission.
+- **Android:** core library desugaring, `RECEIVE_BOOT_COMPLETED` with the plugin's receivers, a white wallet `ic_stat_wallet` icon (kept in release by `res/raw/keep.xml`).
+- **Quality:** `flutter analyze` clean; 293 tests pass; both pages rendered in light and dark.
 
 ## Session 9: 28 Nov 2026 (evening)
 

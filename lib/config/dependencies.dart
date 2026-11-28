@@ -14,6 +14,8 @@ import '../data/repositories/category/category_repository.dart';
 import '../data/repositories/category/category_repository_drift.dart';
 import '../data/repositories/detected_payment/detected_payment_repository.dart';
 import '../data/repositories/detected_payment/detected_payment_repository_notifications.dart';
+import '../data/repositories/reminder/reminder_repository.dart';
+import '../data/repositories/reminder/reminder_repository_local.dart';
 import '../data/repositories/settings/settings_repository.dart';
 import '../data/repositories/settings/settings_repository_drift.dart';
 import '../data/repositories/sync/sync_repository.dart';
@@ -58,14 +60,22 @@ Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
   // locked.
   final appLock = AppLockRepositoryDevice(settings);
 
+  final transactions = TransactionRepositoryDrift(db);
+  final reminders = ReminderRepositoryLocal(
+    settings: settings,
+    transactions: transactions,
+  );
+
   return [
     Provider<AppDatabase>.value(value: db),
     ChangeNotifierProvider<AuthRepository>.value(value: auth),
     ChangeNotifierProvider<SyncRepository>.value(value: syncRepository),
     ChangeNotifierProvider<SettingsRepository>.value(value: settings),
     ChangeNotifierProvider<AppLockRepository>.value(value: appLock),
-    ChangeNotifierProvider<TransactionRepository>(
-      create: (_) => TransactionRepositoryDrift(db),
+    ChangeNotifierProvider<TransactionRepository>.value(value: transactions),
+    Provider<ReminderRepository>(
+      create: (_) => reminders,
+      dispose: (_, r) => r.dispose(),
     ),
     ChangeNotifierProvider<BudgetRepository>(
       create: (_) => BudgetRepositoryDrift(db),

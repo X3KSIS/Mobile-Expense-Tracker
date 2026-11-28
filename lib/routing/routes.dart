@@ -22,6 +22,8 @@ abstract final class Routes {
   static const String categories = '/categories';
   static const String export = '/export';
   static const String detectedPayments = '/detected';
+  static const String notifications = '/notifications';
+  static const String notificationSettings = '/notification-settings';
   static const String profile = '/profile';
   static const String editProfileSegment = 'edit';
   static const String editProfile = '$profile/$editProfileSegment';

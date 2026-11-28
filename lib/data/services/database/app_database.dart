@@ -157,6 +157,24 @@ class Profiles extends Table {
   /// phone's screen lock.
   BoolColumn get appLock => boolean().withDefault(const Constant(false))();
 
+  /// Whether the phone reminds the user each evening to record spending.
+  BoolColumn get dailyReminder =>
+      boolean().withDefault(const Constant(false))();
+
+  /// When the daily reminder comes, in minutes after midnight.
+  IntColumn get reminderMinutes =>
+      integer().withDefault(const Constant(20 * 60))();
+
+  /// Whether the phone reminds the user before a regular payment is due.
+  BoolColumn get billReminders =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Whether budgets near or over their limit show in Notifications.
+  BoolColumn get budgetAlerts => boolean().withDefault(const Constant(true))();
+
+  /// When the user last opened Notifications.
+  DateTimeColumn get notificationsSeenAt => dateTime().nullable()();
+
   /// Whether Home hides money amounts until shown.
   BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
@@ -198,7 +216,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -219,6 +237,13 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         await m.addColumn(profiles, profiles.appLock);
+      }
+      if (from < 6) {
+        await m.addColumn(profiles, profiles.dailyReminder);
+        await m.addColumn(profiles, profiles.reminderMinutes);
+        await m.addColumn(profiles, profiles.billReminders);
+        await m.addColumn(profiles, profiles.budgetAlerts);
+        await m.addColumn(profiles, profiles.notificationsSeenAt);
       }
     },
   );

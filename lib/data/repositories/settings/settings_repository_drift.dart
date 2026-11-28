@@ -38,6 +38,11 @@ class SettingsRepositoryDrift extends SettingsRepository {
   bool _hideAmountsOnHome = false;
   bool _privacyScreen = false;
   bool _appLock = false;
+  bool _dailyReminder = false;
+  int _reminderMinutes = SettingsRepository.defaultReminderMinutes;
+  bool _billReminders = false;
+  bool _budgetAlerts = true;
+  DateTime? _notificationsSeenAt;
   bool _disposed = false;
 
   /// Reads the stored values and notifies when they differ.
@@ -53,7 +58,12 @@ class SettingsRepositoryDrift extends SettingsRepository {
         row.showHabits != _showHabitsOnHome ||
         row.hideAmounts != _hideAmountsOnHome ||
         row.privacyScreen != _privacyScreen ||
-        row.appLock != _appLock;
+        row.appLock != _appLock ||
+        row.dailyReminder != _dailyReminder ||
+        row.reminderMinutes != _reminderMinutes ||
+        row.billReminders != _billReminders ||
+        row.budgetAlerts != _budgetAlerts ||
+        !_sameMoment(row.notificationsSeenAt, _notificationsSeenAt);
     final privacyChanged = row.privacyScreen != _privacyScreen;
     if (theme != null) _themePreference = theme;
     _payday = row.payday;
@@ -63,6 +73,11 @@ class SettingsRepositoryDrift extends SettingsRepository {
     _hideAmountsOnHome = row.hideAmounts;
     _privacyScreen = row.privacyScreen;
     _appLock = row.appLock;
+    _dailyReminder = row.dailyReminder;
+    _reminderMinutes = row.reminderMinutes;
+    _billReminders = row.billReminders;
+    _budgetAlerts = row.budgetAlerts;
+    _notificationsSeenAt = row.notificationsSeenAt;
     if (privacyChanged) await _privacy.setEnabled(_privacyScreen);
     if (changed) notifyListeners();
   }
@@ -163,6 +178,68 @@ class SettingsRepositoryDrift extends SettingsRepository {
     await _write(ProfilesCompanion(appLock: Value(enabled)));
   });
 
+  @override
+  bool get dailyReminder => _dailyReminder;
+
+  @override
+  Future<Result<void>> setDailyReminder(bool enabled) => guard(() async {
+    if (enabled == _dailyReminder) return;
+    _dailyReminder = enabled;
+    notifyListeners();
+    await _write(ProfilesCompanion(dailyReminder: Value(enabled)));
+  });
+
+  @override
+  int get reminderMinutes => _reminderMinutes;
+
+  @override
+  Future<Result<void>> setReminderMinutes(int minutes) => guard(() async {
+    if (minutes < 0 || minutes >= 24 * 60) {
+      throw Exception('Reminder time must be within the day');
+    }
+    if (minutes == _reminderMinutes) return;
+    _reminderMinutes = minutes;
+    notifyListeners();
+    await _write(ProfilesCompanion(reminderMinutes: Value(minutes)));
+  });
+
+  @override
+  bool get billReminders => _billReminders;
+
+  @override
+  Future<Result<void>> setBillReminders(bool enabled) => guard(() async {
+    if (enabled == _billReminders) return;
+    _billReminders = enabled;
+    notifyListeners();
+    await _write(ProfilesCompanion(billReminders: Value(enabled)));
+  });
+
+  @override
+  bool get budgetAlerts => _budgetAlerts;
+
+  @override
+  Future<Result<void>> setBudgetAlerts(bool enabled) => guard(() async {
+    if (enabled == _budgetAlerts) return;
+    _budgetAlerts = enabled;
+    notifyListeners();
+    await _write(ProfilesCompanion(budgetAlerts: Value(enabled)));
+  });
+
+  @override
+  DateTime? get notificationsSeenAt => _notificationsSeenAt;
+
+  @override
+  Future<Result<void>> markNotificationsSeen(DateTime at) => guard(() async {
+    final seen = _notificationsSeenAt;
+    if (seen != null && !at.isAfter(seen)) return;
+    _notificationsSeenAt = at;
+    notifyListeners();
+    await _write(ProfilesCompanion(notificationsSeenAt: Value(at)));
+  });
+
+  static bool _sameMoment(DateTime? a, DateTime? b) =>
+      a == null ? b == null : b != null && a.isAtSameMomentAs(b);
+
   /// Saves [change] on the profile. Signed out, it goes on a local
   /// profile that the first account to sign in takes over.
   Future<void> _write(ProfilesCompanion change) async {
@@ -186,6 +263,11 @@ class SettingsRepositoryDrift extends SettingsRepository {
             hideAmounts: Value(_hideAmountsOnHome),
             privacyScreen: Value(_privacyScreen),
             appLock: Value(_appLock),
+            dailyReminder: Value(_dailyReminder),
+            reminderMinutes: Value(_reminderMinutes),
+            billReminders: Value(_billReminders),
+            budgetAlerts: Value(_budgetAlerts),
+            notificationsSeenAt: Value(_notificationsSeenAt),
             createdAt: now,
             modifiedAt: now,
             dirty: const Value(true),

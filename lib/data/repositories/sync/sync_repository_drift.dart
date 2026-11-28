@@ -282,6 +282,13 @@ class SyncRepositoryDrift extends SyncRepository {
       'avatar_path': local.avatarPath,
       'privacy_screen': local.privacyScreen,
       'app_lock': local.appLock,
+      'daily_reminder': local.dailyReminder,
+      'reminder_minutes': local.reminderMinutes,
+      'bill_reminders': local.billReminders,
+      'budget_alerts': local.budgetAlerts,
+      'notifications_seen_at': local.notificationsSeenAt == null
+          ? null
+          : _serializer.toJson(local.notificationsSeenAt),
       'modified_at': _serializer.toJson(local.modifiedAt),
     });
     await (_db.update(_db.profiles)..where(
@@ -310,6 +317,19 @@ class SyncRepositoryDrift extends SyncRepository {
     final avatarPath = remote['avatar_path'] as String?;
     final privacyScreen = remote['privacy_screen'] as bool? ?? false;
     final appLock = remote['app_lock'] as bool? ?? false;
+    final dailyReminder = remote['daily_reminder'] as bool? ?? false;
+    final reminderMinutes =
+        (remote['reminder_minutes'] as num?)?.toInt() ?? 20 * 60;
+    final billReminders = remote['bill_reminders'] as bool? ?? false;
+    final budgetAlerts = remote['budget_alerts'] as bool? ?? true;
+    final seenAt = switch (remote['notifications_seen_at']) {
+      final String value => DateTime.parse(value).toLocal(),
+      _ => null,
+    };
+    final localSeenAt = local.notificationsSeenAt;
+    final sameSeenAt = seenAt == null
+        ? localSeenAt == null
+        : localSeenAt != null && localSeenAt.isAtSameMomentAs(seenAt);
     final photoChanged = !local.avatarDirty && avatarPath != local.avatarPath;
     final unchanged =
         !local.dirty &&
@@ -324,6 +344,11 @@ class SyncRepositoryDrift extends SyncRepository {
         !photoChanged &&
         local.privacyScreen == privacyScreen &&
         local.appLock == appLock &&
+        local.dailyReminder == dailyReminder &&
+        local.reminderMinutes == reminderMinutes &&
+        local.billReminders == billReminders &&
+        local.budgetAlerts == budgetAlerts &&
+        sameSeenAt &&
         local.modifiedAt.isAtSameMomentAs(remoteModified);
     // Writing anyway would wake the change watcher and sync again forever.
     if (unchanged) return;
@@ -341,6 +366,11 @@ class SyncRepositoryDrift extends SyncRepository {
         hideAmounts: Value(hideAmounts),
         privacyScreen: Value(privacyScreen),
         appLock: Value(appLock),
+        dailyReminder: Value(dailyReminder),
+        reminderMinutes: Value(reminderMinutes),
+        billReminders: Value(billReminders),
+        budgetAlerts: Value(budgetAlerts),
+        notificationsSeenAt: Value(seenAt),
         avatarPath: photoChanged ? Value(avatarPath) : const Value.absent(),
         avatarBytes: photoChanged
             ? Value(

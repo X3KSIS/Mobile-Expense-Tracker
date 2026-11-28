@@ -65,12 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$feature is coming soon')));
-  }
-
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
@@ -92,11 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
               content = SlowRefresh(
                 key: const ValueKey('content'),
                 onRefresh: viewModel.load.execute,
-                child: _HomeContent(
-                  viewModel: viewModel,
-                  onNotificationsPressed: () =>
-                      _showComingSoon('Notifications'),
-                ),
+                child: _HomeContent(viewModel: viewModel),
               );
             }
             return FadeSwitcher(animateSize: false, child: content);
@@ -108,13 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _HomeContent extends StatelessWidget {
-  const _HomeContent({
-    required this.viewModel,
-    required this.onNotificationsPressed,
-  });
+  const _HomeContent({required this.viewModel});
 
   final HomeViewModel viewModel;
-  final VoidCallback onNotificationsPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +120,8 @@ class _HomeContent extends StatelessWidget {
           initials: viewModel.userInitials,
           photo: viewModel.userPhoto,
           onProfilePressed: () => context.push(Routes.profile),
-          onNotificationsPressed: onNotificationsPressed,
+          onNotificationsPressed: () => context.push(Routes.notifications),
+          hasUnreadNotifications: viewModel.hasUnreadNotifications,
           isDarkMode: switch (viewModel.themePreference) {
             ThemePreference.dark => true,
             ThemePreference.light => false,

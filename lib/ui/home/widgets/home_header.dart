@@ -20,7 +20,7 @@ class HomeHeader extends StatelessWidget {
     required this.onNotificationsPressed,
     required this.isDarkMode,
     required this.onDarkModeChanged,
-    this.hasUnreadNotifications = true,
+    this.hasUnreadNotifications = false,
   });
 
   final String userName;
@@ -83,7 +83,9 @@ class HomeHeader extends StatelessWidget {
         const SizedBox(width: Dimens.gapS),
         HeaderIconButton(
           icon: Icons.notifications_none_rounded,
-          tooltip: 'Notifications',
+          tooltip: hasUnreadNotifications
+              ? 'Notifications, new'
+              : 'Notifications',
           showBadge: hasUnreadNotifications,
           onPressed: onNotificationsPressed,
         ),

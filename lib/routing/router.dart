@@ -51,6 +51,10 @@ import '../ui/splash/view_models/splash_view_model.dart';
 import '../ui/splash/widgets/splash_screen.dart';
 import '../ui/wallets/view_models/wallets_view_model.dart';
 import '../ui/wallets/widgets/wallets_screen.dart';
+import '../ui/notifications/view_models/notification_settings_view_model.dart';
+import '../ui/notifications/view_models/notifications_view_model.dart';
+import '../ui/notifications/widgets/notification_settings_screen.dart';
+import '../ui/notifications/widgets/notifications_screen.dart';
 import 'routes.dart';
 
 /// Builds the app router. ViewModels are created here, in the route
@@ -232,6 +236,38 @@ GoRouter router(AuthRepository authRepository) {
           child: Builder(
             builder: (context) => DetectedPaymentsScreen(
               viewModel: context.read<DetectedPaymentsViewModel>(),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.notifications,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => NotificationsViewModel(
+            transactionRepository: context.read(),
+            budgetRepository: context.read(),
+            settingsRepository: context.read(),
+            detectedPaymentRepository: context.read(),
+          ),
+          child: Builder(
+            builder: (context) => NotificationsScreen(
+              viewModel: context.read<NotificationsViewModel>(),
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.notificationSettings,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => NotificationSettingsViewModel(
+            settingsRepository: context.read(),
+            reminderRepository: context.read(),
+          ),
+          child: Builder(
+            builder: (context) => NotificationSettingsScreen(
+              viewModel: context.read<NotificationSettingsViewModel>(),
             ),
           ),
         ),

@@ -10,6 +10,9 @@ android {
     ndkVersion = "30.0.16248370"
 
     compileOptions {
+        // flutter_local_notifications schedules with java.time on older
+        // Android versions too.
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -51,4 +54,5 @@ flutter {
 dependencies {
     // AppCompat launch theme, needed by the app lock prompt on older Android.
     implementation("androidx.appcompat:appcompat:1.7.1")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

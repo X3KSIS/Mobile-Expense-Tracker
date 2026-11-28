@@ -18,6 +18,75 @@ class SettingsRepositoryLocalFake extends SettingsRepository {
   bool _hideAmountsOnHome = false;
   bool _privacyScreen = false;
   bool _appLock = false;
+  bool _dailyReminder = false;
+  int _reminderMinutes = SettingsRepository.defaultReminderMinutes;
+  bool _billReminders = false;
+  bool _budgetAlerts = true;
+  DateTime? _notificationsSeenAt;
+
+  @override
+  bool get dailyReminder => _dailyReminder;
+
+  @override
+  Future<Result<void>> setDailyReminder(bool enabled) async {
+    if (enabled != _dailyReminder) {
+      _dailyReminder = enabled;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
+  @override
+  int get reminderMinutes => _reminderMinutes;
+
+  @override
+  Future<Result<void>> setReminderMinutes(int minutes) async {
+    if (minutes < 0 || minutes >= 24 * 60) {
+      return Result.error(Exception('Reminder time must be within the day'));
+    }
+    if (minutes != _reminderMinutes) {
+      _reminderMinutes = minutes;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
+  @override
+  bool get billReminders => _billReminders;
+
+  @override
+  Future<Result<void>> setBillReminders(bool enabled) async {
+    if (enabled != _billReminders) {
+      _billReminders = enabled;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
+  @override
+  bool get budgetAlerts => _budgetAlerts;
+
+  @override
+  Future<Result<void>> setBudgetAlerts(bool enabled) async {
+    if (enabled != _budgetAlerts) {
+      _budgetAlerts = enabled;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
+  @override
+  DateTime? get notificationsSeenAt => _notificationsSeenAt;
+
+  @override
+  Future<Result<void>> markNotificationsSeen(DateTime at) async {
+    final seen = _notificationsSeenAt;
+    if (seen == null || at.isAfter(seen)) {
+      _notificationsSeenAt = at;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
 
   @override
   bool get appLock => _appLock;
