@@ -2,78 +2,101 @@
 
 Running log of what has been built and what comes next. Newest session first.
 
-## Start here (28 Nov 2026)
+## Start here (29 Nov 2026, end of session)
 
 This is where the next session starts.
 
 **Core objective:** expense tracking and spending habits (see `CLAUDE.md`). Judge every feature against it.
 
+### Where we ended
+
+The 28 to 29 Nov sessions redesigned every main screen and added several features: app lock, notifications and reminders, usernames, and bills. Everything is committed and pushed (last feature commit `5903b8f`, bills). The user confirmed each feature working on the phone up to and including the Add transaction redesign. **Bills is built and tested but not yet run on the phone,** and its migration isn't applied yet (step 1 below).
+
 ### Where things stand
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
-- **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 327 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
-- **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
+- **Sign-in:** Supabase Auth with email or username and a password. Email confirmation is required, and an optional fingerprint or PIN app lock is available.
+- **Quality:** `flutter analyze` clean, 327 tests pass. Pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Phone:** TECNO KM7 (`1519137578004351`), Android 15.
 
 ### What the app does
 
-- **Capture:** Add, Edit, Spend again and Undo delete; fill from a MoMo, Airtel or bank SMS; payments read from notifications to review; default wallet.
-- **See spending:** Home (spending hero with daily bars and safe to spend, where it went with budget status, habit card, hide amounts), Activity (7 days) and History, full-screen search, Reports (habits, regular payments, categories, trend, heatmap), category trends, regular payments page.
-- **Plan:** budgets per pay cycle (expand, reorder, warning level 70/80/90%), payday, wallets and transfers.
-- **Manage:** categories (add, rename that carries over to past transactions and budgets, icons, reorder, delete with guards), CSV export through the share sheet.
-- **Account:** profile photo (gallery), personal details, change password, sync status with Sync now, sign out (refused while unsent changes can't go up).
-- **Preferences:** theme (system, light, dark), payday, budget warning level, default wallet, show habits on Home, hide amounts on Home, hide in recent apps (blocks screenshots), lock with fingerprint or PIN.
-- **Look and feel:** coral and navy design system, dark mode, motion throughout, skeletons not spinners.
+- **Capture:**
+  - Add (Recent shortcuts, a "Paste a MoMo or bank SMS" button, Today/Yesterday chips), Edit, Spend again and Undo delete.
+  - Payments read from notifications, to review and add.
+  - Default wallet.
+- **See spending:**
+  - Home: time-of-day greeting with the preferred name; a spending hero (spent this cycle against last, daily bars, safe to spend); Where it went with budget status; habit tip; recent activity; wallets; banners for payments to review and overdue bills.
+  - Activity: Spent this week card and spent-per-day headings. History, full-screen search.
+  - Reports: one money card, a month picker back to the first month with data, habits, regular payments, categories, trend, heatmap. Category trends.
+- **Plan:**
+  - Budgets per pay cycle: pace marker on each bar, over or under plan, "Spent on budgets" summary, "Not budgeted yet" suggestions.
+  - Bills: reminders, overdue list, mark as paid.
+  - Payday, wallets and transfers.
+- **Notifications:**
+  - Notifications page from the Home bell: budgets, regular payments, bills, payments to review.
+  - Phone reminders: a daily "anything to record?" reminder, and bill reminders (a week, 3 days and the day before, then every morning while overdue).
+  - Settings for both reminder times.
+- **Account:** Profile (tracking stats: day streak, this month, months tracked), personal details (photo, preferred name, username, phone), change password, sync status, help sheet, sign out.
+- **Preferences:** theme, payday, budget warning level, default wallet, Home options, hide in recent apps, app lock.
+- **Manage:** categories, CSV export.
 
 ### Backend (Supabase)
 
 - **Project:** "X3KSIS's Project", ref `ambfmaujbnraqiujckoh`, eu-west-1, free plan. Dashboard: https://supabase.com/dashboard/project/ambfmaujbnraqiujckoh
-- **Migrations, all applied in the SQL Editor:**
-  1. `20261127000000_init.sql`: tables, RLS, `sync_guard` trigger, new-user seeding (profile, 15 categories, Cash wallet).
-  2. `20261128000000_preferences.sql`: preference columns on `profiles`.
-  3. `20261128010000_profile_photos.sql`: `avatar_path`, private `avatars` Storage bucket and its policies.
-  4. `20261128020000_privacy_screen.sql`: `privacy_screen`.
-  5. `20261128030000_app_lock.sql`: `app_lock`.
-  6. `20261129000000_notifications.sql`: reminder and alert settings, `notifications_seen_at`.
-  7. `20261129010000_preferred_name.sql`: `preferred_name`.
-  8. `20261129020000_usernames.sql`: `username` (unique), `set_username` and `username_available`.
-  9. `20261129030000_bills.sql`: the `bills` table (RLS, grants, sync_guard) and `bill_reminder_minutes`. **Not applied yet: apply it before running the bills build,** or sync fails on the unknown table and column.
-- **Edge Function** `sign-in-with-username` (`supabase/functions/`), deployed with Verify JWT off.
-- **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project does not grant access by default.
-- **Config:** the project URL and publishable key are built into `SupabaseConfig`, so F5 or `flutter run` connects. `supabase.json` (gitignored) can point a build at another project. Never put the secret key in the app.
-- **Email:** Supabase's built-in sender only sends its default link email and is rate-limited. Templates can only be edited after custom SMTP is set up. Clicking the link does confirm the account, even though the page it opens shows "localhost".
-- **Device database:** Drift schema version 9 (profile columns in versions 2 to 9; the `bills` table in 9).
+- **Migrations** (paste a file's *contents* into the SQL Editor, not its path):
+  1. `20261127000000_init.sql`: tables, RLS, `sync_guard`, new-user seeding. Applied.
+  2. `20261128000000_preferences.sql`. Applied.
+  3. `20261128010000_profile_photos.sql` (`avatars` bucket). Applied.
+  4. `20261128020000_privacy_screen.sql`. Applied.
+  5. `20261128030000_app_lock.sql`. Applied.
+  6. `20261129000000_notifications.sql`. Applied.
+  7. `20261129010000_preferred_name.sql`. Applied (greeting confirmed working).
+  8. `20261129020000_usernames.sql`. Applied (usernames confirmed working).
+  9. `20261129030000_bills.sql`: the `bills` table and `bill_reminder_minutes`. **NOT applied yet.**
+- **Edge Function** `sign-in-with-username` (`supabase/functions/`), deployed with Verify JWT off. Confirmed working.
+- **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project grants nothing by default.
+- **Config:** URL and publishable key are built into `SupabaseConfig`. Never put the secret or service_role key in the app.
+- **Email:** only Supabase's default link email until custom SMTP is set up. The link confirms the account even though the page it opens shows "localhost".
+- **Device database:** Drift schema version 9.
 
 ### How to run and check
 
-- **Build and run from a normal terminal or VS Code**, not from Claude's shell: its network breaks Gradle downloads. Use `flutter run -d 1519137578004351`, or F5 with "Expense Tracker (Supabase)".
-- **Android build settings already in place:** plugins use NDK 30.0.16248370; Kotlin compiles in-process with incremental builds off (the project is on E:, the pub cache on C:).
-- **Reading the phone's database** (debug build):
-  `adb exec-out run-as com.example.flutter_expensetracker cat app_flutter/expense_tracker.sqlite > phone.sqlite`
-  where `adb` is `%LOCALAPPDATA%\Android\sdk\platform-tools\adb.exe`. Don't take phone screenshots; they show the user's personal apps.
-- **Server checks:** SQL Editor queries (read-only) and Logs → API Gateway (filter by POST to see uploads).
+- **Build and run from VS Code (F5) or a normal terminal**, not from Claude's shell: its network breaks Gradle downloads. `flutter run -d 1519137578004351`.
+- **Android build settings in place:** NDK 30.0.16248370; Kotlin in-process, no incremental builds; `FlutterFragmentActivity` (app lock); core library desugaring and the notification receivers.
+- **`flutter_local_notifications` is pinned to ^22** (23 needs compileSdk 37, beyond AGP 9.1). Don't upgrade it without moving the Android build to SDK 37.
+- **Reading the phone's database:** `adb exec-out run-as com.example.flutter_expensetracker cat app_flutter/expense_tracker.sqlite > phone.sqlite` (`adb` is `%LOCALAPPDATA%\Android\sdk\platform-tools\adb.exe`). Don't take phone screenshots.
+- **Checking screens without the phone:** a throwaway golden test in `test/` loads the fonts (see earlier sessions), renders into `build/shots/`, then gets deleted.
 
 ### Open issues
 
-1. **Transactions don't reach the phone's database file.** On 28 Nov at 17:5x a ZMW 10 expense showed "Expense saved", yet `expense_tracker.sqlite` was last written at 10:05:59. No `-journal` or `-wal` file existed, and the same file was the only one the app had open. Earlier writes (profile photo 10:03, Cash opening balance 10:05) did land and sync. The wiring is right (`TransactionRepositoryDrift`). Leading theory: a Drift transaction opened around 10:05:59 never committed, and later writes ran inside it in memory. Next check: does the expense survive a force close and reopen? If not, the theory holds; then find which `transaction()` hangs (sync pull, `openAccount`, category save).
-2. **The sync loop is fixed,** but the fix hasn't run on the phone yet (it used to sync every 2 seconds).
-3. **Password reset** sends Supabase's link, which opens "localhost". It needs custom SMTP and code-based reset (or a deep link).
+1. **Transactions may not reach the phone's database file.** On 28 Nov a saved expense was missing from `expense_tracker.sqlite` (last written 10:05:59, no journal or WAL file), while profile and wallet writes landed. Leading theory: a Drift transaction left open and holding later writes in memory. **The force-close check was never done:** add an expense, swipe the app away, reopen, and see whether it is still there. If it's gone, find the `transaction()` that never finishes (sync pull, `openAccount`, category save).
+2. **Password reset** opens "localhost": needs custom SMTP plus code-based reset.
+3. **Username sign-in rate limit:** Supabase's per-IP sign-in limit sees the Edge Function's address, so it's shared by all username sign-ins. Fine at this scale.
+4. **Re-running `flutter_native_splash`** may reset the AppCompat launch themes the app lock needs on Android 8 and below. Check `android/app/src/main/res/values*/styles.xml` afterwards.
 
 ### Workflow
 
-- **Commit and push** each feature as it's finished (`git push origin main` works). Never add AI attribution to commits.
-- **New packages need approval.** Approved so far: `provider`, `go_router`, `intl`, `notification_listener_service`, `drift`, `drift_flutter`, `supabase_flutter`, `image_picker` (gallery only), `share_plus`, plus dev tools.
-- **Rules:** keep `flutter analyze` at zero, add tests with every change, and render new screens in light and dark to check them.
-- **Data:** every new kind of data needs a Drift table or column, a Supabase migration with RLS and grants, and an entry in the sync.
+- **Commit and push** each feature as it's finished (`git push origin main`). Never add AI attribution.
+- **New packages need approval.** In use: `provider`, `go_router`, `intl`, `notification_listener_service`, `drift`, `drift_flutter`, `supabase_flutter`, `image_picker`, `share_plus`, `local_auth`, `flutter_local_notifications` (^22), `timezone`, plus dev tools.
+- **Rules:** `flutter analyze` at zero, tests with every change, render new screens in light and dark.
+- **Data:** every new kind of data needs a Drift table or column (bump `schemaVersion`), a Supabase migration with RLS and grants, and an entry in the sync table list.
+- **Bash heredocs with quotes get mangled** in Claude's shell: write edit scripts to the scratchpad with Write and run them with `python -I`.
 
 ### Pick up next
 
-1. **On the phone:** apply migration 5, build, turn on Preferences → Lock with fingerprint or PIN and try it (cold start, away under and over a minute, cancel the prompt). Then fully restart, add a transaction (see open issue 1), then try the profile photo, categories, export, Spend again, Undo and Hide in recent apps.
-2. **Recommended features,** each needing a package or a decision:
-   - **Receipts:** attach a photo to a transaction (Supabase Storage; `image_picker` is already in).
-   - **Custom SMTP** in Supabase, then switch the confirmation email to a code (`{{ .Token }}`; the app's code screen is ready) and add code-based password reset.
-   - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
-3. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
+1. **Bills on the phone:**
+   - Run migration 9 (`20261129030000_bills.sql`) in the SQL Editor.
+   - Build, then turn on Notification settings → Bill reminders and pick a time.
+   - Add a bill due today and one already overdue. Check the Home overdue banner, the Notifications page, Mark as paid (expense recorded, next date) and "already added".
+   - Check a reminder arrives at the chosen time.
+2. **Open issue 1:** do the force-close check.
+3. **Next features to consider:**
+   - **Receipts:** attach a photo to a transaction (Supabase Storage; `image_picker` already in). Needs a migration and a Storage bucket.
+   - **Custom SMTP** in Supabase, then code-based email confirmation (`{{ .Token }}`; the code screen is ready) and code-based password reset.
+   - **Bills polish:** link a recorded payment to a bill automatically when its title matches, and show bills on the Regular payments page.
+   - **Wallets screen redesign:** the last main screen not yet reworked.
+4. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
 
 ## Session 13: 29 Nov 2026
 
