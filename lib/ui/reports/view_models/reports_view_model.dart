@@ -110,10 +110,24 @@ class ReportsViewModel extends ChangeNotifier {
 
   bool get canGoForward => _month.isBefore(currentMonth);
 
-  bool get canGoBack => _month.isAfter(_earliestMonth);
+  bool get canGoBack => _month.isAfter(earliestMonth);
 
-  DateTime get _earliestMonth =>
-      DateTime(currentMonth.year, currentMonth.month - trendLength + 1);
+  /// The first month with a transaction (this month when there are none):
+  /// how far back the month picker goes.
+  DateTime get earliestMonth {
+    if (_all.isEmpty) return currentMonth;
+    final first = _all
+        .map((t) => t.date)
+        .reduce((a, b) => a.isBefore(b) ? a : b);
+    final month = monthOf(first);
+    return month.isAfter(currentMonth) ? currentMonth : month;
+  }
+
+  /// What was spent in [month], for the month picker.
+  double spentIn(DateTime month) =>
+      _inMonth(monthOf(month))
+          .where((t) => !t.isIncome)
+          .fold(0, (sum, t) => sum + t.amount);
 
   bool get isLoading => load.running && !_loaded;
 
@@ -149,11 +163,19 @@ class ReportsViewModel extends ChangeNotifier {
     return list;
   }
 
-  /// The last [trendLength] months, oldest first.
-  List<MonthTotals> get trend => [
-    for (var i = trendLength - 1; i >= 0; i--)
-      _totalsFor(DateTime(currentMonth.year, currentMonth.month - i)),
-  ];
+  /// [trendLength] months, oldest first: the latest ones, or the ones
+  /// ending at the selected month when it is older than those.
+  List<MonthTotals> get trend {
+    final windowStart = DateTime(
+      currentMonth.year,
+      currentMonth.month - trendLength + 1,
+    );
+    final end = _month.isBefore(windowStart) ? _month : currentMonth;
+    return [
+      for (var i = trendLength - 1; i >= 0; i--)
+        _totalsFor(DateTime(end.year, end.month - i)),
+    ];
+  }
 
   /// Spending for every day of the selected month, in order.
   List<DaySpend> get days {

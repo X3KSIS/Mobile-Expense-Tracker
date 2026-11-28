@@ -74,6 +74,17 @@ void main() {
       expect(viewModel.month, DateTime(2026, 9));
     });
 
+    test(
+      'the month picker reaches back to the first month with data',
+      () async {
+        final viewModel = await loaded();
+
+        expect(viewModel.earliestMonth, DateTime(2026, 6));
+        expect(viewModel.spentIn(DateTime(2026, 11)), 7680);
+        expect(viewModel.spentIn(DateTime(2026, 1)), 0);
+      },
+    );
+
     test('lists every day of the month with its spending', () async {
       final viewModel = await loaded();
 

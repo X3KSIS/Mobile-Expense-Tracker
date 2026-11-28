@@ -72,6 +72,13 @@ This is where the next session starts.
    - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
 3. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
 
+## Session 13: 29 Nov 2026
+
+### Done
+
+- **Reports money card:** one card, Spent first and largest, Income and Net in equal columns below, each with its change from the previous month.
+- **Month picker:** tap the month on Reports for a sheet with a year switcher and a grid of months, each showing what was spent; reaches back to the first month with data (no longer only 6). The trend chart's 6 months end at the selected month when it is older.
+
 ## Session 12: 28 Nov 2026 (late night, continued)
 
 ### Done

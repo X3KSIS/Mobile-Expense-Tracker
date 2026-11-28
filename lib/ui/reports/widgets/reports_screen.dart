@@ -15,6 +15,7 @@ import '../view_models/reports_view_model.dart';
 import 'category_breakdown.dart';
 import 'habit_list.dart';
 import 'regular_payments_summary.dart';
+import 'month_picker_sheet.dart';
 import 'month_switcher.dart';
 import 'report_kpis.dart';
 import 'report_section.dart';
@@ -63,6 +64,7 @@ class ReportsScreen extends StatelessWidget {
                           onForward: viewModel.canGoForward
                               ? viewModel.goForward
                               : null,
+                          onPick: () => _pickMonth(context),
                         ),
                         const SizedBox(height: Dimens.sectionGap),
                         FadeSwitcher(
@@ -82,6 +84,17 @@ class ReportsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _pickMonth(BuildContext context) async {
+    final month = await showMonthPicker(
+      context,
+      selected: viewModel.month,
+      first: viewModel.earliestMonth,
+      last: viewModel.currentMonth,
+      spentIn: viewModel.spentIn,
+    );
+    if (month != null) viewModel.selectMonth(month);
   }
 
   List<Widget> _body(BuildContext context) {
@@ -136,7 +149,7 @@ class ReportsScreen extends StatelessWidget {
       const SizedBox(height: Dimens.sectionGap + 4),
       ReportSection(
         title: 'Spending trend',
-        subtitle: 'Last ${viewModel.trendLength} months · tap a month',
+        subtitle: '${viewModel.trendLength} months · tap a month',
         child: SpendingTrendChart(
           months: viewModel.trend,
           selected: viewModel.month,

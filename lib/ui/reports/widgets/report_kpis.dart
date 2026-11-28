@@ -5,10 +5,12 @@ import '../../../utils/dates.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/theme.dart';
+import '../../core/ui/animated_number.dart';
 import '../view_models/reports_view_model.dart';
 
-/// Income, expenses and net for the month, each with the change from the
-/// previous month.
+/// The month's money in one card: what was spent first and largest, then
+/// income and net side by side in equal columns. Each figure shows its
+/// change from the previous month.
 class ReportKpis extends StatelessWidget {
   const ReportKpis({super.key, required this.current, required this.previous});
 
@@ -18,51 +20,75 @@ class ReportKpis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vs = formatMonthShort(previous.month);
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _KpiTile(
-                label: 'Income',
-                value: current.income,
-                previous: previous.income,
-                upIsGood: true,
-                vs: vs,
-              ),
+    final colors = context.colors;
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(Dimens.radiusList),
+        border: Border.all(color: colors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(Dimens.cardPadding),
+            child: _Figure(
+              label: 'SPENT',
+              value: current.expenses,
+              previous: previous.expenses,
+              upIsGood: false,
+              vs: vs,
+              large: true,
             ),
-            const SizedBox(width: Dimens.gapM),
-            Expanded(
-              child: _KpiTile(
-                label: 'Expenses',
-                value: current.expenses,
-                previous: previous.expenses,
-                upIsGood: false,
-                vs: vs,
-              ),
+          ),
+          const Divider(height: 1),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Dimens.gapL),
+                    child: _Figure(
+                      label: 'INCOME',
+                      value: current.income,
+                      previous: previous.income,
+                      upIsGood: true,
+                      vs: vs,
+                    ),
+                  ),
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Dimens.gapL),
+                    child: _Figure(
+                      label: 'NET',
+                      value: current.net,
+                      previous: previous.net,
+                      upIsGood: true,
+                      vs: vs,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: Dimens.gapM),
-        _KpiTile(
-          label: 'Net (income minus expenses)',
-          value: current.net,
-          previous: previous.net,
-          upIsGood: true,
-          vs: vs,
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _KpiTile extends StatelessWidget {
-  const _KpiTile({
+/// Label, amount and change: one figure of the card.
+class _Figure extends StatelessWidget {
+  const _Figure({
     required this.label,
     required this.value,
     required this.previous,
     required this.upIsGood,
     required this.vs,
+    this.large = false,
   });
 
   final String label;
@@ -70,36 +96,33 @@ class _KpiTile extends StatelessWidget {
   final double previous;
   final bool upIsGood;
   final String vs;
+  final bool large;
 
   @override
   Widget build(BuildContext context) {
     return MergeSemantics(
-      child: Container(
-        padding: const EdgeInsets.all(Dimens.gapL - 2),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(Dimens.radiusTile),
-          border: Border.all(color: context.colors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: context.text.caption),
-            const SizedBox(height: Dimens.gapXs),
-            FittedBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: context.text.overline),
+          const SizedBox(height: Dimens.gapXs),
+          AnimatedNumber(
+            value: value,
+            builder: (context, shown) => FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(formatZmw(value), style: context.text.statValue),
+              child: Text(
+                formatZmw(shown),
+                style: large
+                    ? context.text.amountMedium
+                    : context.text.statValue,
+                maxLines: 1,
+              ),
             ),
-            const SizedBox(height: Dimens.gapXs),
-            _Delta(
-              value: value,
-              previous: previous,
-              upIsGood: upIsGood,
-              vs: vs,
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: Dimens.gapXs),
+          _Delta(value: value, previous: previous, upIsGood: upIsGood, vs: vs),
+        ],
       ),
     );
   }
@@ -125,6 +148,8 @@ class _Delta extends StatelessWidget {
       return Text(
         previous == 0 ? 'No data for $vs' : 'Same as $vs',
         style: context.text.caption,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       );
     }
     final up = change > 0;
