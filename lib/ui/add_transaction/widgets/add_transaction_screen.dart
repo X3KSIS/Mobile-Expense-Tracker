@@ -9,7 +9,7 @@ import '../../core/themes/theme.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/category_picker.dart';
 import '../../core/ui/fade_switcher.dart';
-import '../../core/ui/header_icon_button.dart';
+import '../../core/ui/expandable_section.dart';
 import '../../core/ui/labeled_text_field.dart';
 import '../../core/ui/primary_button.dart';
 import '../../core/ui/screen_header.dart';
@@ -18,7 +18,9 @@ import '../../core/ui/wallet_tile.dart';
 import '../../core/ui/skeleton_screens.dart';
 import '../view_models/add_transaction_view_model.dart';
 import 'amount_input.dart';
-import 'date_field.dart';
+import 'date_chips.dart';
+import 'message_button.dart';
+import 'quick_picks.dart';
 import 'message_sheet.dart';
 
 /// Form to record an expense or income, or to edit one.
@@ -112,6 +114,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     _note.text = prefill.note;
   }
 
+  void _applyQuickPick(QuickPick pick) {
+    final filled = widget.viewModel.applyQuickPick(pick);
+    _title.text = filled.title;
+    final amount = filled.amount;
+    if (amount != null) _amount.text = amount;
+  }
+
   void _submit() {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -143,13 +152,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   title: viewModel.isEditing
                       ? 'Edit transaction'
                       : 'Add transaction',
-                  trailing: viewModel.isEditing
-                      ? null
-                      : HeaderIconButton(
-                          icon: Icons.sms_outlined,
-                          tooltip: 'Fill from a message',
-                          onPressed: _fillFromMessage,
-                        ),
                 ),
                 const SizedBox(height: Dimens.sectionGap),
                 SegmentedToggle<TransactionType>(
@@ -166,6 +168,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   selected: viewModel.type,
                   onChanged: viewModel.selectType,
                 ),
+                if (!viewModel.isEditing) ...[
+                  const SizedBox(height: Dimens.gapM),
+                  MessageButton(onTap: _fillFromMessage),
+                ],
                 const SizedBox(height: Dimens.gapL),
                 AmountInput(
                   controller: _amount,
@@ -173,6 +179,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   label: viewModel.isExpense
                       ? 'Amount spent'
                       : 'Amount received',
+                ),
+                ExpandableSection(
+                  expanded:
+                      viewModel.offersQuickPicks &&
+                      viewModel.quickPicks.isNotEmpty,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: Dimens.sectionGap),
+                    child: QuickPicks(
+                      picks: viewModel.quickPicks,
+                      onPicked: _applyQuickPick,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: Dimens.sectionGap),
                 _CategorySection(viewModel: viewModel),
@@ -362,11 +380,13 @@ class _DetailsSection extends StatelessWidget {
           textInputAction: TextInputAction.next,
         ),
         const SizedBox(height: Dimens.gapL),
-        DateField(
+        DateChips(
           date: viewModel.date,
+          daysAgo: viewModel.daysAgo,
           firstDate: viewModel.firstDate,
           lastDate: viewModel.lastDate,
-          onChanged: viewModel.selectDate,
+          onDaysAgo: viewModel.selectDaysAgo,
+          onPicked: viewModel.selectDate,
         ),
         const SizedBox(height: Dimens.gapL),
         LabeledTextField(

@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 309 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 311 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -78,6 +78,7 @@ This is where the next session starts.
 
 ### Done
 
+- **Add transaction:** a visible "Paste a MoMo or bank SMS" bar under the type toggle (replaces the header icon); a Recent row of places recorded at least twice in 90 days (one tap fills title, category and wallet, plus the amount when it never changes; hidden when editing, repeating or filling from a message); When as Today / Yesterday / Other date chips (`DateField` removed). Shared `ChoicePill` in `core/ui`.
 - **Profile:** the card shows @username and three tracking stats (day streak, recorded this month, months tracked; `TrackingStats.compute` in `domain/models/tracking_stats.dart`) and opens Personal details when tapped. The menu is regrouped into Account, Tracking and App with shorter subtitles; Help is a real sheet of quick answers (was "coming soon"); About uses the name Expense Tracker; the read-only Currency row moved to the footer ("Amounts in ZMW").
 - **Budgets:** the summary is now "Spent on budgets" (it never counted unbudgeted spending) with what is left per day until payday and how many budgets need a look. Each bar has a "today" marker (an even pace through the cycle), cards say how spending compares ("ZMW 870 under plan so far"), show what is left on the right, and the caption uses whole kwacha. A new "Not budgeted yet" section lists the biggest categories without a budget with what went on them this cycle and a one-tap budget at a suggested amount (last cycle's spending, rounded up), which opens the sheet pre-filled.
 - **Reports money card:** one card, Spent first and largest, Income and Net in equal columns below, each with its change from the previous month.

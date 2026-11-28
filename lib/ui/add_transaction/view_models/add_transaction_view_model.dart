@@ -24,6 +24,19 @@ class RepeatTransaction {
   final Transaction transaction;
 }
 
+/// Something recorded again and again (the same place at least twice in
+/// the last [AddTransactionViewModel.quickPickDays] days): one tap fills
+/// the form with it.
+typedef QuickPick = ({
+  String title,
+  TransactionCategory category,
+  String walletId,
+  double amount,
+
+  /// Whether it always cost the same, so the amount can be filled too.
+  bool fixedAmount,
+});
+
 /// The text fields filled from a message; the view puts them in its
 /// controllers.
 typedef MessagePrefill = ({String amount, String title, String note});
@@ -88,7 +101,88 @@ class AddTransactionViewModel extends ChangeNotifier {
   MoneyMessage? _initialMessage;
   MessagePrefill? _initialPrefill;
   late DateTime _date;
+  List<Transaction> _history = const [];
   bool _disposed = false;
+
+  /// How far back [quickPicks] look.
+  static const int quickPickDays = 90;
+
+  /// Whether to offer [quickPicks]: for a new transaction typed by hand,
+  /// not when editing, repeating or filling from a message.
+  bool get offersQuickPicks =>
+      _source == null && _initialMessage == null && !_filledFromMessage;
+
+  bool _filledFromMessage = false;
+
+  /// Up to six places recorded at least twice lately for the selected
+  /// type, most used first.
+  List<QuickPick> get quickPicks {
+    final now = _clock();
+    final since = now.subtract(const Duration(days: quickPickDays));
+    final groups = <String, List<Transaction>>{};
+    for (final t in _history) {
+      final key = t.title.trim().toLowerCase();
+      if (key.isEmpty || t.type != _type) continue;
+      if (t.date.isBefore(since) || t.date.isAfter(now)) continue;
+      groups.putIfAbsent(key, () => []).add(t);
+    }
+    final picks = <(QuickPick, int, DateTime)>[];
+    for (final group in groups.values) {
+      if (group.length < 2) continue;
+      group.sort((a, b) => b.date.compareTo(a.date));
+      final latest = group.first;
+      final category = _categories
+          .where((c) => c.type == _type && c.name == latest.categoryName)
+          .firstOrNull;
+      if (category == null) continue;
+      picks.add((
+        (
+          title: latest.title.trim(),
+          category: category,
+          walletId: latest.walletId,
+          amount: latest.amount,
+          fixedAmount: group.every((t) => t.amount == latest.amount),
+        ),
+        group.length,
+        latest.date,
+      ));
+    }
+    picks.sort((a, b) {
+      final byUses = b.$2.compareTo(a.$2);
+      return byUses != 0 ? byUses : b.$3.compareTo(a.$3);
+    });
+    return [for (final p in picks.take(6)) p.$1];
+  }
+
+  /// Fills the category and wallet from [pick]. Returns the title, and
+  /// the amount when it is always the same (otherwise null, so what the
+  /// user typed stays).
+  ({String title, String? amount}) applyQuickPick(QuickPick pick) {
+    _selectedCategory = pick.category;
+    if (_wallets.any((w) => w.id == pick.walletId)) {
+      _selectedWalletId = pick.walletId;
+    }
+    _notify();
+    final amount = pick.amount;
+    return (
+      title: pick.title,
+      amount: pick.fixedAmount
+          ? amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2)
+          : null,
+    );
+  }
+
+  /// Picks today or yesterday (keeping the time rules of [selectDate]).
+  void selectDaysAgo(int days) {
+    final now = _clock();
+    selectDate(DateTime(now.year, now.month, now.day - days));
+  }
+
+  /// 0 for today, 1 for yesterday, null for any other day.
+  int? get daysAgo {
+    final days = dateOnly(_clock()).difference(dateOnly(_date)).inDays;
+    return days == 0 || days == 1 ? days : null;
+  }
 
   TransactionType get type => _type;
 
@@ -148,6 +242,7 @@ class AddTransactionViewModel extends ChangeNotifier {
   /// Fills the form from [message]: type, category, wallet, date and any
   /// charge. Returns the amount, title and note for the text fields.
   MessagePrefill applyMessage(MoneyMessage message) {
+    _filledFromMessage = true;
     _type = message.isIncome ? TransactionType.income : TransactionType.expense;
     final options = categories;
     _selectedCategory =
@@ -234,10 +329,12 @@ class AddTransactionViewModel extends ChangeNotifier {
   /// Loads categories and wallets. Wallets are optional: without them the
   /// transaction goes to the default (cash) wallet.
   Future<Result<void>> _loadCategories() async {
-    final (result, wallets) = await (
+    final (result, wallets, history) = await (
       _categoryRepository.getCategories(),
       _walletRepository.getWallets(),
+      _transactionRepository.getTransactions(),
     ).wait;
+    if (history case Ok(:final value)) _history = value;
     if (wallets case Ok(:final value) when value.isNotEmpty) {
       _wallets = value;
       _selectedWalletId ??=

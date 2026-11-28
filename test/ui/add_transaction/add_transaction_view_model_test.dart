@@ -189,5 +189,49 @@ void main() {
 
       expect(viewModel.save.error, isTrue);
     });
+
+    test('offers places recorded again and again as quick picks', () async {
+      final viewModel = build();
+      await viewModel.loadCategories.execute();
+
+      expect(viewModel.offersQuickPicks, isTrue);
+      final picks = viewModel.quickPicks;
+      expect(picks, isNotEmpty);
+      expect(picks.length, lessThanOrEqualTo(6));
+      expect(
+        picks.every((p) => p.category.type == TransactionType.expense),
+        isTrue,
+      );
+
+      final pick = picks.first;
+      final filled = viewModel.applyQuickPick(pick);
+      expect(filled.title, pick.title);
+      expect(viewModel.selectedCategory, pick.category);
+      expect(filled.amount == null, !pick.fixedAmount);
+
+      viewModel.selectType(TransactionType.income);
+      expect(
+        viewModel.quickPicks.every(
+          (p) => p.category.type == TransactionType.income,
+        ),
+        isTrue,
+      );
+    });
+
+    test('today and yesterday are one tap', () async {
+      final viewModel = build();
+      await viewModel.loadCategories.execute();
+      expect(viewModel.daysAgo, 0);
+
+      viewModel.selectDaysAgo(1);
+      expect(viewModel.daysAgo, 1);
+      expect(viewModel.date, DateTime(2026, 11, 24, 12));
+
+      viewModel.selectDate(DateTime(2026, 11, 20));
+      expect(viewModel.daysAgo, isNull);
+
+      viewModel.selectDaysAgo(0);
+      expect(viewModel.date, now);
+    });
   });
 }

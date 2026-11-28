@@ -178,12 +178,14 @@ void main() {
       // drag to the bottom of the form.
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
-      await tester.pumpAndSettle();
+      await scrollTo(tester, find.text('Save expense'));
       await tester.tap(find.text('Save expense'));
     }
 
+    await scrollTo(tester, find.text('Title (optional)'));
     await tester.enterText(field('Title (optional)'), 'Hungry Lion');
+    await tester.ensureVisible(find.bySemanticsLabel('Eating out'));
+    await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Eating out'));
 
     // Saving without an amount shows a validation error.
@@ -465,7 +467,7 @@ void main() {
     await tester.tap(find.byTooltip('Add transaction'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Fill from a message'));
+    await tester.tap(find.bySemanticsLabel('Fill from a MoMo or bank message'));
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byType(TextField).last,
@@ -477,6 +479,7 @@ void main() {
     await tester.tap(find.text('Fill in the form'));
     await tester.pumpAndSettle();
 
+    await scrollTo(tester, find.text('Hungry Lion Cairo Road'));
     expect(find.text('Hungry Lion Cairo Road'), findsOneWidget);
     await scrollTo(tester, find.text('Save expense'));
     await tester.tap(find.text('Save expense'));
@@ -512,6 +515,7 @@ void main() {
     // Add opens the form already filled in.
     await tester.tap(find.widgetWithText(FilledButton, 'Add').first);
     await tester.pumpAndSettle();
+    await scrollTo(tester, find.text('Chicken Inn Levy'));
     expect(find.text('Chicken Inn Levy'), findsOneWidget);
     await scrollTo(tester, find.text('Save expense'));
     await tester.tap(find.text('Save expense'));
