@@ -310,6 +310,7 @@ class SyncRepositoryDrift extends SyncRepository {
     final name = remote['name'] as String? ?? '';
     final phone = remote['phone'] as String?;
     final preferredName = remote['preferred_name'] as String?;
+    final username = remote['username'] as String?;
     final payday = (remote['payday'] as num?)?.toInt() ?? 1;
     final theme = remote['theme'] as String? ?? 'system';
     final alert = (remote['budget_alert_percent'] as num?)?.toInt() ?? 80;
@@ -338,6 +339,7 @@ class SyncRepositoryDrift extends SyncRepository {
         local.name == name &&
         local.phone == phone &&
         local.preferredName == preferredName &&
+        local.username == username &&
         local.payday == payday &&
         local.theme == theme &&
         local.budgetAlertPercent == alert &&
@@ -362,6 +364,7 @@ class SyncRepositoryDrift extends SyncRepository {
         name: Value(name),
         phone: Value(phone),
         preferredName: Value(preferredName),
+        username: Value(username),
         payday: Value(payday),
         theme: Value(theme),
         budgetAlertPercent: Value(alert),

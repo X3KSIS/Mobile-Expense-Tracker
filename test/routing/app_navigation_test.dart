@@ -88,10 +88,13 @@ void main() {
 
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
-    expect(find.text('Enter your email'), findsOneWidget);
+    expect(find.text('Enter your email or username'), findsOneWidget);
     expect(find.text('Enter your password'), findsOneWidget);
 
-    await tester.enterText(field('Email'), AuthRepositoryLocalFake.demoEmail);
+    await tester.enterText(
+      field('Email or username'),
+      AuthRepositoryLocalFake.demoEmail,
+    );
     await tester.enterText(find.byType(TextFormField).last, 'secret123');
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();

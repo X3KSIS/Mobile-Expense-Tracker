@@ -34,6 +34,13 @@ enum AuthErrorCode {
   /// The call needs a signed-in user and there is none.
   notSignedIn,
 
+  /// Someone else already has that username.
+  usernameTaken,
+
+  /// The username breaks the rules (3 to 20 letters, numbers, dots or
+  /// underscores).
+  usernameInvalid,
+
   /// The server could not be reached.
   network,
 

@@ -82,6 +82,7 @@ void main() {
         name: '  Paul Mubanga Jr ',
         phone: '076 123 4567',
         preferredName: ' PJ ',
+        username: '',
       ));
 
       expect(viewModel.save.completed, isTrue);
@@ -94,9 +95,42 @@ void main() {
         name: 'Paul Mubanga Jr',
         phone: '',
         preferredName: '',
+        username: '',
       ));
       expect(auth.currentUser!.preferredName, isNull);
       expect(auth.currentUser!.displayName, 'Paul');
+    });
+
+    test('saves a username, and a taken one stops the save', () async {
+      final auth = instantAuthRepository(signedIn: true);
+      final viewModel = EditProfileViewModel(authRepository: auth);
+      addTearDown(viewModel.dispose);
+
+      await viewModel.save.execute((
+        name: 'Paul Mubanga',
+        phone: '',
+        preferredName: '',
+        username: 'Paul_M',
+      ));
+      expect(auth.currentUser!.username, 'paul_m');
+
+      await auth.signOut();
+      await auth.signUp(
+        name: 'Mwila',
+        email: 'mwila@example.com',
+        password: 'x',
+      );
+      await viewModel.save.execute((
+        name: 'Mwila Banda',
+        phone: '',
+        preferredName: '',
+        username: 'paul_m',
+      ));
+      expect(
+        viewModel.errorMessage,
+        'That username is taken. Try another one.',
+      );
+      expect(auth.currentUser!.name, 'Mwila', reason: 'nothing else saved');
     });
 
     test('reports an error when signed out', () async {
@@ -108,6 +142,7 @@ void main() {
         name: 'Paul',
         phone: '',
         preferredName: '',
+        username: '',
       ));
 
       expect(viewModel.errorMessage, 'Your session has ended. Sign in again.');

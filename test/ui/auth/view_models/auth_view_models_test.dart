@@ -20,7 +20,7 @@ void main() {
     tearDown(() => viewModel.dispose());
 
     test('signs in with any credentials', () async {
-      await viewModel.login.execute((email: 'x', password: ''));
+      await viewModel.login.execute((identifier: 'x', password: ''));
 
       expect(viewModel.login.completed, isTrue);
       expect(viewModel.errorMessage, isNull);

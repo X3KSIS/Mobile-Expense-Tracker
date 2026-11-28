@@ -36,6 +36,25 @@ Never put the **secret** or **service_role** key in the app or in `supabase.json
 
 There is no demo sign-in: every sign-in goes through Supabase.
 
+## 5. Sign in with a username
+
+Users can set a username in Personal details and sign in with it instead
+of their email. Two pieces make this work:
+
+1. Run `migrations/20261129020000_usernames.sql` in the SQL Editor (the
+   `username` column, its unique index, and the `set_username` and
+   `username_available` functions).
+2. Deploy the Edge Function in `functions/sign-in-with-username/index.ts`:
+   Dashboard → Edge Functions → Deploy a new function → Via Editor, name it
+   `sign-in-with-username`, paste the file, and deploy. Then open its
+   settings and turn **Verify JWT** off (people aren't signed in yet when
+   they call it). With the Supabase CLI instead:
+   `supabase functions deploy sign-in-with-username --no-verify-jwt`.
+
+The function looks the account up with the service role and returns only
+a refresh token, so the email behind a username never reaches the device,
+and a wrong username fails like a wrong password.
+
 ## How sync works
 
 - Every row has `modified_at` (when the user changed it, set by the app) and `updated_at` (when the server stored it, set by a trigger).

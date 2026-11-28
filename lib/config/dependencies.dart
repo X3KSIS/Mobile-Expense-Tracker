@@ -49,6 +49,7 @@ Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
   final auth = AuthRepositorySupabase(
     client.auth,
     db,
+    client: client,
     beforeSignOut: () => syncRepository.sync(),
   );
   await auth.load();

@@ -40,7 +40,7 @@ void main() {
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Enter your email'), findsOneWidget);
+      expect(find.text('Enter your email or username'), findsOneWidget);
       expect(find.text('Enter your password'), findsOneWidget);
       expect(auth.isAuthenticated, isFalse);
     });
@@ -48,7 +48,7 @@ void main() {
     testWidgets('any typed credentials sign in', (tester) async {
       await pumpLogin(tester);
 
-      await tester.enterText(field('Email'), 'anyone@example.com');
+      await tester.enterText(field('Email or username'), 'anyone@example.com');
       await tester.enterText(field('Password'), 'anything');
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
@@ -68,7 +68,7 @@ void main() {
     testWidgets('forgot password confirms with a snackbar', (tester) async {
       await pumpLogin(tester);
 
-      await tester.enterText(field('Email'), 'mwila@example.com');
+      await tester.enterText(field('Email or username'), 'mwila@example.com');
       await tester.tap(find.text('Forgot password?'));
       await tester.pumpAndSettle();
 

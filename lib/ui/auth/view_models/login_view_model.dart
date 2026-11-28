@@ -6,7 +6,8 @@ import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 import 'auth_error_message.dart';
 
-typedef LoginCredentials = ({String email, String password});
+/// [identifier] is an email or a username.
+typedef LoginCredentials = ({String identifier, String password});
 
 /// Signs the user in. On success the router sees the auth change and moves
 /// to Home, so the view does not navigate itself.
@@ -35,17 +36,20 @@ class LoginViewModel extends ChangeNotifier {
   void clearError() => login.clearResult();
 
   Future<Result<void>> _login(LoginCredentials credentials) async {
+    final identifier = credentials.identifier.trim();
     final result = await _authRepository.signIn(
-      email: credentials.email.trim(),
+      identifier: identifier,
       password: credentials.password,
     );
     switch (result) {
       case Ok():
         return const Result.ok(null);
-      case Error(error: AuthException(code: AuthErrorCode.emailNotConfirmed)):
-        final email = credentials.email.trim();
-        await _authRepository.resendEmailCode(email);
-        _emailToConfirm = email;
+      // With a username the email isn't known here, so the message asks
+      // the user to confirm instead.
+      case Error(error: AuthException(code: AuthErrorCode.emailNotConfirmed))
+          when identifier.contains('@'):
+        await _authRepository.resendEmailCode(identifier);
+        _emailToConfirm = identifier;
         return const Result.ok(null);
       case Error(:final error):
         return Result.error(error);

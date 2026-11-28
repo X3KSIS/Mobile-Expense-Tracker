@@ -30,7 +30,7 @@ class _ConfirmingAuth extends AuthRepositoryLocalFake {
 
   @override
   Future<Result<AppUser>> signIn({
-    required String email,
+    required String identifier,
     required String password,
   }) async =>
       const Result.error(AuthException(AuthErrorCode.emailNotConfirmed));
@@ -65,7 +65,7 @@ void main() {
     final vm = LoginViewModel(authRepository: auth);
     addTearDown(vm.dispose);
 
-    await vm.login.execute((email: 'mwila@example.com', password: 'x'));
+    await vm.login.execute((identifier: 'mwila@example.com', password: 'x'));
 
     expect(vm.emailToConfirm, 'mwila@example.com');
     expect(auth.codesSentTo, ['mwila@example.com']);

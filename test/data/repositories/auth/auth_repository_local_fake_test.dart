@@ -25,7 +25,7 @@ void main() {
       var notified = 0;
       auth.addListener(() => notified++);
 
-      final result = await auth.signIn(email: '', password: '');
+      final result = await auth.signIn(identifier: '', password: '');
 
       expect(result, isA<Ok<AppUser>>());
       expect(auth.isAuthenticated, isTrue);
@@ -33,7 +33,10 @@ void main() {
       expect(notified, 1);
 
       await auth.signOut();
-      await auth.signIn(email: 'someone@example.com', password: 'whatever');
+      await auth.signIn(
+        identifier: 'someone@example.com',
+        password: 'whatever',
+      );
       expect(auth.currentUser!.email, AuthRepositoryLocalFake.demoEmail);
     });
 
@@ -55,7 +58,7 @@ void main() {
 
       // Signing in again with that email opens the same account.
       await auth.signOut();
-      await auth.signIn(email: 'mwila@example.com', password: '');
+      await auth.signIn(identifier: 'mwila@example.com', password: '');
       expect(auth.currentUser!.name, 'Mwila Banda');
     });
 
@@ -79,6 +82,37 @@ void main() {
       expect(notified, 1);
     });
 
+    test('a username is unique and signs in instead of the email', () async {
+      final auth = instantAuthRepository(signedIn: true);
+
+      final set = await auth.setUsername(' Paul_M ');
+      expect(set, isA<Ok<AppUser>>());
+      expect(auth.currentUser!.username, 'paul_m');
+      expect(await auth.isUsernameAvailable('paul_m'), isA<Ok<bool>>());
+
+      await auth.signOut();
+      await auth.signUp(
+        name: 'Mwila',
+        email: 'mwila@example.com',
+        password: 'x',
+      );
+      final taken = await auth.setUsername('paul_m');
+      expect(
+        (taken as Error<AppUser>).error,
+        isA<AuthException>().having(
+          (e) => e.code,
+          'code',
+          AuthErrorCode.usernameTaken,
+        ),
+      );
+      final free = await auth.isUsernameAvailable('PAUL_M');
+      expect((free as Ok<bool>).value, isFalse);
+
+      await auth.signOut();
+      await auth.signIn(identifier: 'Paul_M', password: 'x');
+      expect(auth.currentUser!.email, AuthRepositoryLocalFake.demoEmail);
+    });
+
     test('updates the profile and keeps it after signing in again', () async {
       final auth = instantAuthRepository(signedIn: true);
 
@@ -92,7 +126,10 @@ void main() {
       expect(auth.currentUser!.phone, '0761234567');
 
       await auth.signOut();
-      await auth.signIn(email: AuthRepositoryLocalFake.demoEmail, password: '');
+      await auth.signIn(
+        identifier: AuthRepositoryLocalFake.demoEmail,
+        password: '',
+      );
       expect(auth.currentUser!.name, 'Paul M. Mubanga');
     });
 

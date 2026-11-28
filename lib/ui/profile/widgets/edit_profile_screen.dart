@@ -27,6 +27,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _name;
   late final TextEditingController _preferredName;
+  late final TextEditingController _username;
   late final TextEditingController _email;
   late final TextEditingController _phone;
 
@@ -37,6 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final phone = user?.phone;
     _name = TextEditingController(text: user?.name ?? '');
     _preferredName = TextEditingController(text: user?.preferredName ?? '');
+    _username = TextEditingController(text: user?.username ?? '');
     _email = TextEditingController(text: user?.email ?? '');
     _phone = TextEditingController(
       text: phone == null ? '' : formatPhone(phone),
@@ -60,6 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     widget.viewModel.setPhoto.removeListener(_onPhotoChanged);
     _name.dispose();
     _preferredName.dispose();
+    _username.dispose();
     _email.dispose();
     _phone.dispose();
     super.dispose();
@@ -116,6 +119,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       name: _name.text,
       phone: _phone.text,
       preferredName: _preferredName.text,
+      username: _username.text,
     ));
   }
 
@@ -153,6 +157,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 formKey: _formKey,
                 name: _name,
                 preferredName: _preferredName,
+                username: _username,
                 email: _email,
                 phone: _phone,
                 onChanged: (_) => viewModel.clearError(),
@@ -177,6 +182,7 @@ class _EditProfileForm extends StatelessWidget {
     required this.formKey,
     required this.name,
     required this.preferredName,
+    required this.username,
     required this.email,
     required this.phone,
     required this.onChanged,
@@ -186,6 +192,7 @@ class _EditProfileForm extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController name;
   final TextEditingController preferredName;
+  final TextEditingController username;
   final TextEditingController email;
   final TextEditingController phone;
   final ValueChanged<String> onChanged;
@@ -214,15 +221,25 @@ class _EditProfileForm extends StatelessWidget {
             controller: preferredName,
             hint: 'e.g. Paul',
             prefixIcon: Icons.waving_hand_outlined,
-            helper:
-                'Used to greet you on Home. Leave empty for your first '
-                'name.',
+            helper: 'Used in your Home greeting.',
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.nickname],
             validator: (value) => (value ?? '').trim().length > 30
                 ? 'Keep it to 30 characters or fewer'
                 : null,
+            onChanged: onChanged,
+          ),
+          const SizedBox(height: Dimens.gapL),
+          LabeledTextField(
+            label: 'Username (optional)',
+            controller: username,
+            hint: 'e.g. paul_m',
+            prefixIcon: Icons.alternate_email_rounded,
+            helper: 'Sign in with this instead of your email.',
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.newUsername],
+            validator: Validators.optionalUsername,
             onChanged: onChanged,
           ),
           const SizedBox(height: Dimens.gapL),

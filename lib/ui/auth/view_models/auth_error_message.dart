@@ -7,7 +7,8 @@ String authErrorMessage(Exception error) {
   final code = error is AuthException ? error.code : AuthErrorCode.unknown;
   return switch (code) {
     AuthErrorCode.invalidCredentials =>
-      "That email and password don't match. Check them and try again.",
+      "That email or username and password don't match. Check them and "
+          'try again.',
     AuthErrorCode.emailAlreadyInUse =>
       'An account with this email already exists. Sign in instead.',
     AuthErrorCode.weakPassword =>
@@ -28,6 +29,9 @@ String authErrorMessage(Exception error) {
       "Some changes haven't been saved online yet. Connect to the internet "
           'and try again, so nothing is lost.',
     AuthErrorCode.notSignedIn => 'Your session has ended. Sign in again.',
+    AuthErrorCode.usernameTaken => 'That username is taken. Try another one.',
+    AuthErrorCode.usernameInvalid =>
+      'Use 3 to 20 letters, numbers, dots or underscores for your username.',
     AuthErrorCode.network =>
       "Couldn't reach Expense Tracker. Check your connection and try again.",
     AuthErrorCode.unknown => 'Something went wrong. Please try again.',

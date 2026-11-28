@@ -18,6 +18,27 @@ void main() {
     });
   });
 
+  group('Validators usernames', () {
+    test('optional username follows the rules', () {
+      expect(Validators.optionalUsername(''), isNull);
+      expect(Validators.optionalUsername(' Paul_M '), isNull);
+      expect(Validators.optionalUsername('pm'), isNotNull);
+      expect(Validators.optionalUsername('paul m'), isNotNull);
+      expect(Validators.optionalUsername('a' * 21), isNotNull);
+    });
+
+    test('sign-in accepts an email or a username', () {
+      expect(Validators.emailOrUsername(''), 'Enter your email or username');
+      expect(Validators.emailOrUsername('paul@example.com'), isNull);
+      expect(Validators.emailOrUsername('paul@'), isNotNull);
+      expect(Validators.emailOrUsername('paul_m'), isNull);
+      expect(
+        Validators.emailOrUsername('p!'),
+        'Enter a valid email or username',
+      );
+    });
+  });
+
   group('Validators.name', () {
     test('requires at least two characters', () {
       expect(Validators.name(''), 'Enter your name');

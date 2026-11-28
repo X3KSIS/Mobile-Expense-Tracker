@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 299 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 304 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -35,11 +35,13 @@ This is where the next session starts.
   4. `20261128020000_privacy_screen.sql`: `privacy_screen`.
   5. `20261128030000_app_lock.sql`: `app_lock`.
   6. `20261129000000_notifications.sql`: reminder and alert settings, `notifications_seen_at`.
-  7. `20261129010000_preferred_name.sql`: `preferred_name`. **Not applied yet: apply it before running this build,** or profile sync fails on the unknown column.
+  7. `20261129010000_preferred_name.sql`: `preferred_name`.
+  8. `20261129020000_usernames.sql`: `username` (unique), `set_username` and `username_available`. **Not applied yet.**
+- **Edge Function** `sign-in-with-username` (`supabase/functions/`), deployed with Verify JWT off. **Not deployed yet.** Steps in `supabase/README.md`.
 - **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project does not grant access by default.
 - **Config:** the project URL and publishable key are built into `SupabaseConfig`, so F5 or `flutter run` connects. `supabase.json` (gitignored) can point a build at another project. Never put the secret key in the app.
 - **Email:** Supabase's built-in sender only sends its default link email and is rate-limited. Templates can only be edited after custom SMTP is set up. Clicking the link does confirm the account, even though the page it opens shows "localhost".
-- **Device database:** Drift schema version 7 (profile columns were added in versions 2 to 7).
+- **Device database:** Drift schema version 8 (profile columns were added in versions 2 to 8).
 
 ### How to run and check
 
@@ -77,6 +79,7 @@ This is where the next session starts.
 ### Done
 
 - **Reports money card:** one card, Spent first and largest, Income and Net in equal columns below, each with its change from the previous month.
+- **Sign in with a username:** sign-in takes an email or a username; a username is set in Personal details (unique, 3 to 20 lowercase letters, numbers, dots, underscores) through the `set_username` database function, so a clash is caught at once and never blocks sync (the profile push leaves `username` out; pulls bring it down). Username sign-in goes through the `sign-in-with-username` Edge Function, which looks the account up with the service role and returns only a refresh token (`auth.setSession`), so emails are never exposed and a wrong username fails like a wrong password. Note: Supabase's per-IP sign-in rate limit sees the function's address, not the user's.
 - **Month picker:** tap the month on Reports for a sheet with a year switcher and a grid of months, each showing what was spent; reaches back to the first month with data (no longer only 6). The trend chart's 6 months end at the selected month when it is older.
 
 ## Session 12: 28 Nov 2026 (late night, continued)

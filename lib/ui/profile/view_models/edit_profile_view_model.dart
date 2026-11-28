@@ -7,7 +7,12 @@ import '../../../utils/result.dart';
 import '../../../utils/validators.dart';
 import '../../auth/view_models/auth_error_message.dart';
 
-typedef ProfileDetails = ({String name, String phone, String preferredName});
+typedef ProfileDetails = ({
+  String name,
+  String phone,
+  String preferredName,
+  String username,
+});
 
 /// Edits the signed-in user's photo, name, preferred name and phone
 /// number.
@@ -42,6 +47,13 @@ class EditProfileViewModel extends ChangeNotifier {
   void clearError() => save.clearResult();
 
   Future<Result<void>> _save(ProfileDetails details) async {
+    // The username goes to the server first: it must be unique, and a
+    // clash should stop the save before anything else changes.
+    final username = Validators.normaliseUsername(details.username);
+    if (username != (_authRepository.currentUser?.username ?? '')) {
+      final set = await _authRepository.setUsername(username);
+      if (set case Error(:final error)) return Result.error(error);
+    }
     final result = await _authRepository.updateProfile(
       name: details.name.trim(),
       phone: Validators.normalisePhone(details.phone),

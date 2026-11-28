@@ -12,6 +12,7 @@ class AppUser {
     this.phone,
     this.photo,
     this.preferredName,
+    this.username,
   });
 
   final String id;
@@ -30,6 +31,10 @@ class AppUser {
   /// What the user likes to be called, e.g. "Paul" or "PM"; null when not
   /// set.
   final String? preferredName;
+
+  /// A unique name to sign in with instead of the email, e.g. "paul_m";
+  /// null when not set.
+  final String? username;
 
   /// The name to greet the user by: [preferredName] when set, otherwise
   /// the first word of [name].
@@ -55,13 +60,17 @@ class AppUser {
     bool clearPhone = false,
     String? preferredName,
     bool clearPreferredName = false,
+    String? username,
+    bool clearUsername = false,
+    Uint8List? photo,
   }) => AppUser(
     id: id,
     name: name ?? this.name,
     email: email,
     phone: clearPhone ? null : (phone ?? this.phone),
     createdAt: createdAt,
-    photo: photo,
+    photo: photo ?? this.photo,
+    username: clearUsername ? null : (username ?? this.username),
     preferredName: clearPreferredName
         ? null
         : (preferredName ?? this.preferredName),
@@ -75,6 +84,7 @@ class AppUser {
       other.email == email &&
       other.phone == phone &&
       other.preferredName == preferredName &&
+      other.username == username &&
       other.createdAt == createdAt &&
       _sameBytes(other.photo, photo);
 
@@ -94,6 +104,7 @@ class AppUser {
     email,
     phone,
     preferredName,
+    username,
     createdAt,
     photo?.length,
   );

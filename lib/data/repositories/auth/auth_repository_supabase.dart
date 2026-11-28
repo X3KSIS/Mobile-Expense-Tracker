@@ -20,6 +20,7 @@ class AuthRepositorySupabase extends AuthRepository {
   AuthRepositorySupabase(
     this._auth,
     this._db, {
+    this._client,
     this.beforeSignOut,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
@@ -30,6 +31,13 @@ class AuthRepositorySupabase extends AuthRepository {
   }
 
   final sb.GoTrueClient _auth;
+
+  /// For usernames: the database functions and the sign-in Edge Function.
+  final sb.SupabaseClient? _client;
+
+  /// The Edge Function that signs in with a username
+  /// (`supabase/functions/sign-in-with-username`).
+  static const String usernameSignInFunction = 'sign-in-with-username';
   final AppDatabase _db;
   final DateTime Function() _clock;
 
@@ -55,11 +63,14 @@ class AuthRepositorySupabase extends AuthRepository {
 
   @override
   Future<Result<AppUser>> signIn({
-    required String email,
+    required String identifier,
     required String password,
   }) => _call(() async {
+    if (!identifier.contains('@')) {
+      return _signInWithUsername(identifier, password);
+    }
     final response = await _auth.signInWithPassword(
-      email: email.trim(),
+      email: identifier.trim(),
       password: password,
     );
     final user = response.user;
@@ -171,6 +182,77 @@ class AuthRepositorySupabase extends AuthRepository {
     await _auth.updateUser(sb.UserAttributes(password: newPassword));
   });
 
+  /// The Edge Function finds the account on the server and returns a
+  /// refresh token, so the email behind a username never reaches the
+  /// device. A wrong username and a wrong password give the same error.
+  Future<AppUser> _signInWithUsername(String username, String password) async {
+    final client = _client;
+    if (client == null) throw const AuthException(AuthErrorCode.unknown);
+    final String token;
+    try {
+      final response = await client.functions.invoke(
+        usernameSignInFunction,
+        body: {'username': username.trim().toLowerCase(), 'password': password},
+      );
+      final data = response.data;
+      final value = data is Map ? data['refresh_token'] : null;
+      if (value is! String) throw const AuthException(AuthErrorCode.unknown);
+      token = value;
+    } on sb.FunctionException catch (e) {
+      final details = e.details;
+      final code = details is Map ? details['error'] : null;
+      throw AuthException(switch (code) {
+        'invalid_credentials' => AuthErrorCode.invalidCredentials,
+        'email_not_confirmed' => AuthErrorCode.emailNotConfirmed,
+        'too_many_requests' => AuthErrorCode.tooManyRequests,
+        _ => AuthErrorCode.unknown,
+      });
+    }
+    final session = await _auth.setSession(token);
+    final user = session.user;
+    if (user == null) throw const AuthException(AuthErrorCode.unknown);
+    return _open(user);
+  }
+
+  @override
+  Future<Result<AppUser>> setUsername(String? username) => _call(() async {
+    final user = _user;
+    final client = _client;
+    if (user == null) throw const AuthException(AuthErrorCode.notSignedIn);
+    if (client == null) throw const AuthException(AuthErrorCode.unknown);
+    final cleaned = username?.trim().toLowerCase() ?? '';
+    final Object? stored;
+    try {
+      stored = await client.rpc(
+        'set_username',
+        params: {'new_username': cleaned.isEmpty ? null : cleaned},
+      );
+    } on sb.PostgrestException catch (e) {
+      throw AuthException(
+        e.message.contains('username_taken') || e.code == '23505'
+            ? AuthErrorCode.usernameTaken
+            : e.message.contains('username_invalid')
+            ? AuthErrorCode.usernameInvalid
+            : AuthErrorCode.unknown,
+      );
+    }
+    // Already on the server, so the row stays clean.
+    await (_db.update(_db.profiles)..where((p) => p.userId.equals(user.id)))
+        .write(ProfilesCompanion(username: Value(stored as String?)));
+    return _reloadProfile().then((updated) => updated ?? user);
+  });
+
+  @override
+  Future<Result<bool>> isUsernameAvailable(String username) => _call(() async {
+    final client = _client;
+    if (client == null) throw const AuthException(AuthErrorCode.unknown);
+    final free = await client.rpc(
+      'username_available',
+      params: {'candidate': username.trim().toLowerCase()},
+    );
+    return free == true;
+  });
+
   @override
   Future<Result<AppUser>> setPhoto(Uint8List? photo) => _call(() async {
     final user = _user;
@@ -225,6 +307,7 @@ class AuthRepositorySupabase extends AuthRepository {
     createdAt: row.createdAt,
     photo: row.avatarBytes,
     preferredName: row.preferredName,
+    username: row.username,
   );
 
   /// The session ended elsewhere (expired or revoked).

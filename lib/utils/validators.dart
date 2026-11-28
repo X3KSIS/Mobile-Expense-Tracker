@@ -24,6 +24,33 @@ abstract final class Validators {
     return null;
   }
 
+  /// Usernames: 3 to 20 lowercase letters, numbers, dots or underscores.
+  static final RegExp usernamePattern = RegExp(r'^[a-z0-9_.]{3,20}$');
+
+  /// Lower-cases and trims a username as typed.
+  static String normaliseUsername(String value) => value.trim().toLowerCase();
+
+  /// For the optional username in Personal details.
+  static String? optionalUsername(String? value) {
+    final text = normaliseUsername(value ?? '');
+    if (text.isEmpty) return null;
+    if (!usernamePattern.hasMatch(text)) {
+      return 'Use 3 to 20 letters, numbers, dots or underscores';
+    }
+    return null;
+  }
+
+  /// For signing in: an email (it has an @) or a username.
+  static String? emailOrUsername(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return 'Enter your email or username';
+    if (text.contains('@')) return email(text);
+    if (!usernamePattern.hasMatch(normaliseUsername(text))) {
+      return 'Enter a valid email or username';
+    }
+    return null;
+  }
+
   /// For signing in: only checks that something was typed.
   static String? existingPassword(String? value) {
     if (value == null || value.isEmpty) return 'Enter your password';

@@ -15,8 +15,10 @@ abstract class AuthRepository extends ChangeNotifier {
   /// The signed-in user, or null when signed out.
   AppUser? get currentUser;
 
+  /// Signs in with an email or a username ([identifier] without an @)
+  /// and the password.
   Future<Result<AppUser>> signIn({
-    required String email,
+    required String identifier,
     required String password,
   });
 
@@ -48,6 +50,14 @@ abstract class AuthRepository extends ChangeNotifier {
     required String currentPassword,
     required String newPassword,
   });
+
+  /// Sets the username to sign in with, or removes it when null or empty.
+  /// Needs a connection, since usernames must be unique; fails with
+  /// `usernameTaken` or `usernameInvalid`.
+  Future<Result<AppUser>> setUsername(String? username);
+
+  /// Whether [username] is free (or already the user's own).
+  Future<Result<bool>> isUsernameAvailable(String username);
 
   /// Sets the profile photo (JPEG bytes), or removes it when null.
   Future<Result<AppUser>> setPhoto(Uint8List? photo);

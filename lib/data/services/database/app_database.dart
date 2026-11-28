@@ -178,6 +178,10 @@ class Profiles extends Table {
   /// What the user likes to be called in greetings, e.g. "Paul".
   TextColumn get preferredName => text().nullable()();
 
+  /// A unique name to sign in with instead of the email. Set on the
+  /// server (it must be unique), then pulled down; never pushed.
+  TextColumn get username => text().nullable()();
+
   /// Whether Home hides money amounts until shown.
   BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
@@ -219,7 +223,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -250,6 +254,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 7) {
         await m.addColumn(profiles, profiles.preferredName);
+      }
+      if (from < 8) {
+        await m.addColumn(profiles, profiles.username);
       }
     },
   );

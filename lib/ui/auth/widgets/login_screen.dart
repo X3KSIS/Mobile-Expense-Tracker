@@ -12,7 +12,7 @@ import '../view_models/login_view_model.dart';
 import 'auth_header.dart';
 import 'auth_switch_prompt.dart';
 
-/// Email and password sign-in, with "Forgot password?" and a link to
+/// Email (or username) and password sign-in, with "Forgot password?" and a link to
 /// sign up.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.viewModel});
@@ -84,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     widget.viewModel.login.execute((
-      email: _email.text,
+      identifier: _email.text,
       password: _password.text,
     ));
   }
@@ -175,14 +175,17 @@ class _LoginForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             LabeledTextField(
-              label: 'Email',
+              label: 'Email or username',
               controller: email,
               hint: 'you@example.com',
-              prefixIcon: Icons.mail_outline_rounded,
+              prefixIcon: Icons.person_outline_rounded,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.email],
-              validator: Validators.email,
+              autofillHints: const [
+                AutofillHints.email,
+                AutofillHints.username,
+              ],
+              validator: Validators.emailOrUsername,
               onChanged: onChanged,
             ),
             const SizedBox(height: Dimens.gapL),

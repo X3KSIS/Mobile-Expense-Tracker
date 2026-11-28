@@ -52,11 +52,18 @@ class AuthRepositoryLocalFake extends AuthRepository {
 
   @override
   Future<Result<AppUser>> signIn({
-    required String email,
+    required String identifier,
     required String password,
   }) async {
     await Future<void>.delayed(delay);
-    final user = _accounts[_normalise(email)] ?? _accounts[demoEmail]!;
+    final name = identifier.trim().toLowerCase();
+    final byUsername = identifier.contains('@')
+        ? null
+        : _accounts.values.where((a) => a.username == name).firstOrNull;
+    final user =
+        byUsername ??
+        _accounts[_normalise(identifier)] ??
+        _accounts[demoEmail]!;
     _setUser(user);
     return Result.ok(user);
   }
@@ -118,11 +125,48 @@ class AuthRepositoryLocalFake extends AuthRepository {
       phone: user.phone,
       createdAt: user.createdAt,
       photo: photo,
+      preferredName: user.preferredName,
+      username: user.username,
     );
     _currentUser = updated;
     _accounts[user.email] = updated;
     notifyListeners();
     return Result.ok(updated);
+  }
+
+  @override
+  Future<Result<AppUser>> setUsername(String? username) async {
+    await Future<void>.delayed(delay);
+    final user = _currentUser;
+    if (user == null) {
+      return const Result.error(AuthException(AuthErrorCode.notSignedIn));
+    }
+    final name = username?.trim().toLowerCase() ?? '';
+    if (name.isNotEmpty && !RegExp(r'^[a-z0-9_.]{3,20}$').hasMatch(name)) {
+      return const Result.error(AuthException(AuthErrorCode.usernameInvalid));
+    }
+    final taken = _accounts.values.any(
+      (a) => a.id != user.id && a.username == name,
+    );
+    if (name.isNotEmpty && taken) {
+      return const Result.error(AuthException(AuthErrorCode.usernameTaken));
+    }
+    final updated = user.copyWith(
+      username: name.isEmpty ? null : name,
+      clearUsername: name.isEmpty,
+    );
+    _accounts[user.email] = updated;
+    _setUser(updated);
+    return Result.ok(updated);
+  }
+
+  @override
+  Future<Result<bool>> isUsernameAvailable(String username) async {
+    final name = username.trim().toLowerCase();
+    final me = _currentUser?.id;
+    return Result.ok(
+      !_accounts.values.any((a) => a.id != me && a.username == name),
+    );
   }
 
   /// The only code [verifyEmail] accepts.
