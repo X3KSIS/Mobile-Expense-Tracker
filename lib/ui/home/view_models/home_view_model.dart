@@ -197,6 +197,20 @@ class HomeViewModel extends ChangeNotifier {
   /// The signed-in user's name, shown in the header.
   String get userName => _authRepository.currentUser?.name ?? '';
 
+  /// What to call the user in the greeting: their preferred name, or
+  /// their first name.
+  String get displayName => _authRepository.currentUser?.displayName ?? '';
+
+  /// "Good morning" (5:00 to noon), "Good afternoon" (to 17:00) or "Good
+  /// evening".
+  String get greeting => greetingFor(_clock());
+
+  static String greetingFor(DateTime time) => switch (time.hour) {
+    >= 5 && < 12 => 'Good morning',
+    >= 12 && < 17 => 'Good afternoon',
+    _ => 'Good evening',
+  };
+
   /// Up to two initials from [userName], e.g. "PM".
   String get userInitials => _authRepository.currentUser?.initials ?? '';
 

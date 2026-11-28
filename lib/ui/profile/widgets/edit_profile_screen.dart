@@ -12,7 +12,8 @@ import '../../core/ui/screen_header.dart';
 import '../view_models/edit_profile_view_model.dart';
 import 'profile_photo_picker.dart';
 
-/// Edit the user's photo, name and phone number. Email is read-only.
+/// Edit the user's photo, name, what to call them and phone number.
+/// Email is read-only.
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key, required this.viewModel});
 
@@ -25,6 +26,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _name;
+  late final TextEditingController _preferredName;
   late final TextEditingController _email;
   late final TextEditingController _phone;
 
@@ -34,6 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = widget.viewModel.user;
     final phone = user?.phone;
     _name = TextEditingController(text: user?.name ?? '');
+    _preferredName = TextEditingController(text: user?.preferredName ?? '');
     _email = TextEditingController(text: user?.email ?? '');
     _phone = TextEditingController(
       text: phone == null ? '' : formatPhone(phone),
@@ -56,6 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     widget.viewModel.save.removeListener(_onSaveChanged);
     widget.viewModel.setPhoto.removeListener(_onPhotoChanged);
     _name.dispose();
+    _preferredName.dispose();
     _email.dispose();
     _phone.dispose();
     super.dispose();
@@ -108,7 +112,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _submit() {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    widget.viewModel.save.execute((name: _name.text, phone: _phone.text));
+    widget.viewModel.save.execute((
+      name: _name.text,
+      phone: _phone.text,
+      preferredName: _preferredName.text,
+    ));
   }
 
   @override
@@ -144,6 +152,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               _EditProfileForm(
                 formKey: _formKey,
                 name: _name,
+                preferredName: _preferredName,
                 email: _email,
                 phone: _phone,
                 onChanged: (_) => viewModel.clearError(),
@@ -167,6 +176,7 @@ class _EditProfileForm extends StatelessWidget {
   const _EditProfileForm({
     required this.formKey,
     required this.name,
+    required this.preferredName,
     required this.email,
     required this.phone,
     required this.onChanged,
@@ -175,6 +185,7 @@ class _EditProfileForm extends StatelessWidget {
 
   final GlobalKey<FormState> formKey;
   final TextEditingController name;
+  final TextEditingController preferredName;
   final TextEditingController email;
   final TextEditingController phone;
   final ValueChanged<String> onChanged;
@@ -195,6 +206,23 @@ class _EditProfileForm extends StatelessWidget {
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.name],
             validator: Validators.name,
+            onChanged: onChanged,
+          ),
+          const SizedBox(height: Dimens.gapL),
+          LabeledTextField(
+            label: 'What should we call you? (optional)',
+            controller: preferredName,
+            hint: 'e.g. Paul',
+            prefixIcon: Icons.waving_hand_outlined,
+            helper:
+                'Used to greet you on Home. Leave empty for your first '
+                'name.',
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.nickname],
+            validator: (value) => (value ?? '').trim().length > 30
+                ? 'Keep it to 30 characters or fewer'
+                : null,
             onChanged: onChanged,
           ),
           const SizedBox(height: Dimens.gapL),

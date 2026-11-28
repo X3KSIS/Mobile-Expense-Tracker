@@ -11,6 +11,9 @@ String formatActivityTime(DateTime date, {DateTime? now}) {
   return DateFormat('d MMM').format(date);
 }
 
+/// The time of day, e.g. `14:05`.
+String formatTimeOfDay(DateTime date) => DateFormat.Hm().format(date);
+
 /// Heading for a day of transactions: `Today`, `Yesterday`, otherwise
 /// `Tuesday, 18 Nov` (with the year when it is not [now]'s year).
 String formatDayHeading(DateTime date, {DateTime? now}) {

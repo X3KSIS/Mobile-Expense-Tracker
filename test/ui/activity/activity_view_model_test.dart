@@ -119,5 +119,27 @@ void main() {
       expect(viewModel.hasError, isTrue);
       expect(viewModel.isLoading, isFalse);
     });
+
+    test('adds up the week day by day, against the week before', () async {
+      final viewModel = ActivityViewModel(
+        transactionRepository: instantTransactionRepository(now: now),
+        clock: () => now,
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load.execute();
+
+      expect(viewModel.weekDays, hasLength(ActivityViewModel.recentDays));
+      expect(viewModel.weekDays.last, DateTime(2026, 11, 25));
+      expect(viewModel.weekDays.first, DateTime(2026, 11, 19));
+      // Today: Shoprite 640 (the salary is income).
+      expect(viewModel.spentByDay.last, 640);
+      expect(
+        viewModel.spentThisWeek,
+        viewModel.spentByDay.fold<double>(0, (a, b) => a + b),
+      );
+      expect(viewModel.spentThisWeek, viewModel.totalOut);
+      expect(viewModel.receivedThisWeek, 12500);
+      expect(viewModel.spentLastWeek, greaterThan(0));
+    });
   });
 }

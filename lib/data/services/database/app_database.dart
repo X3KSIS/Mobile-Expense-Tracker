@@ -175,6 +175,9 @@ class Profiles extends Table {
   /// When the user last opened Notifications.
   DateTimeColumn get notificationsSeenAt => dateTime().nullable()();
 
+  /// What the user likes to be called in greetings, e.g. "Paul".
+  TextColumn get preferredName => text().nullable()();
+
   /// Whether Home hides money amounts until shown.
   BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
@@ -216,7 +219,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -244,6 +247,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(profiles, profiles.billReminders);
         await m.addColumn(profiles, profiles.budgetAlerts);
         await m.addColumn(profiles, profiles.notificationsSeenAt);
+      }
+      if (from < 7) {
+        await m.addColumn(profiles, profiles.preferredName);
       }
     },
   );

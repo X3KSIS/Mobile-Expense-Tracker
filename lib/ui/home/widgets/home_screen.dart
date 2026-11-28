@@ -178,6 +178,8 @@ class _HomeContent extends StatelessWidget {
 
   Widget _header(BuildContext context) => HomeHeader(
     userName: viewModel.userName,
+    greeting: viewModel.greeting,
+    displayName: viewModel.displayName,
     initials: viewModel.userInitials,
     photo: viewModel.userPhoto,
     onProfilePressed: () => context.push(Routes.profile),

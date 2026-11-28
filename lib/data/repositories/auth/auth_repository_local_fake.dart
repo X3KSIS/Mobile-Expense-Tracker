@@ -166,6 +166,7 @@ class AuthRepositoryLocalFake extends AuthRepository {
   Future<Result<AppUser>> updateProfile({
     required String name,
     required String phone,
+    String preferredName = '',
   }) async {
     await Future<void>.delayed(delay);
     final user = _currentUser;
@@ -173,10 +174,13 @@ class AuthRepositoryLocalFake extends AuthRepository {
       return const Result.error(AuthException(AuthErrorCode.notSignedIn));
     }
     final trimmedPhone = phone.trim();
+    final preferred = preferredName.trim();
     final updated = user.copyWith(
       name: name.trim(),
       phone: trimmedPhone.isEmpty ? null : trimmedPhone,
       clearPhone: trimmedPhone.isEmpty,
+      preferredName: preferred.isEmpty ? null : preferred,
+      clearPreferredName: preferred.isEmpty,
     );
     _accounts[user.email] = updated;
     _setUser(updated);

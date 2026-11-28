@@ -273,6 +273,7 @@ class SyncRepositoryDrift extends SyncRepository {
     await _remote.pushProfile({
       'name': local.name,
       'phone': local.phone,
+      'preferred_name': local.preferredName,
       'payday': local.payday,
       'theme': local.theme,
       'budget_alert_percent': local.budgetAlertPercent,
@@ -308,6 +309,7 @@ class SyncRepositoryDrift extends SyncRepository {
     if (local.dirty && local.modifiedAt.isAfter(remoteModified)) return;
     final name = remote['name'] as String? ?? '';
     final phone = remote['phone'] as String?;
+    final preferredName = remote['preferred_name'] as String?;
     final payday = (remote['payday'] as num?)?.toInt() ?? 1;
     final theme = remote['theme'] as String? ?? 'system';
     final alert = (remote['budget_alert_percent'] as num?)?.toInt() ?? 80;
@@ -335,6 +337,7 @@ class SyncRepositoryDrift extends SyncRepository {
         !local.dirty &&
         local.name == name &&
         local.phone == phone &&
+        local.preferredName == preferredName &&
         local.payday == payday &&
         local.theme == theme &&
         local.budgetAlertPercent == alert &&
@@ -358,6 +361,7 @@ class SyncRepositoryDrift extends SyncRepository {
       ProfilesCompanion(
         name: Value(name),
         phone: Value(phone),
+        preferredName: Value(preferredName),
         payday: Value(payday),
         theme: Value(theme),
         budgetAlertPercent: Value(alert),

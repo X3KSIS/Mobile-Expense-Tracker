@@ -132,16 +132,19 @@ class AuthRepositorySupabase extends AuthRepository {
   Future<Result<AppUser>> updateProfile({
     required String name,
     required String phone,
+    String preferredName = '',
   }) => _call(() async {
     final user = _user;
     if (user == null) throw const AuthException(AuthErrorCode.notSignedIn);
     final trimmedPhone = phone.trim();
+    final preferred = preferredName.trim();
     await (_db.update(
       _db.profiles,
     )..where((p) => p.userId.equals(user.id))).write(
       ProfilesCompanion(
         name: Value(name.trim()),
         phone: Value(trimmedPhone.isEmpty ? null : trimmedPhone),
+        preferredName: Value(preferred.isEmpty ? null : preferred),
         modifiedAt: Value(_clock()),
         dirty: const Value(true),
       ),
@@ -221,6 +224,7 @@ class AuthRepositorySupabase extends AuthRepository {
     phone: row.phone,
     createdAt: row.createdAt,
     photo: row.avatarBytes,
+    preferredName: row.preferredName,
   );
 
   /// The session ended elsewhere (expired or revoked).

@@ -15,6 +15,7 @@ class TransactionRow extends StatelessWidget {
     required this.transaction,
     this.now,
     this.onTap,
+    this.timeOnly = false,
   });
 
   final Transaction transaction;
@@ -25,11 +26,16 @@ class TransactionRow extends StatelessWidget {
   /// Reference time for relative labels; defaults to the current time.
   final DateTime? now;
 
+  /// Shows the time of day instead of a relative date, for lists that
+  /// already head each day.
+  final bool timeOnly;
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final subtitle =
-        '${formatActivityTime(transaction.date, now: now)} · ${transaction.categoryName}';
+        '${timeOnly ? formatTimeOfDay(transaction.date) : formatActivityTime(transaction.date, now: now)}'
+        ' · ${transaction.categoryName}';
     return MergeSemantics(
       child: InkWell(
         onTap: onTap,

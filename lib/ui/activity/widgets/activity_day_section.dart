@@ -12,8 +12,9 @@ import '../../core/ui/list_card.dart';
 import '../../core/ui/transaction_row.dart';
 import '../view_models/activity_view_model.dart';
 
-/// A day heading with the day's net, then its transactions in a card,
-/// followed by the gap before the next day.
+/// A day heading with what was spent that day (or, on a day with no
+/// spending, what came in), then its transactions in a card, followed by
+/// the gap before the next day.
 ///
 /// With [isVisible], rows that don't match fold away (and unfold again)
 /// in place, the remaining rows stay put, the day's net rolls to its new
@@ -38,7 +39,12 @@ class ActivityDaySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shown = day.transactions.where(_shows).toList();
-    final net = shown.fold<double>(0, (sum, t) => sum + t.signedAmount);
+    final spent = shown
+        .where((t) => !t.isIncome)
+        .fold<double>(0, (sum, t) => sum + t.amount);
+    final received = shown
+        .where((t) => t.isIncome)
+        .fold<double>(0, (sum, t) => sum + t.amount);
     return ExpandableSection(
       expanded: shown.isNotEmpty,
       child: Padding(
@@ -46,7 +52,7 @@ class ActivityDaySection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _Heading(day: day.day, net: net, now: now),
+            _Heading(day: day.day, spent: spent, received: received, now: now),
             const SizedBox(height: Dimens.gapS),
             _Card(
               transactions: day.transactions,
@@ -62,10 +68,16 @@ class ActivityDaySection extends StatelessWidget {
 }
 
 class _Heading extends StatelessWidget {
-  const _Heading({required this.day, required this.net, required this.now});
+  const _Heading({
+    required this.day,
+    required this.spent,
+    required this.received,
+    required this.now,
+  });
 
   final DateTime day;
-  final double net;
+  final double spent;
+  final double received;
   final DateTime? now;
 
   @override
@@ -84,13 +96,15 @@ class _Heading extends StatelessWidget {
             ),
           ),
           AnimatedNumber(
-            value: net,
+            value: spent > 0 ? spent : received,
             builder: (context, value) => Text(
-              formatZmwSigned(value, isIncome: value >= 0),
+              spent > 0 || received <= 0
+                  ? 'Spent ${formatZmw(value)}'
+                  : 'Received ${formatZmw(value)}',
               style: context.text.caption.copyWith(
-                color: value > 0
-                    ? context.colors.success
-                    : context.colors.textSecondary,
+                color: spent > 0 || received <= 0
+                    ? context.colors.textSecondary
+                    : context.colors.success,
               ),
             ),
           ),
@@ -138,6 +152,7 @@ class _Card extends StatelessWidget {
               TransactionRow(
                 transaction: t,
                 now: now,
+                timeOnly: true,
                 onTap: () => onTransactionTap(t),
               ),
             ],

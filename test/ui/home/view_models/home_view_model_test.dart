@@ -192,5 +192,49 @@ void main() {
       expect(viewModel.userInitials, 'MB');
       expect(notified, greaterThan(0));
     });
+
+    test('greets by the time of day', () {
+      expect(
+        HomeViewModel.greetingFor(DateTime(2026, 1, 1, 5)),
+        'Good morning',
+      );
+      expect(
+        HomeViewModel.greetingFor(DateTime(2026, 1, 1, 11, 59)),
+        'Good morning',
+      );
+      expect(
+        HomeViewModel.greetingFor(DateTime(2026, 1, 1, 12)),
+        'Good afternoon',
+      );
+      expect(
+        HomeViewModel.greetingFor(DateTime(2026, 1, 1, 17)),
+        'Good evening',
+      );
+      expect(
+        HomeViewModel.greetingFor(DateTime(2026, 1, 1, 2)),
+        'Good evening',
+      );
+    });
+
+    test('greets by the preferred name, else the first name', () async {
+      final auth = instantAuthRepository(signedIn: true);
+      final viewModel = HomeViewModel(
+        transactionRepository: instantTransactionRepository(),
+        budgetRepository: instantBudgetRepository(),
+        authRepository: auth,
+        settingsRepository: SettingsRepositoryLocalFake(),
+        walletRepository: instantWalletRepository(),
+        detectedPaymentRepository: DetectedPaymentRepositoryLocalFake(),
+      );
+      addTearDown(viewModel.dispose);
+      expect(viewModel.displayName, 'Paul');
+
+      await auth.updateProfile(
+        name: 'Paul Mubanga',
+        phone: '',
+        preferredName: 'PM',
+      );
+      expect(viewModel.displayName, 'PM');
+    });
   });
 }

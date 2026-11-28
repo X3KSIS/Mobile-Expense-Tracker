@@ -3,15 +3,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/models/transaction.dart';
 import '../../../routing/routes.dart';
-import '../../../utils/currency.dart';
-import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/ui/animated_number.dart';
 import '../../core/ui/empty_state.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/search_box.dart';
 import '../../core/ui/skeleton_screens.dart';
-import '../../core/ui/stat_tile.dart';
 import '../../core/ui/tab_header.dart';
 import '../../core/ui/transaction_details_sheet.dart';
 import '../../core/ui/slow_refresh.dart';
@@ -19,6 +16,7 @@ import '../view_models/activity_view_model.dart';
 import 'activity_day_section.dart';
 import 'activity_filter_toggle.dart';
 import 'see_all_button.dart';
+import 'week_spending_card.dart';
 
 /// The last week of transactions, filterable and grouped by day, with a
 /// way into the full History. The search box opens the full-screen search.
@@ -225,37 +223,17 @@ class _ActivityHeader extends StatelessWidget {
           hint: 'Search transactions',
           onTap: () => context.push(Routes.search),
         ),
-        const SizedBox(height: Dimens.gapM),
+        const SizedBox(height: Dimens.gapL),
+        WeekSpendingCard(
+          days: viewModel.weekDays,
+          spentByDay: viewModel.spentByDay,
+          spentLastWeek: viewModel.spentLastWeek,
+          received: viewModel.receivedThisWeek,
+        ),
+        const SizedBox(height: Dimens.gapL),
         ActivityFilterToggle(
           selected: viewModel.filter,
           onChanged: viewModel.setFilter,
-        ),
-        const SizedBox(height: Dimens.gapM),
-        Row(
-          children: [
-            Expanded(
-              child: AnimatedNumber(
-                value: viewModel.totalIn,
-                builder: (context, value) => StatTile(
-                  label: 'Money in',
-                  value: formatZmw(value),
-                  icon: Icons.south_west_rounded,
-                  valueColor: context.colors.success,
-                ),
-              ),
-            ),
-            const SizedBox(width: Dimens.gapM),
-            Expanded(
-              child: AnimatedNumber(
-                value: viewModel.totalOut,
-                builder: (context, value) => StatTile(
-                  label: 'Money out',
-                  value: formatZmw(value),
-                  icon: Icons.north_east_rounded,
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );

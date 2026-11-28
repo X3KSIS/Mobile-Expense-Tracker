@@ -52,9 +52,11 @@ abstract class AuthRepository extends ChangeNotifier {
   /// Sets the profile photo (JPEG bytes), or removes it when null.
   Future<Result<AppUser>> setPhoto(Uint8List? photo);
 
-  /// Updates the signed-in user's name and phone. An empty [phone] clears it.
+  /// Updates the signed-in user's name, phone and the name they like to be
+  /// called. An empty [phone] or [preferredName] clears it.
   Future<Result<AppUser>> updateProfile({
     required String name,
     required String phone,
+    String preferredName = '',
   });
 }

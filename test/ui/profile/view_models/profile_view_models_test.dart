@@ -81,11 +81,22 @@ void main() {
       await viewModel.save.execute((
         name: '  Paul Mubanga Jr ',
         phone: '076 123 4567',
+        preferredName: ' PJ ',
       ));
 
       expect(viewModel.save.completed, isTrue);
       expect(auth.currentUser!.name, 'Paul Mubanga Jr');
       expect(auth.currentUser!.phone, '0761234567');
+      expect(auth.currentUser!.preferredName, 'PJ');
+      expect(auth.currentUser!.displayName, 'PJ');
+
+      await viewModel.save.execute((
+        name: 'Paul Mubanga Jr',
+        phone: '',
+        preferredName: '',
+      ));
+      expect(auth.currentUser!.preferredName, isNull);
+      expect(auth.currentUser!.displayName, 'Paul');
     });
 
     test('reports an error when signed out', () async {
@@ -93,7 +104,11 @@ void main() {
       final viewModel = EditProfileViewModel(authRepository: auth);
       addTearDown(viewModel.dispose);
 
-      await viewModel.save.execute((name: 'Paul', phone: ''));
+      await viewModel.save.execute((
+        name: 'Paul',
+        phone: '',
+        preferredName: '',
+      ));
 
       expect(viewModel.errorMessage, 'Your session has ended. Sign in again.');
     });

@@ -7,13 +7,16 @@ import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/sun_moon_icon.dart';
 import '../../core/ui/user_avatar.dart';
 
-/// Avatar, greeting, the light/dark theme toggle and the notifications
+/// Avatar, a time-of-day greeting with the user's name, the light/dark
+/// theme toggle and the notifications
 /// bell. Tapping the avatar or the
 /// name opens the profile.
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
     required this.userName,
+    required this.greeting,
+    required this.displayName,
     required this.initials,
     this.photo,
     required this.onProfilePressed,
@@ -23,7 +26,14 @@ class HomeHeader extends StatelessWidget {
     this.hasUnreadNotifications = false,
   });
 
+  /// Full name, for the profile button's spoken label.
   final String userName;
+
+  /// e.g. "Good morning".
+  final String greeting;
+
+  /// What to call the user, e.g. "Paul".
+  final String displayName;
   final String initials;
   final Uint8List? photo;
   final VoidCallback onProfilePressed;
@@ -57,10 +67,10 @@ class HomeHeader extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Welcome back', style: textTheme.labelMedium),
+                          Text(greeting, style: textTheme.labelMedium),
                           const SizedBox(height: 2),
                           Text(
-                            userName,
+                            displayName,
                             style: textTheme.titleLarge,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

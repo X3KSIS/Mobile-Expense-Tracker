@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 296 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 299 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -34,11 +34,12 @@ This is where the next session starts.
   3. `20261128010000_profile_photos.sql`: `avatar_path`, private `avatars` Storage bucket and its policies.
   4. `20261128020000_privacy_screen.sql`: `privacy_screen`.
   5. `20261128030000_app_lock.sql`: `app_lock`.
-  6. `20261129000000_notifications.sql`: reminder and alert settings, `notifications_seen_at`. **Not applied yet: apply it before running the notifications build,** or profile sync fails on the unknown columns.
+  6. `20261129000000_notifications.sql`: reminder and alert settings, `notifications_seen_at`.
+  7. `20261129010000_preferred_name.sql`: `preferred_name`. **Not applied yet: apply it before running this build,** or profile sync fails on the unknown column.
 - **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project does not grant access by default.
 - **Config:** the project URL and publishable key are built into `SupabaseConfig`, so F5 or `flutter run` connects. `supabase.json` (gitignored) can point a build at another project. Never put the secret key in the app.
 - **Email:** Supabase's built-in sender only sends its default link email and is rate-limited. Templates can only be edited after custom SMTP is set up. Clicking the link does confirm the account, even though the page it opens shows "localhost".
-- **Device database:** Drift schema version 6 (profile columns were added in versions 2 to 6).
+- **Device database:** Drift schema version 7 (profile columns were added in versions 2 to 7).
 
 ### How to run and check
 
@@ -70,6 +71,14 @@ This is where the next session starts.
    - **Custom SMTP** in Supabase, then switch the confirmation email to a code (`{{ .Token }}`; the app's code screen is ready) and add code-based password reset.
    - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
 3. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
+
+## Session 12: 28 Nov 2026 (late night, continued)
+
+### Done
+
+- **Greeting:** Home says Good morning (5:00 to noon), Good afternoon (to 17:00) or Good evening, with the user's preferred name, or their first name when none is set. "What should we call you?" in Personal details (`preferred_name` on the profile, Drift schema 7, Supabase migration 7, synced).
+- **Activity:** a Spent this week card (total, change against the previous 7 days, seven tappable day columns with today picked, money in as a small line) replaces the Money in / Money out tiles; day headings show what was spent (what was received only on days without spending); rows under a day heading show the time, not the date again (also in History and Search).
+- **Quality:** `flutter analyze` clean; 299 tests pass; Activity rendered in light and dark.
 
 ## Session 11: 28 Nov 2026 (late night)
 

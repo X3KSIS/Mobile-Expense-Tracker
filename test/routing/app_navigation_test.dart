@@ -60,7 +60,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
 
-    expect(find.text('Paul Mubanga'), findsOneWidget);
+    expect(find.text('Paul'), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
   });
 
@@ -70,7 +70,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
     Brightness brightness() =>
-        Theme.of(tester.element(find.text('Paul Mubanga'))).brightness;
+        Theme.of(tester.element(find.text('Paul'))).brightness;
     expect(brightness(), Brightness.light);
 
     await tester.tap(find.byTooltip('Switch to dark mode'));
@@ -96,7 +96,10 @@ void main() {
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
 
-    expect(find.text(AuthRepositoryLocalFake.demoName), findsOneWidget);
+    expect(
+      find.text(AuthRepositoryLocalFake.demoName.split(' ').first),
+      findsOneWidget,
+    );
     await scrollTo(tester, find.text('Recent activity'));
     expect(find.text('Recent activity'), findsOneWidget);
   });
@@ -122,7 +125,7 @@ void main() {
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Mwila Banda'), findsOneWidget);
+    expect(find.text('Mwila'), findsOneWidget);
     expect(find.text('MB'), findsOneWidget);
   });
 
@@ -211,7 +214,7 @@ void main() {
 
     // Only the search is on screen: no tabs, no totals.
     expect(find.byType(FloatingNavBar), findsNothing);
-    expect(find.text('Money in'), findsNothing);
+    expect(find.text('SPENT THIS WEEK'), findsNothing);
     expect(find.text('POPULAR CATEGORIES'), findsOneWidget);
     expect(
       tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
@@ -232,7 +235,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Close search'));
     await tester.pumpAndSettle();
-    expect(find.text('Money in'), findsOneWidget);
+    expect(find.text('SPENT THIS WEEK'), findsOneWidget);
   });
 
   testWidgets('Home shows a spending habit and opens the rest in Reports', (
@@ -343,7 +346,7 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Activity'));
     await tester.pumpAndSettle();
     expect(find.text('TODAY'), findsOneWidget);
-    expect(find.text('Money in'), findsOneWidget);
+    expect(find.text('SPENT THIS WEEK'), findsOneWidget);
 
     await tester.tap(find.bySemanticsLabel('Income').last);
     await tester.pumpAndSettle();
@@ -609,8 +612,11 @@ void main() {
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    expect(find.text('Paul M. Mubanga'), findsOneWidget);
-    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Paul'), findsOneWidget);
+    expect(
+      find.textContaining(RegExp(r'^Good (morning|afternoon|evening)$')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Profile opens Preferences, which switches to dark', (

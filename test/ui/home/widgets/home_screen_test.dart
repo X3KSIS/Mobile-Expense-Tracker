@@ -53,7 +53,10 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(find.byType(HomeSkeleton), findsNothing);
-      expect(find.text('Welcome back'), findsOneWidget);
+      expect(
+        find.textContaining(RegExp(r'^Good (morning|afternoon|evening)$')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders the balance and the recent transactions', (
@@ -63,8 +66,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Header
-      expect(find.text('Welcome back'), findsOneWidget);
-      expect(find.text('Paul Mubanga'), findsOneWidget);
+      expect(
+        find.textContaining(RegExp(r'^Good (morning|afternoon|evening)$')),
+        findsOneWidget,
+      );
+      expect(find.text('Paul'), findsOneWidget);
       expect(find.text('PM'), findsOneWidget);
 
       // Spending hero

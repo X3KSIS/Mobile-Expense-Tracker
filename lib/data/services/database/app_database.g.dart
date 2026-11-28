@@ -4242,6 +4242,17 @@ class $ProfilesTable extends Profiles
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _preferredNameMeta = const VerificationMeta(
+    'preferredName',
+  );
+  @override
+  late final GeneratedColumn<String> preferredName = GeneratedColumn<String>(
+    'preferred_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _hideAmountsMeta = const VerificationMeta(
     'hideAmounts',
   );
@@ -4313,6 +4324,7 @@ class $ProfilesTable extends Profiles
     billReminders,
     budgetAlerts,
     notificationsSeenAt,
+    preferredName,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4476,6 +4488,15 @@ class $ProfilesTable extends Profiles
         ),
       );
     }
+    if (data.containsKey('preferred_name')) {
+      context.handle(
+        _preferredNameMeta,
+        preferredName.isAcceptableOrUnknown(
+          data['preferred_name']!,
+          _preferredNameMeta,
+        ),
+      );
+    }
     if (data.containsKey('hide_amounts')) {
       context.handle(
         _hideAmountsMeta,
@@ -4592,6 +4613,10 @@ class $ProfilesTable extends Profiles
         DriftSqlType.dateTime,
         data['${effectivePrefix}notifications_seen_at'],
       ),
+      preferredName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preferred_name'],
+      ),
       hideAmounts: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hide_amounts'],
@@ -4668,6 +4693,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   /// When the user last opened Notifications.
   final DateTime? notificationsSeenAt;
 
+  /// What the user likes to be called in greetings, e.g. "Paul".
+  final String? preferredName;
+
   /// Whether Home hides money amounts until shown.
   final bool hideAmounts;
   final DateTime createdAt;
@@ -4693,6 +4721,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     required this.billReminders,
     required this.budgetAlerts,
     this.notificationsSeenAt,
+    this.preferredName,
     required this.hideAmounts,
     required this.createdAt,
     required this.modifiedAt,
@@ -4729,6 +4758,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     map['budget_alerts'] = Variable<bool>(budgetAlerts);
     if (!nullToAbsent || notificationsSeenAt != null) {
       map['notifications_seen_at'] = Variable<DateTime>(notificationsSeenAt);
+    }
+    if (!nullToAbsent || preferredName != null) {
+      map['preferred_name'] = Variable<String>(preferredName);
     }
     map['hide_amounts'] = Variable<bool>(hideAmounts);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -4768,6 +4800,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       notificationsSeenAt: notificationsSeenAt == null && nullToAbsent
           ? const Value.absent()
           : Value(notificationsSeenAt),
+      preferredName: preferredName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preferredName),
       hideAmounts: Value(hideAmounts),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
@@ -4802,6 +4837,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       notificationsSeenAt: serializer.fromJson<DateTime?>(
         json['notificationsSeenAt'],
       ),
+      preferredName: serializer.fromJson<String?>(json['preferredName']),
       hideAmounts: serializer.fromJson<bool>(json['hideAmounts']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
@@ -4831,6 +4867,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'billReminders': serializer.toJson<bool>(billReminders),
       'budgetAlerts': serializer.toJson<bool>(budgetAlerts),
       'notificationsSeenAt': serializer.toJson<DateTime?>(notificationsSeenAt),
+      'preferredName': serializer.toJson<String?>(preferredName),
       'hideAmounts': serializer.toJson<bool>(hideAmounts),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
@@ -4858,6 +4895,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     bool? billReminders,
     bool? budgetAlerts,
     Value<DateTime?> notificationsSeenAt = const Value.absent(),
+    Value<String?> preferredName = const Value.absent(),
     bool? hideAmounts,
     DateTime? createdAt,
     DateTime? modifiedAt,
@@ -4886,6 +4924,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     notificationsSeenAt: notificationsSeenAt.present
         ? notificationsSeenAt.value
         : this.notificationsSeenAt,
+    preferredName: preferredName.present
+        ? preferredName.value
+        : this.preferredName,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -4936,6 +4977,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       notificationsSeenAt: data.notificationsSeenAt.present
           ? data.notificationsSeenAt.value
           : this.notificationsSeenAt,
+      preferredName: data.preferredName.present
+          ? data.preferredName.value
+          : this.preferredName,
       hideAmounts: data.hideAmounts.present
           ? data.hideAmounts.value
           : this.hideAmounts,
@@ -4969,6 +5013,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('billReminders: $billReminders, ')
           ..write('budgetAlerts: $budgetAlerts, ')
           ..write('notificationsSeenAt: $notificationsSeenAt, ')
+          ..write('preferredName: $preferredName, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -4998,6 +5043,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     billReminders,
     budgetAlerts,
     notificationsSeenAt,
+    preferredName,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -5026,6 +5072,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           other.billReminders == this.billReminders &&
           other.budgetAlerts == this.budgetAlerts &&
           other.notificationsSeenAt == this.notificationsSeenAt &&
+          other.preferredName == this.preferredName &&
           other.hideAmounts == this.hideAmounts &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt &&
@@ -5052,6 +5099,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<bool> billReminders;
   final Value<bool> budgetAlerts;
   final Value<DateTime?> notificationsSeenAt;
+  final Value<String?> preferredName;
   final Value<bool> hideAmounts;
   final Value<DateTime> createdAt;
   final Value<DateTime> modifiedAt;
@@ -5077,6 +5125,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.billReminders = const Value.absent(),
     this.budgetAlerts = const Value.absent(),
     this.notificationsSeenAt = const Value.absent(),
+    this.preferredName = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
@@ -5103,6 +5152,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.billReminders = const Value.absent(),
     this.budgetAlerts = const Value.absent(),
     this.notificationsSeenAt = const Value.absent(),
+    this.preferredName = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     required DateTime createdAt,
     required DateTime modifiedAt,
@@ -5131,6 +5181,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<bool>? billReminders,
     Expression<bool>? budgetAlerts,
     Expression<DateTime>? notificationsSeenAt,
+    Expression<String>? preferredName,
     Expression<bool>? hideAmounts,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? modifiedAt,
@@ -5159,6 +5210,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       if (budgetAlerts != null) 'budget_alerts': budgetAlerts,
       if (notificationsSeenAt != null)
         'notifications_seen_at': notificationsSeenAt,
+      if (preferredName != null) 'preferred_name': preferredName,
       if (hideAmounts != null) 'hide_amounts': hideAmounts,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
@@ -5187,6 +5239,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<bool>? billReminders,
     Value<bool>? budgetAlerts,
     Value<DateTime?>? notificationsSeenAt,
+    Value<String?>? preferredName,
     Value<bool>? hideAmounts,
     Value<DateTime>? createdAt,
     Value<DateTime>? modifiedAt,
@@ -5213,6 +5266,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       billReminders: billReminders ?? this.billReminders,
       budgetAlerts: budgetAlerts ?? this.budgetAlerts,
       notificationsSeenAt: notificationsSeenAt ?? this.notificationsSeenAt,
+      preferredName: preferredName ?? this.preferredName,
       hideAmounts: hideAmounts ?? this.hideAmounts,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -5283,6 +5337,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
         notificationsSeenAt.value,
       );
     }
+    if (preferredName.present) {
+      map['preferred_name'] = Variable<String>(preferredName.value);
+    }
     if (hideAmounts.present) {
       map['hide_amounts'] = Variable<bool>(hideAmounts.value);
     }
@@ -5323,6 +5380,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('billReminders: $billReminders, ')
           ..write('budgetAlerts: $budgetAlerts, ')
           ..write('notificationsSeenAt: $notificationsSeenAt, ')
+          ..write('preferredName: $preferredName, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -7641,6 +7699,7 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<bool> billReminders,
   Value<bool> budgetAlerts,
   Value<DateTime?> notificationsSeenAt,
+  Value<String?> preferredName,
   Value<bool> hideAmounts,
   required DateTime createdAt,
   required DateTime modifiedAt,
@@ -7667,6 +7726,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<bool> billReminders,
   Value<bool> budgetAlerts,
   Value<DateTime?> notificationsSeenAt,
+  Value<String?> preferredName,
   Value<bool> hideAmounts,
   Value<DateTime> createdAt,
   Value<DateTime> modifiedAt,
@@ -7775,6 +7835,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<DateTime> get notificationsSeenAt => $composableBuilder(
     column: $table.notificationsSeenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preferredName => $composableBuilder(
+    column: $table.preferredName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7903,6 +7968,11 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get preferredName => $composableBuilder(
+    column: $table.preferredName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => ColumnOrderings(column),
@@ -8014,6 +8084,11 @@ class $$ProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get preferredName => $composableBuilder(
+    column: $table.preferredName,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => column,
@@ -8081,6 +8156,7 @@ class $$ProfilesTableTableManager
                 Value<bool> billReminders = const Value.absent(),
                 Value<bool> budgetAlerts = const Value.absent(),
                 Value<DateTime?> notificationsSeenAt = const Value.absent(),
+                Value<String?> preferredName = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> modifiedAt = const Value.absent(),
@@ -8106,6 +8182,7 @@ class $$ProfilesTableTableManager
                 billReminders: billReminders,
                 budgetAlerts: budgetAlerts,
                 notificationsSeenAt: notificationsSeenAt,
+                preferredName: preferredName,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
@@ -8133,6 +8210,7 @@ class $$ProfilesTableTableManager
                 Value<bool> billReminders = const Value.absent(),
                 Value<bool> budgetAlerts = const Value.absent(),
                 Value<DateTime?> notificationsSeenAt = const Value.absent(),
+                Value<String?> preferredName = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime modifiedAt,
@@ -8158,6 +8236,7 @@ class $$ProfilesTableTableManager
                 billReminders: billReminders,
                 budgetAlerts: budgetAlerts,
                 notificationsSeenAt: notificationsSeenAt,
+                preferredName: preferredName,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,

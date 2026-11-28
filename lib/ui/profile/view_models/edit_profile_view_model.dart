@@ -7,9 +7,10 @@ import '../../../utils/result.dart';
 import '../../../utils/validators.dart';
 import '../../auth/view_models/auth_error_message.dart';
 
-typedef ProfileDetails = ({String name, String phone});
+typedef ProfileDetails = ({String name, String phone, String preferredName});
 
-/// Edits the signed-in user's photo, name and phone number.
+/// Edits the signed-in user's photo, name, preferred name and phone
+/// number.
 class EditProfileViewModel extends ChangeNotifier {
   EditProfileViewModel({required this._authRepository}) {
     save = Command1<void, ProfileDetails>(_save);
@@ -44,6 +45,7 @@ class EditProfileViewModel extends ChangeNotifier {
     final result = await _authRepository.updateProfile(
       name: details.name.trim(),
       phone: Validators.normalisePhone(details.phone),
+      preferredName: details.preferredName.trim(),
     );
     return switch (result) {
       Ok() => const Result.ok(null),

@@ -90,6 +90,10 @@ class ActivityViewModel extends ChangeNotifier {
     return _transactionRepository.restoreTransaction(id);
   }
 
+  List<DateTime> _weekDays = const [];
+  List<double> _spentByDay = const [];
+  double _spentLastWeek = 0;
+  double _receivedThisWeek = 0;
   int _totalCount = 0;
   List<Transaction> _recent = const [];
   List<Transaction> _visible = const [];
@@ -100,6 +104,21 @@ class ActivityViewModel extends ChangeNotifier {
   bool _disposed = false;
 
   ActivityFilter get filter => _filter;
+
+  /// The last [recentDays] days, oldest first, ending today.
+  List<DateTime> get weekDays => _weekDays;
+
+  /// What was spent on each of [weekDays].
+  List<double> get spentByDay => _spentByDay;
+
+  /// Spent over the last [recentDays] days, whatever the filter.
+  double get spentThisWeek => _spentByDay.fold(0, (sum, v) => sum + v);
+
+  /// Spent over the [recentDays] days before those.
+  double get spentLastWeek => _spentLastWeek;
+
+  /// Received over the last [recentDays] days.
+  double get receivedThisWeek => _receivedThisWeek;
 
   /// Every recent transaction grouped by day, whatever the filter. The list
   /// shows these and folds away the ones [isVisible] rejects, so changing
@@ -160,6 +179,30 @@ class ActivityViewModel extends ChangeNotifier {
           today.month,
           today.day - (recentDays - 1),
         );
+        _weekDays = [
+          for (var i = 0; i < recentDays; i++)
+            DateTime(since.year, since.month, since.day + i),
+        ];
+        final byDay = {for (final d in _weekDays) d: 0.0};
+        final lastWeekStart = DateTime(
+          since.year,
+          since.month,
+          since.day - recentDays,
+        );
+        _spentLastWeek = 0;
+        _receivedThisWeek = 0;
+        for (final t in value) {
+          if (t.date.isAfter(now)) continue;
+          final day = dateOnly(t.date);
+          if (t.isIncome) {
+            if (byDay.containsKey(day)) _receivedThisWeek += t.amount;
+          } else if (byDay.containsKey(day)) {
+            byDay[day] = byDay[day]! + t.amount;
+          } else if (!day.isBefore(lastWeekStart) && day.isBefore(since)) {
+            _spentLastWeek += t.amount;
+          }
+        }
+        _spentByDay = [for (final d in _weekDays) byDay[d]!];
         _totalCount = value.length;
         _recent = value
             .where((t) => !t.date.isBefore(since))
