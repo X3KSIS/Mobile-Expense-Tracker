@@ -11,19 +11,18 @@ import '../../core/ui/skeleton_screens.dart';
 import '../../core/ui/transaction_details_sheet.dart';
 import '../../core/ui/slow_refresh.dart';
 import '../view_models/home_view_model.dart';
-import 'balance_card.dart';
-import 'budget_alert_card.dart';
 import 'detected_payments_banner.dart';
 import 'habit_card.dart';
 import 'home_error_view.dart';
 import 'home_header.dart';
-import 'quick_actions.dart';
 import 'recent_activity.dart';
-import 'safe_to_spend_card.dart';
+import 'spending_hero_card.dart';
 import 'wallet_strip.dart';
+import 'where_it_went.dart';
 
-/// Dashboard: header, balance, budget alert, quick actions and recent
-/// activity. Pull down to refresh.
+/// Dashboard, led by spending: what was spent this pay cycle and how it
+/// compares, where it went, a habit tip, recent activity, then wallets.
+/// Pull down to refresh.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.viewModel});
 
@@ -104,8 +103,7 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final summary = viewModel.summary!;
-    final alert = viewModel.budgetAlert;
+    final spending = viewModel.spending;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
@@ -115,21 +113,7 @@ class _HomeContent extends StatelessWidget {
         Dimens.navBarClearance(context),
       ),
       children: [
-        HomeHeader(
-          userName: viewModel.userName,
-          initials: viewModel.userInitials,
-          photo: viewModel.userPhoto,
-          onProfilePressed: () => context.push(Routes.profile),
-          onNotificationsPressed: () => context.push(Routes.notifications),
-          hasUnreadNotifications: viewModel.hasUnreadNotifications,
-          isDarkMode: switch (viewModel.themePreference) {
-            ThemePreference.dark => true,
-            ThemePreference.light => false,
-            ThemePreference.system =>
-              MediaQuery.platformBrightnessOf(context) == Brightness.dark,
-          },
-          onDarkModeChanged: viewModel.setDarkMode,
-        ),
+        _header(context),
         ExpandableSection(
           expanded: viewModel.detectedPaymentCount > 0,
           child: Padding(
@@ -141,60 +125,35 @@ class _HomeContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Dimens.sectionGap),
-        BalanceCard(
-          summary: summary,
+        SpendingHeroCard(
+          spending: spending,
+          forecast: viewModel.forecast,
+          daysToPayday: viewModel.daysToPayday,
           hideAmounts: viewModel.hideAmounts,
           onToggleHideAmounts: viewModel.toggleHideAmounts,
+          onChangePayday: () => _changePayday(context),
         ),
+        if (spending.categories.isNotEmpty) ...[
+          const SizedBox(height: Dimens.sectionGap),
+          WhereItWent(
+            categories: spending.categories,
+            total: spending.spent,
+            hideAmounts: viewModel.hideAmounts,
+            onSeeAll: () => context.go(Routes.reports),
+            onCategoryTap: (category) => context.push(
+              Routes.categoryTrendFor(category.name, month: viewModel.now),
+            ),
+          ),
+        ],
         if (viewModel.showHabits)
           if (viewModel.topInsight case final insight?) ...[
-            const SizedBox(height: Dimens.gapL),
+            const SizedBox(height: Dimens.sectionGap),
             HabitCard(
               insight: insight,
-              month: summary.month,
+              month: viewModel.now,
               onSeeAll: () => context.go(Routes.reports),
             ),
           ],
-        if (viewModel.forecast case final forecast?) ...[
-          const SizedBox(height: Dimens.gapL),
-          SafeToSpendCard(
-            forecast: forecast,
-            payday: viewModel.payday,
-            daysLeft: viewModel.daysToPayday,
-            hideAmounts: viewModel.hideAmounts,
-            onChangePayday: () async {
-              final day = await showPaydayPicker(
-                context,
-                current: viewModel.payday,
-              );
-              if (day != null) viewModel.setPayday(day);
-            },
-          ),
-        ],
-        FadeSwitcher(
-          child: alert == null
-              ? const SizedBox(width: double.infinity, key: ValueKey('none'))
-              : Padding(
-                  key: const ValueKey('alert'),
-                  padding: const EdgeInsets.only(top: Dimens.gapL),
-                  child: BudgetAlertCard(
-                    alert: alert,
-                    onViewBudget: () => context.go(Routes.budgets),
-                  ),
-                ),
-        ),
-        if (viewModel.wallets.isNotEmpty) ...[
-          const SizedBox(height: Dimens.sectionGap),
-          WalletStrip(
-            wallets: viewModel.wallets,
-            hideAmounts: viewModel.hideAmounts,
-            onOpen: () => context.push(Routes.wallets),
-          ),
-        ],
-        const SizedBox(height: Dimens.sectionGap),
-        QuickActions(
-          onSelected: (action) => context.push(_addRouteFor(action)),
-        ),
         const SizedBox(height: Dimens.sectionGap),
         RecentActivity(
           transactions: viewModel.recentTransactions,
@@ -205,19 +164,36 @@ class _HomeContent extends StatelessWidget {
             onDelete: () => viewModel.delete.execute(transaction.id),
           ),
         ),
+        if (viewModel.wallets.isNotEmpty) ...[
+          const SizedBox(height: Dimens.sectionGap),
+          WalletStrip(
+            wallets: viewModel.wallets,
+            hideAmounts: viewModel.hideAmounts,
+            onOpen: () => context.push(Routes.wallets),
+          ),
+        ],
       ],
     );
   }
-}
 
-/// Where each quick action leads. Receipts and grocery lists are later
-/// features, so for now they open an expense (grocery preselects the
-/// Groceries category).
-String _addRouteFor(QuickAction action) => switch (action) {
-  QuickAction.expense || QuickAction.receipt => Routes.addWith(type: 'expense'),
-  QuickAction.income => Routes.addWith(type: 'income'),
-  QuickAction.grocery => Routes.addWith(
-    type: 'expense',
-    categoryId: 'c-groceries',
-  ),
-};
+  Widget _header(BuildContext context) => HomeHeader(
+    userName: viewModel.userName,
+    initials: viewModel.userInitials,
+    photo: viewModel.userPhoto,
+    onProfilePressed: () => context.push(Routes.profile),
+    onNotificationsPressed: () => context.push(Routes.notifications),
+    hasUnreadNotifications: viewModel.hasUnreadNotifications,
+    isDarkMode: switch (viewModel.themePreference) {
+      ThemePreference.dark => true,
+      ThemePreference.light => false,
+      ThemePreference.system =>
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+    },
+    onDarkModeChanged: viewModel.setDarkMode,
+  );
+
+  Future<void> _changePayday(BuildContext context) async {
+    final day = await showPaydayPicker(context, current: viewModel.payday);
+    if (day != null) viewModel.setPayday(day);
+  }
+}

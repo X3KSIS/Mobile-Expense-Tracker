@@ -67,15 +67,15 @@ void main() {
       expect(find.text('Paul Mubanga'), findsOneWidget);
       expect(find.text('PM'), findsOneWidget);
 
-      // Balance card
-      expect(find.text('ZMW 4,820.00', findRichText: true), findsOneWidget);
-      expect(find.text('+12,500'), findsOneWidget);
-      expect(find.text('-7,680'), findsOneWidget);
+      // Spending hero
+      expect(find.text('SPENT THIS MONTH'), findsOneWidget);
+      expect(find.text('ZMW 7,680.00', findRichText: true), findsOneWidget);
+      expect(find.text('Safe to spend today'), findsOneWidget);
 
-      // Budget alert
-      expect(find.text('Groceries is almost at its limit.'), findsOneWidget);
-      expect(find.text('97%'), findsOneWidget);
-      expect(find.text('ZMW 100 LEFT'), findsOneWidget);
+      // Where it went, with the budget near its limit flagged
+      expect(find.text('Where it went'), findsOneWidget);
+      expect(find.text('Housing'), findsOneWidget);
+      expect(find.textContaining('97% of budget'), findsOneWidget);
 
       // Recent activity
       expect(find.text('Recent activity'), findsOneWidget);
@@ -97,14 +97,14 @@ void main() {
       await tester.tap(find.byTooltip('Hide amounts'));
       await tester.pumpAndSettle();
 
-      expect(find.text('ZMW 4,820.00', findRichText: true), findsNothing);
-      expect(find.text('+12,500'), findsNothing);
+      expect(find.text('ZMW 7,680.00', findRichText: true), findsNothing);
+      expect(find.text('ZMW 3,500.00'), findsNothing);
       expect(find.byTooltip('Show amounts'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Show amounts'));
       await tester.pumpAndSettle();
 
-      expect(find.text('ZMW 4,820.00', findRichText: true), findsOneWidget);
+      expect(find.text('ZMW 7,680.00', findRichText: true), findsOneWidget);
     });
 
     testWidgets('shows a retry view when loading fails', (tester) async {
@@ -120,7 +120,7 @@ void main() {
       await tester.tap(find.text('Try again'));
       await tester.pumpAndSettle();
 
-      expect(find.text('ZMW 4,820.00', findRichText: true), findsOneWidget);
+      expect(find.text('ZMW 7,680.00', findRichText: true), findsOneWidget);
     });
   });
 }

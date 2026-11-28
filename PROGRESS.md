@@ -12,13 +12,13 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 293 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 296 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
 
 - **Capture:** Add, Edit, Spend again and Undo delete; fill from a MoMo, Airtel or bank SMS; payments read from notifications to review; default wallet.
-- **See spending:** Home (safe to spend, habit card, budget alert, hide amounts), Activity (7 days) and History, full-screen search, Reports (habits, regular payments, categories, trend, heatmap), category trends, regular payments page.
+- **See spending:** Home (spending hero with daily bars and safe to spend, where it went with budget status, habit card, hide amounts), Activity (7 days) and History, full-screen search, Reports (habits, regular payments, categories, trend, heatmap), category trends, regular payments page.
 - **Plan:** budgets per pay cycle (expand, reorder, warning level 70/80/90%), payday, wallets and transfers.
 - **Manage:** categories (add, rename that carries over to past transactions and budgets, icons, reorder, delete with guards), CSV export through the share sheet.
 - **Account:** profile photo (gallery), personal details, change password, sync status with Sync now, sign out (refused while unsent changes can't go up).
@@ -70,6 +70,15 @@ This is where the next session starts.
    - **Custom SMTP** in Supabase, then switch the confirmation email to a code (`{{ .Token }}`; the app's code screen is ready) and add code-based password reset.
    - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
 3. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
+
+## Session 11: 28 Nov 2026 (late night)
+
+### Done
+
+- **Home redesigned around spending:** a navy hero with what was spent this pay cycle, the change against the same point last cycle, daily bars (today in coral) and safe to spend with days to payday (tap to change payday); then Where it went (top 4 categories, share of spending, budget status marks), the habit tip, Recent activity, and Wallets last. `CycleSpending.compute` (`domain/models/cycle_spending.dart`).
+- **Removed** the net balance card, the separate safe-to-spend card, the navy budget alert (now a status line in Where it went) and the quick actions (the + button covers adding; Receipt and Grocery were placeholders).
+- **Also:** `flutter_local_notifications` pinned to 22.x (23 needs compileSdk 37).
+- **Quality:** `flutter analyze` clean; 296 tests pass; Home rendered in light and dark.
 
 ## Session 10: 28 Nov 2026 (night)
 

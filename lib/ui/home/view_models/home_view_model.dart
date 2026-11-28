@@ -1,3 +1,4 @@
+import '../../../domain/models/cycle_spending.dart';
 import '../../../domain/models/app_notification.dart';
 
 import 'package:flutter/foundation.dart';
@@ -100,6 +101,19 @@ class HomeViewModel extends ChangeNotifier {
   int get payday => _settingsRepository.payday;
 
   void setPayday(int day) => _settingsRepository.setPayday(day);
+
+  /// Now, by the view model's clock.
+  DateTime get now => _clock();
+
+  /// Spending this pay cycle: total, comparison, each day and where it
+  /// went.
+  CycleSpending get spending => CycleSpending.compute(
+    transactions: _all,
+    budgets: _budgets,
+    cycle: cycle,
+    now: _clock(),
+    alertAt: _settingsRepository.budgetAlertPercent / 100,
+  );
 
   /// The budget closest to its limit this pay cycle, or null when none
   /// needs attention.

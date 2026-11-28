@@ -241,6 +241,7 @@ void main() {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
 
+    await scrollTo(tester, find.text('YOUR SPENDING HABITS'));
     expect(find.text('YOUR SPENDING HABITS'), findsOneWidget);
     await tester.tap(find.widgetWithText(TextButton, 'See all').first);
     await tester.pumpAndSettle();
@@ -572,16 +573,17 @@ void main() {
     expect(find.textContaining('Today', findRichText: true), findsWidgets);
   });
 
-  testWidgets('the Income quick action opens Add on Income', (tester) async {
+  testWidgets('Where it went opens a category and its trend', (tester) async {
     await pumpApp(tester, signedIn: true);
     await finishSplash(tester);
 
-    await scrollTo(tester, find.bySemanticsLabel('Income'));
-    await tester.tap(find.bySemanticsLabel('Income'));
+    await scrollTo(tester, find.text('Where it went'));
+    await tester.tap(find.text('Groceries').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('AMOUNT RECEIVED'), findsOneWidget);
-    expect(find.bySemanticsLabel('Salary'), findsOneWidget);
+    expect(find.text('Where it went'), findsWidgets);
+    expect(find.text('Groceries'), findsWidgets);
+    expect(find.text('Payments'), findsOneWidget);
   });
 
   testWidgets('avatar opens Profile, where details can be edited', (
