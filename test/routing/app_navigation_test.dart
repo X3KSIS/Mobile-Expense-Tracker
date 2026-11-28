@@ -632,14 +632,17 @@ void main() {
 
     await tester.tap(find.byTooltip('Profile'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('App preferences'), 200);
-    await tester.tap(find.text('App preferences'));
+    await tester.scrollUntilVisible(find.text('Preferences'), 200);
+    await tester.ensureVisible(find.text('Preferences'));
     await tester.pumpAndSettle();
-    expect(find.text('Preferences'), findsOneWidget);
+    await tester.tap(find.text('Preferences'));
+    await tester.pumpAndSettle();
+    // The Profile menu underneath says Preferences too; the page is on top.
+    expect(find.text('Preferences'), findsWidgets);
 
     await tester.tap(find.bySemanticsLabel('Dark theme'));
     await tester.pumpAndSettle();
-    final context = tester.element(find.text('Preferences'));
+    final context = tester.element(find.text('Preferences').last);
     expect(Theme.of(context).brightness, Brightness.dark);
   });
 

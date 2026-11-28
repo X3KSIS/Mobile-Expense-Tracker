@@ -25,6 +25,7 @@ void main() {
   test('Profile follows the sync status and can sync now', () async {
     final sync = FakeSyncRepository();
     final vm = ProfileViewModel(
+      transactionRepository: instantTransactionRepository(),
       authRepository: instantAuthRepository(signedIn: true),
       settingsRepository: SettingsRepositoryLocalFake(),
       syncRepository: sync,

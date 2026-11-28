@@ -13,6 +13,7 @@ void main() {
         now: DateTime(2026, 11, 25),
       );
       final viewModel = ProfileViewModel(
+        transactionRepository: instantTransactionRepository(),
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
         syncRepository: FakeSyncRepository(),
@@ -26,11 +27,14 @@ void main() {
     test('notifies when the profile changes', () async {
       final auth = instantAuthRepository(signedIn: true);
       final viewModel = ProfileViewModel(
+        transactionRepository: instantTransactionRepository(),
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
         syncRepository: FakeSyncRepository(),
       );
       addTearDown(viewModel.dispose);
+      await pumpEventQueue(); // the tracking stats load first
+      expect(viewModel.stats.thisMonth, greaterThan(0));
       var notified = 0;
       viewModel.addListener(() => notified++);
 
@@ -43,6 +47,7 @@ void main() {
     test('signOut signs the user out', () async {
       final auth = instantAuthRepository(signedIn: true);
       final viewModel = ProfileViewModel(
+        transactionRepository: instantTransactionRepository(),
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
         syncRepository: FakeSyncRepository(),
@@ -59,6 +64,7 @@ void main() {
     test('stops listening after dispose', () async {
       final auth = instantAuthRepository(signedIn: true);
       final viewModel = ProfileViewModel(
+        transactionRepository: instantTransactionRepository(),
         authRepository: auth,
         settingsRepository: SettingsRepositoryLocalFake(),
         syncRepository: FakeSyncRepository(),

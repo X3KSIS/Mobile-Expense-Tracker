@@ -8,6 +8,7 @@ import '../../core/ui/app_logo.dart';
 import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/screen_header.dart';
 import '../view_models/profile_view_model.dart';
+import 'help_sheet.dart';
 import 'profile_card.dart';
 import 'profile_menu.dart';
 import 'sign_out_button.dart';
@@ -60,14 +61,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _comingSoon(String feature) => _showSnackBar('$feature is coming soon');
-
   void _editProfile() => context.push(Routes.editProfile);
 
   void _showAbout() {
     showAboutDialog(
       context: context,
-      applicationName: 'ExpenseTrack',
+      applicationName: 'Expense Tracker',
       applicationVersion: ProfileViewModel.appVersion,
       applicationIcon: const AppLogo(size: Dimens.avatarSize),
       children: const [Text('Know where your kwacha goes.')],
@@ -101,7 +100,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: Dimens.sectionGap + 2),
                 if (user != null)
-                  ProfileCard(user: user, memberSince: viewModel.memberSince),
+                  ProfileCard(
+                    user: user,
+                    stats: viewModel.stats,
+                    memberSince: viewModel.memberSince,
+                    onTap: _editProfile,
+                  ),
                 const SizedBox(height: Dimens.gapL),
                 SyncStatusCard(
                   status: viewModel.syncStatus,
@@ -119,7 +123,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: Dimens.gapL),
                 Center(
                   child: Text(
-                    'ExpenseTrack ${ProfileViewModel.appVersion}',
+                    'Expense Tracker ${ProfileViewModel.appVersion} · '
+                    'Amounts in ${ProfileViewModel.currency}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -138,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ProfileMenuItem(
           icon: Icons.person_outline_rounded,
           title: 'Personal details',
-          subtitle: 'Name and phone number',
+          subtitle: 'Name, username, photo and phone',
           onTap: _editProfile,
         ),
         ProfileMenuItem(
@@ -147,61 +152,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
           subtitle: 'Change your password',
           onTap: () => context.push(Routes.security),
         ),
-        ProfileMenuItem(
-          icon: Icons.notifications_none_rounded,
-          title: 'Notifications',
-          subtitle: 'Daily and bill reminders, budget alerts',
-          onTap: () => context.push(Routes.notificationSettings),
-        ),
       ],
     ),
     const SizedBox(height: Dimens.sectionGap),
     ProfileMenuSection(
-      title: 'Preferences',
+      title: 'Tracking',
       items: [
         ProfileMenuItem(
-          icon: Icons.tune_rounded,
-          title: 'App preferences',
-          subtitle: 'Theme, payday, budget warnings, default wallet',
-          onTap: () => context.push(Routes.preferences),
-        ),
-        const ProfileMenuItem(
-          icon: Icons.payments_outlined,
-          title: 'Currency',
-          value: ProfileViewModel.currency,
+          icon: Icons.category_outlined,
+          title: 'Categories',
+          subtitle: 'Add, rename and reorder',
+          onTap: () => context.push(Routes.categories),
         ),
         ProfileMenuItem(
           icon: Icons.sms_outlined,
           title: 'Payment messages',
-          subtitle: 'Add MoMo and bank payments from notifications',
+          subtitle: 'Add MoMo and bank payments',
           onTap: () => context.push(Routes.detectedPayments),
-        ),
-        ProfileMenuItem(
-          icon: Icons.category_outlined,
-          title: 'Categories',
-          subtitle: 'Add, rename, reorder and choose icons',
-          onTap: () => context.push(Routes.categories),
         ),
         ProfileMenuItem(
           icon: Icons.file_download_outlined,
           title: 'Export data',
-          subtitle: 'Share your transactions as a CSV file',
+          subtitle: 'Your transactions as a CSV file',
           onTap: () => context.push(Routes.export),
         ),
       ],
     ),
     const SizedBox(height: Dimens.sectionGap),
     ProfileMenuSection(
-      title: 'Support',
+      title: 'App',
       items: [
         ProfileMenuItem(
+          icon: Icons.tune_rounded,
+          title: 'Preferences',
+          subtitle: 'Theme, payday, privacy and app lock',
+          onTap: () => context.push(Routes.preferences),
+        ),
+        ProfileMenuItem(
+          icon: Icons.notifications_none_rounded,
+          title: 'Notifications',
+          subtitle: 'Reminders and budget alerts',
+          onTap: () => context.push(Routes.notificationSettings),
+        ),
+        ProfileMenuItem(
           icon: Icons.help_outline_rounded,
-          title: 'Help and support',
-          onTap: () => _comingSoon('Help and support'),
+          title: 'Help',
+          subtitle: 'Quick answers',
+          onTap: () => showHelpSheet(context),
         ),
         ProfileMenuItem(
           icon: Icons.info_outline_rounded,
-          title: 'About ExpenseTrack',
+          title: 'About Expense Tracker',
           onTap: _showAbout,
         ),
       ],

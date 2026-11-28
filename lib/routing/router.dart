@@ -338,6 +338,7 @@ GoRouter router(AuthRepository authRepository) {
             authRepository: context.read(),
             settingsRepository: context.read(),
             syncRepository: context.read(),
+            transactionRepository: context.read(),
           ),
           child: Builder(
             builder: (context) =>
