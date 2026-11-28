@@ -28,7 +28,7 @@ class PreferencesScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: viewModel,
+          listenable: Listenable.merge([viewModel, viewModel.setAppLock]),
           builder: (context, _) => ListView(
             padding: const EdgeInsets.fromLTRB(
               Dimens.screenPadding,
@@ -113,6 +113,19 @@ class PreferencesScreen extends StatelessWidget {
     title: 'Privacy',
     children: [
       PreferenceRow(
+        title: 'Lock with fingerprint or PIN',
+        subtitle: _appLockSubtitle(),
+        trailing: Switch(
+          value: viewModel.appLock,
+          // Off can always be chosen; on needs a screen lock on the phone.
+          onChanged:
+              viewModel.setAppLock.running ||
+                  (!viewModel.appLock && !viewModel.appLockAvailable)
+              ? null
+              : viewModel.setAppLock.execute,
+        ),
+      ),
+      PreferenceRow(
         title: 'Hide in recent apps',
         subtitle:
             'Shows a blank card in the app switcher and blocks screenshots',
@@ -123,6 +136,15 @@ class PreferencesScreen extends StatelessWidget {
       ),
     ],
   );
+
+  String _appLockSubtitle() {
+    final message = viewModel.appLockMessage;
+    if (message != null) return message;
+    if (!viewModel.appLock && !viewModel.appLockAvailable) {
+      return 'Set a screen lock on this phone to use this';
+    }
+    return 'Asks when the app opens and after a minute away';
+  }
 
   Widget _home() => PreferenceSection(
     title: 'Home',

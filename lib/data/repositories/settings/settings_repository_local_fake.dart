@@ -17,6 +17,19 @@ class SettingsRepositoryLocalFake extends SettingsRepository {
   bool _showHabitsOnHome = true;
   bool _hideAmountsOnHome = false;
   bool _privacyScreen = false;
+  bool _appLock = false;
+
+  @override
+  bool get appLock => _appLock;
+
+  @override
+  Future<Result<void>> setAppLock(bool enabled) async {
+    if (enabled != _appLock) {
+      _appLock = enabled;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
 
   @override
   bool get privacyScreen => _privacyScreen;

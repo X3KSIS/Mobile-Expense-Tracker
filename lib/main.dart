@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'config/dependencies.dart';
+import 'data/repositories/app_lock/app_lock_repository.dart';
 import 'data/repositories/auth/auth_repository.dart';
 import 'data/repositories/detected_payment/detected_payment_repository.dart';
 import 'data/repositories/settings/settings_repository.dart';
@@ -11,6 +12,8 @@ import 'data/repositories/sync/sync_repository.dart';
 import 'data/services/supabase/supabase_config.dart';
 import 'domain/models/theme_preference.dart';
 import 'routing/router.dart';
+import 'ui/app_lock/view_models/app_lock_view_model.dart';
+import 'ui/app_lock/widgets/app_lock_gate.dart';
 import 'ui/core/themes/motion.dart';
 import 'ui/core/themes/theme.dart';
 import 'ui/setup/setup_required_app.dart';
@@ -38,6 +41,9 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
   late final GoRouter _router = router(context.read<AuthRepository>());
   late final AuthRepository _auth = context.read<AuthRepository>();
   late final SyncRepository _sync = context.read<SyncRepository>();
+  late final AppLockViewModel _appLock = AppLockViewModel(
+    appLockRepository: context.read<AppLockRepository>(),
+  );
 
   @override
   void initState() {
@@ -81,6 +87,7 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
     WidgetsBinding.instance.removeObserver(this);
     _auth.removeListener(_onAuthChanged);
     _router.dispose();
+    _appLock.dispose();
     super.dispose();
   }
 
@@ -107,7 +114,7 @@ class _ExpenseTrackAppState extends State<ExpenseTrackApp>
         value: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
-        child: child!,
+        child: AppLockGate(viewModel: _appLock, child: child!),
       ),
     );
   }

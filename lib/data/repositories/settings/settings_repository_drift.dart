@@ -37,6 +37,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
   bool _showHabitsOnHome = true;
   bool _hideAmountsOnHome = false;
   bool _privacyScreen = false;
+  bool _appLock = false;
   bool _disposed = false;
 
   /// Reads the stored values and notifies when they differ.
@@ -51,7 +52,8 @@ class SettingsRepositoryDrift extends SettingsRepository {
         row.defaultWalletId != _defaultWalletId ||
         row.showHabits != _showHabitsOnHome ||
         row.hideAmounts != _hideAmountsOnHome ||
-        row.privacyScreen != _privacyScreen;
+        row.privacyScreen != _privacyScreen ||
+        row.appLock != _appLock;
     final privacyChanged = row.privacyScreen != _privacyScreen;
     if (theme != null) _themePreference = theme;
     _payday = row.payday;
@@ -60,6 +62,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
     _showHabitsOnHome = row.showHabits;
     _hideAmountsOnHome = row.hideAmounts;
     _privacyScreen = row.privacyScreen;
+    _appLock = row.appLock;
     if (privacyChanged) await _privacy.setEnabled(_privacyScreen);
     if (changed) notifyListeners();
   }
@@ -149,6 +152,17 @@ class SettingsRepositoryDrift extends SettingsRepository {
     await _write(ProfilesCompanion(privacyScreen: Value(enabled)));
   });
 
+  @override
+  bool get appLock => _appLock;
+
+  @override
+  Future<Result<void>> setAppLock(bool enabled) => guard(() async {
+    if (enabled == _appLock) return;
+    _appLock = enabled;
+    notifyListeners();
+    await _write(ProfilesCompanion(appLock: Value(enabled)));
+  });
+
   /// Saves [change] on the profile. Signed out, it goes on a local
   /// profile that the first account to sign in takes over.
   Future<void> _write(ProfilesCompanion change) async {
@@ -171,6 +185,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
             showHabits: Value(_showHabitsOnHome),
             hideAmounts: Value(_hideAmountsOnHome),
             privacyScreen: Value(_privacyScreen),
+            appLock: Value(_appLock),
             createdAt: now,
             modifiedAt: now,
             dirty: const Value(true),

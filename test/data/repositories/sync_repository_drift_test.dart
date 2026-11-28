@@ -241,6 +241,7 @@ void main() {
     await phone.settings.setShowHabitsOnHome(false);
     await phone.settings.setHideAmountsOnHome(true);
     await phone.settings.setPrivacyScreen(true);
+    await phone.settings.setAppLock(true);
     await phone.sync.sync();
 
     await tablet.sync.sync();
@@ -260,6 +261,8 @@ void main() {
     expect(tablet.settings.hideAmountsOnHome, isTrue);
     expect(remote.profile!['privacy_screen'], isTrue);
     expect(tablet.settings.privacyScreen, isTrue);
+    expect(remote.profile!['app_lock'], isTrue);
+    expect(tablet.settings.appLock, isTrue);
   });
 
   test('detected payments keep their message details', () async {

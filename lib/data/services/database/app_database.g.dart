@@ -4159,6 +4159,21 @@ class $ProfilesTable extends Profiles
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _appLockMeta = const VerificationMeta(
+    'appLock',
+  );
+  @override
+  late final GeneratedColumn<bool> appLock = GeneratedColumn<bool>(
+    'app_lock',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("app_lock" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _hideAmountsMeta = const VerificationMeta(
     'hideAmounts',
   );
@@ -4224,6 +4239,7 @@ class $ProfilesTable extends Profiles
     avatarBytes,
     avatarDirty,
     privacyScreen,
+    appLock,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4336,6 +4352,12 @@ class $ProfilesTable extends Profiles
         ),
       );
     }
+    if (data.containsKey('app_lock')) {
+      context.handle(
+        _appLockMeta,
+        appLock.isAcceptableOrUnknown(data['app_lock']!, _appLockMeta),
+      );
+    }
     if (data.containsKey('hide_amounts')) {
       context.handle(
         _hideAmountsMeta,
@@ -4428,6 +4450,10 @@ class $ProfilesTable extends Profiles
         DriftSqlType.bool,
         data['${effectivePrefix}privacy_screen'],
       )!,
+      appLock: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}app_lock'],
+      )!,
       hideAmounts: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hide_amounts'],
@@ -4485,6 +4511,10 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   /// screenshots.
   final bool privacyScreen;
 
+  /// Whether opening the app asks for the fingerprint, face or the
+  /// phone's screen lock.
+  final bool appLock;
+
   /// Whether Home hides money amounts until shown.
   final bool hideAmounts;
   final DateTime createdAt;
@@ -4504,6 +4534,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     this.avatarBytes,
     required this.avatarDirty,
     required this.privacyScreen,
+    required this.appLock,
     required this.hideAmounts,
     required this.createdAt,
     required this.modifiedAt,
@@ -4533,6 +4564,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     }
     map['avatar_dirty'] = Variable<bool>(avatarDirty);
     map['privacy_screen'] = Variable<bool>(privacyScreen);
+    map['app_lock'] = Variable<bool>(appLock);
     map['hide_amounts'] = Variable<bool>(hideAmounts);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['modified_at'] = Variable<DateTime>(modifiedAt);
@@ -4563,6 +4595,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           : Value(avatarBytes),
       avatarDirty: Value(avatarDirty),
       privacyScreen: Value(privacyScreen),
+      appLock: Value(appLock),
       hideAmounts: Value(hideAmounts),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
@@ -4589,6 +4622,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       avatarBytes: serializer.fromJson<Uint8List?>(json['avatarBytes']),
       avatarDirty: serializer.fromJson<bool>(json['avatarDirty']),
       privacyScreen: serializer.fromJson<bool>(json['privacyScreen']),
+      appLock: serializer.fromJson<bool>(json['appLock']),
       hideAmounts: serializer.fromJson<bool>(json['hideAmounts']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
@@ -4612,6 +4646,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'avatarBytes': serializer.toJson<Uint8List?>(avatarBytes),
       'avatarDirty': serializer.toJson<bool>(avatarDirty),
       'privacyScreen': serializer.toJson<bool>(privacyScreen),
+      'appLock': serializer.toJson<bool>(appLock),
       'hideAmounts': serializer.toJson<bool>(hideAmounts),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
@@ -4633,6 +4668,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     Value<Uint8List?> avatarBytes = const Value.absent(),
     bool? avatarDirty,
     bool? privacyScreen,
+    bool? appLock,
     bool? hideAmounts,
     DateTime? createdAt,
     DateTime? modifiedAt,
@@ -4653,6 +4689,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     avatarBytes: avatarBytes.present ? avatarBytes.value : this.avatarBytes,
     avatarDirty: avatarDirty ?? this.avatarDirty,
     privacyScreen: privacyScreen ?? this.privacyScreen,
+    appLock: appLock ?? this.appLock,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -4687,6 +4724,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       privacyScreen: data.privacyScreen.present
           ? data.privacyScreen.value
           : this.privacyScreen,
+      appLock: data.appLock.present ? data.appLock.value : this.appLock,
       hideAmounts: data.hideAmounts.present
           ? data.hideAmounts.value
           : this.hideAmounts,
@@ -4714,6 +4752,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('avatarBytes: $avatarBytes, ')
           ..write('avatarDirty: $avatarDirty, ')
           ..write('privacyScreen: $privacyScreen, ')
+          ..write('appLock: $appLock, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -4737,6 +4776,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     $driftBlobEquality.hash(avatarBytes),
     avatarDirty,
     privacyScreen,
+    appLock,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4759,6 +4799,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           $driftBlobEquality.equals(other.avatarBytes, this.avatarBytes) &&
           other.avatarDirty == this.avatarDirty &&
           other.privacyScreen == this.privacyScreen &&
+          other.appLock == this.appLock &&
           other.hideAmounts == this.hideAmounts &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt &&
@@ -4779,6 +4820,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<Uint8List?> avatarBytes;
   final Value<bool> avatarDirty;
   final Value<bool> privacyScreen;
+  final Value<bool> appLock;
   final Value<bool> hideAmounts;
   final Value<DateTime> createdAt;
   final Value<DateTime> modifiedAt;
@@ -4798,6 +4840,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.avatarBytes = const Value.absent(),
     this.avatarDirty = const Value.absent(),
     this.privacyScreen = const Value.absent(),
+    this.appLock = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
@@ -4818,6 +4861,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.avatarBytes = const Value.absent(),
     this.avatarDirty = const Value.absent(),
     this.privacyScreen = const Value.absent(),
+    this.appLock = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     required DateTime createdAt,
     required DateTime modifiedAt,
@@ -4840,6 +4884,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<Uint8List>? avatarBytes,
     Expression<bool>? avatarDirty,
     Expression<bool>? privacyScreen,
+    Expression<bool>? appLock,
     Expression<bool>? hideAmounts,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? modifiedAt,
@@ -4861,6 +4906,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       if (avatarBytes != null) 'avatar_bytes': avatarBytes,
       if (avatarDirty != null) 'avatar_dirty': avatarDirty,
       if (privacyScreen != null) 'privacy_screen': privacyScreen,
+      if (appLock != null) 'app_lock': appLock,
       if (hideAmounts != null) 'hide_amounts': hideAmounts,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
@@ -4883,6 +4929,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<Uint8List?>? avatarBytes,
     Value<bool>? avatarDirty,
     Value<bool>? privacyScreen,
+    Value<bool>? appLock,
     Value<bool>? hideAmounts,
     Value<DateTime>? createdAt,
     Value<DateTime>? modifiedAt,
@@ -4903,6 +4950,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       avatarBytes: avatarBytes ?? this.avatarBytes,
       avatarDirty: avatarDirty ?? this.avatarDirty,
       privacyScreen: privacyScreen ?? this.privacyScreen,
+      appLock: appLock ?? this.appLock,
       hideAmounts: hideAmounts ?? this.hideAmounts,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -4953,6 +5001,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     if (privacyScreen.present) {
       map['privacy_screen'] = Variable<bool>(privacyScreen.value);
     }
+    if (appLock.present) {
+      map['app_lock'] = Variable<bool>(appLock.value);
+    }
     if (hideAmounts.present) {
       map['hide_amounts'] = Variable<bool>(hideAmounts.value);
     }
@@ -4987,6 +5038,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('avatarBytes: $avatarBytes, ')
           ..write('avatarDirty: $avatarDirty, ')
           ..write('privacyScreen: $privacyScreen, ')
+          ..write('appLock: $appLock, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -7299,6 +7351,7 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<Uint8List?> avatarBytes,
   Value<bool> avatarDirty,
   Value<bool> privacyScreen,
+  Value<bool> appLock,
   Value<bool> hideAmounts,
   required DateTime createdAt,
   required DateTime modifiedAt,
@@ -7319,6 +7372,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<Uint8List?> avatarBytes,
   Value<bool> avatarDirty,
   Value<bool> privacyScreen,
+  Value<bool> appLock,
   Value<bool> hideAmounts,
   Value<DateTime> createdAt,
   Value<DateTime> modifiedAt,
@@ -7397,6 +7451,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<bool> get privacyScreen => $composableBuilder(
     column: $table.privacyScreen,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get appLock => $composableBuilder(
+    column: $table.appLock,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7495,6 +7554,11 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get appLock => $composableBuilder(
+    column: $table.appLock,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => ColumnOrderings(column),
@@ -7578,6 +7642,9 @@ class $$ProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get appLock =>
+      $composableBuilder(column: $table.appLock, builder: (column) => column);
+
   GeneratedColumn<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => column,
@@ -7639,6 +7706,7 @@ class $$ProfilesTableTableManager
                 Value<Uint8List?> avatarBytes = const Value.absent(),
                 Value<bool> avatarDirty = const Value.absent(),
                 Value<bool> privacyScreen = const Value.absent(),
+                Value<bool> appLock = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> modifiedAt = const Value.absent(),
@@ -7658,6 +7726,7 @@ class $$ProfilesTableTableManager
                 avatarBytes: avatarBytes,
                 avatarDirty: avatarDirty,
                 privacyScreen: privacyScreen,
+                appLock: appLock,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
@@ -7679,6 +7748,7 @@ class $$ProfilesTableTableManager
                 Value<Uint8List?> avatarBytes = const Value.absent(),
                 Value<bool> avatarDirty = const Value.absent(),
                 Value<bool> privacyScreen = const Value.absent(),
+                Value<bool> appLock = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime modifiedAt,
@@ -7698,6 +7768,7 @@ class $$ProfilesTableTableManager
                 avatarBytes: avatarBytes,
                 avatarDirty: avatarDirty,
                 privacyScreen: privacyScreen,
+                appLock: appLock,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,

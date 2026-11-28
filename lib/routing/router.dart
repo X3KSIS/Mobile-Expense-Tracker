@@ -270,6 +270,7 @@ GoRouter router(AuthRepository authRepository) {
           create: (context) => PreferencesViewModel(
             settingsRepository: context.read(),
             walletRepository: context.read(),
+            appLockRepository: context.read(),
           ),
           child: Builder(
             builder: (context) => PreferencesScreen(

@@ -1,5 +1,7 @@
 import 'package:flutter_expensetracker/data/repositories/account_link/account_link_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/account_link/account_link_repository_api.dart';
+import 'package:flutter_expensetracker/data/repositories/app_lock/app_lock_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/app_lock/app_lock_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository.dart';
@@ -66,6 +68,9 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ),
   ChangeNotifierProvider<SettingsRepository>(
     create: (_) => SettingsRepositoryLocalFake(),
+  ),
+  ChangeNotifierProvider<AppLockRepository>(
+    create: (_) => AppLockRepositoryLocalFake(),
   ),
   ChangeNotifierProvider<WalletRepository>(
     create: (_) => instantWalletRepository(),

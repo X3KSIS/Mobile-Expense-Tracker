@@ -281,6 +281,7 @@ class SyncRepositoryDrift extends SyncRepository {
       'hide_amounts': local.hideAmounts,
       'avatar_path': local.avatarPath,
       'privacy_screen': local.privacyScreen,
+      'app_lock': local.appLock,
       'modified_at': _serializer.toJson(local.modifiedAt),
     });
     await (_db.update(_db.profiles)..where(
@@ -308,6 +309,7 @@ class SyncRepositoryDrift extends SyncRepository {
     final hideAmounts = remote['hide_amounts'] as bool? ?? false;
     final avatarPath = remote['avatar_path'] as String?;
     final privacyScreen = remote['privacy_screen'] as bool? ?? false;
+    final appLock = remote['app_lock'] as bool? ?? false;
     final photoChanged = !local.avatarDirty && avatarPath != local.avatarPath;
     final unchanged =
         !local.dirty &&
@@ -321,6 +323,7 @@ class SyncRepositoryDrift extends SyncRepository {
         local.hideAmounts == hideAmounts &&
         !photoChanged &&
         local.privacyScreen == privacyScreen &&
+        local.appLock == appLock &&
         local.modifiedAt.isAtSameMomentAs(remoteModified);
     // Writing anyway would wake the change watcher and sync again forever.
     if (unchanged) return;
@@ -337,6 +340,7 @@ class SyncRepositoryDrift extends SyncRepository {
         showHabits: Value(showHabits),
         hideAmounts: Value(hideAmounts),
         privacyScreen: Value(privacyScreen),
+        appLock: Value(appLock),
         avatarPath: photoChanged ? Value(avatarPath) : const Value.absent(),
         avatarBytes: photoChanged
             ? Value(

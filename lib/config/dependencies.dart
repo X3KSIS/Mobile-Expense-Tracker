@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../data/repositories/account_link/account_link_repository.dart';
 import '../data/repositories/account_link/account_link_repository_api.dart';
+import '../data/repositories/app_lock/app_lock_repository.dart';
+import '../data/repositories/app_lock/app_lock_repository_device.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../data/repositories/auth/auth_repository_supabase.dart';
 import '../data/repositories/budget/budget_repository.dart';
@@ -52,11 +54,16 @@ Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
   final settings = SettingsRepositoryDrift(db);
   await settings.load();
 
+  // Built after the settings load, so a cold start with the lock on opens
+  // locked.
+  final appLock = AppLockRepositoryDevice(settings);
+
   return [
     Provider<AppDatabase>.value(value: db),
     ChangeNotifierProvider<AuthRepository>.value(value: auth),
     ChangeNotifierProvider<SyncRepository>.value(value: syncRepository),
     ChangeNotifierProvider<SettingsRepository>.value(value: settings),
+    ChangeNotifierProvider<AppLockRepository>.value(value: appLock),
     ChangeNotifierProvider<TransactionRepository>(
       create: (_) => TransactionRepositoryDrift(db),
     ),

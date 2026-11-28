@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expensetracker/data/repositories/app_lock/app_lock_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/app_lock/app_lock_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/domain/models/budget.dart';
 import 'package:flutter_expensetracker/domain/models/budget_progress.dart';
@@ -16,10 +18,14 @@ import '../../testing/fakes/fake_repositories.dart';
 void main() {
   final now = DateTime(2026, 11, 25, 15);
 
-  PreferencesViewModel build(SettingsRepositoryLocalFake settings) {
+  PreferencesViewModel build(
+    SettingsRepositoryLocalFake settings, {
+    AppLockRepositoryLocalFake? appLock,
+  }) {
     final vm = PreferencesViewModel(
       settingsRepository: settings,
       walletRepository: instantWalletRepository(now: now),
+      appLockRepository: appLock ?? AppLockRepositoryLocalFake(),
     );
     addTearDown(vm.dispose);
     return vm;
@@ -56,6 +62,41 @@ void main() {
 
       expect(vm.defaultWalletId, vm.wallets.first.id);
       expect(vm.paydayLabel, '1st (calendar months)');
+    });
+
+    test('the app lock turns on only after confirming', () async {
+      final settings = SettingsRepositoryLocalFake();
+      final appLock = AppLockRepositoryLocalFake(
+        problem: AppLockProblem.cancelled,
+      );
+      final vm = build(settings, appLock: appLock);
+      await pumpEventQueue();
+      expect(vm.appLockAvailable, isTrue);
+
+      await vm.setAppLock.execute(true);
+      expect(settings.appLock, isFalse);
+      expect(vm.appLockMessage, isNull, reason: 'closing the prompt is fine');
+
+      appLock.problem = null;
+      await vm.setAppLock.execute(true);
+      expect(settings.appLock, isTrue);
+
+      appLock.problem = AppLockProblem.failed;
+      await vm.setAppLock.execute(false);
+      expect(settings.appLock, isFalse, reason: 'off needs no prompt');
+      expect(appLock.prompts, 2);
+    });
+
+    test('a phone without a screen lock explains why', () async {
+      final appLock = AppLockRepositoryLocalFake(
+        available: false,
+        problem: AppLockProblem.noScreenLock,
+      );
+      final vm = build(SettingsRepositoryLocalFake(), appLock: appLock);
+      await pumpEventQueue();
+      expect(vm.appLockAvailable, isFalse);
+      await vm.setAppLock.execute(true);
+      expect(vm.appLockMessage, 'Set a screen lock on this phone first');
     });
 
     test('only the offered warning levels are accepted', () async {
@@ -131,5 +172,15 @@ void main() {
     await tester.tap(privacySwitch);
     await tester.pumpAndSettle();
     expect(settings.privacyScreen, isTrue);
+
+    final lockSwitch = find.descendant(
+      of: find.widgetWithText(PreferenceRow, 'Lock with fingerprint or PIN'),
+      matching: find.byType(Switch),
+    );
+    await tester.ensureVisible(lockSwitch);
+    await tester.pumpAndSettle();
+    await tester.tap(lockSwitch);
+    await tester.pumpAndSettle();
+    expect(settings.appLock, isTrue);
   });
 }

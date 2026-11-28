@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 261 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 274 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -22,7 +22,7 @@ This is where the next session starts.
 - **Plan:** budgets per pay cycle (expand, reorder, warning level 70/80/90%), payday, wallets and transfers.
 - **Manage:** categories (add, rename that carries over to past transactions and budgets, icons, reorder, delete with guards), CSV export through the share sheet.
 - **Account:** profile photo (gallery), personal details, change password, sync status with Sync now, sign out (refused while unsent changes can't go up).
-- **Preferences:** theme (system, light, dark), payday, budget warning level, default wallet, show habits on Home, hide amounts on Home, hide in recent apps (blocks screenshots).
+- **Preferences:** theme (system, light, dark), payday, budget warning level, default wallet, show habits on Home, hide amounts on Home, hide in recent apps (blocks screenshots), lock with fingerprint or PIN.
 - **Look and feel:** coral and navy design system, dark mode, motion throughout, skeletons not spinners.
 
 ### Backend (Supabase)
@@ -33,10 +33,11 @@ This is where the next session starts.
   2. `20261128000000_preferences.sql`: preference columns on `profiles`.
   3. `20261128010000_profile_photos.sql`: `avatar_path`, private `avatars` Storage bucket and its policies.
   4. `20261128020000_privacy_screen.sql`: `privacy_screen`.
+  5. `20261128030000_app_lock.sql`: `app_lock`. **Not applied yet: apply it before running the app-lock build,** or profile sync fails on the unknown column.
 - **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project does not grant access by default.
 - **Config:** the project URL and publishable key are built into `SupabaseConfig`, so F5 or `flutter run` connects. `supabase.json` (gitignored) can point a build at another project. Never put the secret key in the app.
 - **Email:** Supabase's built-in sender only sends its default link email and is rate-limited. Templates can only be edited after custom SMTP is set up. Clicking the link does confirm the account, even though the page it opens shows "localhost".
-- **Device database:** Drift schema version 4 (profile columns were added in versions 2 to 4).
+- **Device database:** Drift schema version 5 (profile columns were added in versions 2 to 5).
 
 ### How to run and check
 
@@ -49,7 +50,7 @@ This is where the next session starts.
 
 ### Open issues
 
-1. **The first transaction never saved on the phone.** The phone's database had no transactions and Supabase showed no uploads. The same code saves correctly in tests, so the cause is unknown. Verify first: add a transaction, check for "Expense saved", then "Saved online" in Profile, then the row in Supabase.
+1. **Transactions don't reach the phone's database file.** On 28 Nov at 17:5x a ZMW 10 expense showed "Expense saved", yet `expense_tracker.sqlite` was last written at 10:05:59. No `-journal` or `-wal` file existed, and the same file was the only one the app had open. Earlier writes (profile photo 10:03, Cash opening balance 10:05) did land and sync. The wiring is right (`TransactionRepositoryDrift`). Leading theory: a Drift transaction opened around 10:05:59 never committed, and later writes ran inside it in memory. Next check: does the expense survive a force close and reopen? If not, the theory holds; then find which `transaction()` hangs (sync pull, `openAccount`, category save).
 2. **The sync loop is fixed,** but the fix hasn't run on the phone yet (it used to sync every 2 seconds).
 3. **Password reset** sends Supabase's link, which opens "localhost". It needs custom SMTP and code-based reset (or a deep link).
 
@@ -62,14 +63,22 @@ This is where the next session starts.
 
 ### Pick up next
 
-1. **On the phone:** fully restart, add a transaction (see open issue 1), then try the profile photo, categories, export, Spend again, Undo and Hide in recent apps.
+1. **On the phone:** apply migration 5, build, turn on Preferences → Lock with fingerprint or PIN and try it (cold start, away under and over a minute, cancel the prompt). Then fully restart, add a transaction (see open issue 1), then try the profile photo, categories, export, Spend again, Undo and Hide in recent apps.
 2. **Recommended features,** each needing a package or a decision:
-   - **App lock** with fingerprint or PIN when the app opens (`local_auth`). Do this first.
    - **Reminders** before regular payments are due, and an evening "anything to record today?" (`flutter_local_notifications`).
    - **Receipts:** attach a photo to a transaction (Supabase Storage; `image_picker` is already in).
    - **Custom SMTP** in Supabase, then switch the confirmation email to a code (`{{ .Token }}`; the app's code screen is ready) and add code-based password reset.
    - **Auto-add regular payments** (DStv, rent) on their due date, with a confirm step.
 3. **Later:** personal inflation with the price tracker, grocery lists. Direct MoMo and bank APIs wait for the institutions (the seam is ready).
+
+## Session 9: 28 Nov 2026 (evening)
+
+### Done
+
+- **App lock** (`local_auth` 3.0.2, approved): Preferences → Privacy → Lock with fingerprint or PIN. Turning it on asks to confirm first. The app locks on a cold start and on coming back after a minute or more away (the gallery or share sheet don't count; neither does the prompt itself). The lock screen covers the app at once, prompts by itself and fades away on unlock. A phone without a screen lock is never shut out. Stored on the profile (`app_lock`, Drift schema 5, Supabase migration 5) and synced. `AppLockRepository` (device + fake), `DeviceAuthService`, `AppLockGate` in `MaterialApp.builder`.
+- **Android:** `MainActivity` is a `FlutterFragmentActivity`; `USE_BIOMETRIC` permission; pre-Android 12 launch themes use AppCompat (with `androidx.appcompat` added) so the prompt doesn't crash on Android 8 and below. Re-running `flutter_native_splash` may reset those themes; check them afterwards.
+- **Investigated the missing transaction** (open issue 1): narrowed down, not solved.
+- **Quality:** `flutter analyze` clean; 274 tests pass; lock screen rendered in light and dark.
 
 ## Session 8: 28 Nov 2026
 

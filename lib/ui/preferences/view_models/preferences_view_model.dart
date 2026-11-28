@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/app_lock/app_lock_repository.dart';
 import '../../../data/repositories/settings/settings_repository.dart';
 import '../../../data/repositories/wallet/wallet_repository.dart';
 import '../../../domain/models/theme_preference.dart';
@@ -15,18 +16,27 @@ class PreferencesViewModel extends ChangeNotifier {
   PreferencesViewModel({
     required this._settingsRepository,
     required this._walletRepository,
+    required this._appLockRepository,
   }) {
     _settingsRepository.addListener(_notify);
     _walletRepository.addListener(_onWalletsChanged);
     loadWallets = Command0<void>(_loadWallets)..execute();
+    setAppLock = Command1<void, bool>(_setAppLock);
+    _loadAppLockAvailable();
   }
 
   final SettingsRepository _settingsRepository;
   final WalletRepository _walletRepository;
+  final AppLockRepository _appLockRepository;
 
   late final Command0<void> loadWallets;
 
+  /// Turns the app lock on (after the owner confirms it's them) or off.
+  late final Command1<void, bool> setAppLock;
+
   List<Wallet> _wallets = const [];
+  bool _appLockAvailable = false;
+  String? _appLockMessage;
   bool _disposed = false;
 
   // Appearance -------------------------------------------------------------
@@ -87,6 +97,39 @@ class PreferencesViewModel extends ChangeNotifier {
   void setPrivacyScreen(bool enabled) =>
       _settingsRepository.setPrivacyScreen(enabled);
 
+  bool get appLock => _settingsRepository.appLock;
+
+  /// Whether this phone has a screen lock to unlock the app with.
+  bool get appLockAvailable => _appLockAvailable;
+
+  /// Why turning the lock on didn't work, or null.
+  String? get appLockMessage => _appLockMessage;
+
+  Future<void> _loadAppLockAvailable() async {
+    _appLockAvailable = await _appLockRepository.isAvailable();
+    _notify();
+  }
+
+  Future<Result<void>> _setAppLock(bool enabled) async {
+    _appLockMessage = null;
+    if (enabled) {
+      final confirmed = await _appLockRepository.confirm();
+      if (confirmed case Error(:final error)) {
+        _appLockMessage = switch (error) {
+          AppLockException(problem: AppLockProblem.cancelled) => null,
+          AppLockException(problem: AppLockProblem.noScreenLock) =>
+            'Set a screen lock on this phone first',
+          AppLockException(problem: AppLockProblem.lockedOut) =>
+            'Too many tries. Wait a moment, then try again.',
+          _ => "Couldn't check it's you. Please try again.",
+        };
+        _notify();
+        return Result.error(error);
+      }
+    }
+    return _settingsRepository.setAppLock(enabled);
+  }
+
   // -------------------------------------------------------------------------
 
   void _onWalletsChanged() {
@@ -115,6 +158,7 @@ class PreferencesViewModel extends ChangeNotifier {
     _settingsRepository.removeListener(_notify);
     _walletRepository.removeListener(_onWalletsChanged);
     loadWallets.dispose();
+    setAppLock.dispose();
     super.dispose();
   }
 }

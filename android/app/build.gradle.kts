@@ -47,3 +47,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // AppCompat launch theme, needed by the app lock prompt on older Android.
+    implementation("androidx.appcompat:appcompat:1.7.1")
+}

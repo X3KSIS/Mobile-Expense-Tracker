@@ -45,6 +45,12 @@ abstract class SettingsRepository extends ChangeNotifier {
 
   Future<Result<void>> setPrivacyScreen(bool enabled);
 
+  /// Whether opening the app asks for the fingerprint, face or the phone's
+  /// screen lock (see AppLockRepository).
+  bool get appLock;
+
+  Future<Result<void>> setAppLock(bool enabled);
+
   /// The warning levels offered.
   static const List<int> budgetAlertChoices = [70, 80, 90];
 }

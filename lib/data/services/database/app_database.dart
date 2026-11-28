@@ -153,6 +153,10 @@ class Profiles extends Table {
   BoolColumn get privacyScreen =>
       boolean().withDefault(const Constant(false))();
 
+  /// Whether opening the app asks for the fingerprint, face or the
+  /// phone's screen lock.
+  BoolColumn get appLock => boolean().withDefault(const Constant(false))();
+
   /// Whether Home hides money amounts until shown.
   BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
@@ -194,7 +198,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -212,6 +216,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 4) {
         await m.addColumn(profiles, profiles.privacyScreen);
+      }
+      if (from < 5) {
+        await m.addColumn(profiles, profiles.appLock);
       }
     },
   );
