@@ -5,10 +5,12 @@ import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/gradients.dart';
 import '../../core/themes/theme.dart';
-import '../../core/ui/progress_bar.dart';
 import '../../core/ui/mesh_gradient_box.dart';
+import 'budget_bar.dart';
 
-/// Navy card with the month's total spent against all budgets.
+/// Navy card with what was spent against all budgets this cycle: the bar
+/// with its "today" marker, what is left and what that allows per day
+/// until payday, and how many budgets need attention.
 class BudgetsSummaryCard extends StatelessWidget {
   const BudgetsSummaryCard({
     super.key,
@@ -16,20 +18,27 @@ class BudgetsSummaryCard extends StatelessWidget {
     required this.limit,
     required this.remaining,
     required this.percentUsed,
-    required this.overCount,
+    required this.cycleFraction,
+    required this.safePerDay,
+    required this.daysLeft,
+    required this.attentionCount,
   });
 
   final double spent;
   final double limit;
   final double remaining;
   final double percentUsed;
-  final int overCount;
+  final double cycleFraction;
+  final double safePerDay;
+  final int daysLeft;
+
+  /// Budgets near or over their limit.
+  final int attentionCount;
 
   @override
   Widget build(BuildContext context) {
-    final mutedStyle = context.text.body.copyWith(
-      color: context.colors.textOnNavyMuted,
-    );
+    final colors = context.colors;
+    final muted = context.text.caption.copyWith(color: colors.textOnNavyMuted);
     final money = splitMoney(spent);
     return MeshGradientBox(
       mesh: context.gradients.navyMesh,
@@ -40,9 +49,9 @@ class BudgetsSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SPENT THIS MONTH',
+            'SPENT ON BUDGETS',
             style: context.text.overline.copyWith(
-              color: context.colors.textOnNavyMuted,
+              color: colors.textOnNavyMuted,
             ),
           ),
           const SizedBox(height: Dimens.gapS),
@@ -55,50 +64,67 @@ class BudgetsSummaryCard extends StatelessWidget {
                   TextSpan(
                     text: '$currencyCode ',
                     style: context.text.amountPrefix.copyWith(
-                      color: context.colors.textOnNavyMuted,
+                      color: colors.textOnNavyMuted,
                     ),
                   ),
                   TextSpan(
                     text: money.whole,
                     style: context.text.amountLarge.copyWith(
-                      color: context.colors.accent,
+                      color: colors.accent,
                     ),
                   ),
                   TextSpan(
                     text: money.decimals,
                     style: context.text.amountDecimals.copyWith(
-                      color: context.colors.textOnNavyMuted,
+                      color: colors.textOnNavyMuted,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: Dimens.gapXs),
-          Text('of ${formatZmw(limit)} budgeted', style: mutedStyle),
+          Text(
+            'of ${formatZmw(limit)} budgeted',
+            style: context.text.body.copyWith(color: colors.textOnNavyMuted),
+          ),
           const SizedBox(height: Dimens.gapL),
-          ProgressBar(
+          BudgetBar(
             value: percentUsed,
-            trackColor: context.colors.navyTrack,
-            semanticLabel: 'Total budget used',
+            planned: cycleFraction,
+            trackColor: colors.navyTrack,
+            markerColor: colors.textOnNavy,
+            semanticLabel:
+                '${(percentUsed * 100).round()}% of all budgets used, '
+                '${(cycleFraction * 100).round()}% of the cycle gone',
           ),
           const SizedBox(height: Dimens.gapM),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Text(
-                  '${formatZmw(remaining)} left',
-                  style: context.text.listTitle.copyWith(
-                    color: context.colors.textOnNavy,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${formatZmw(remaining)} left',
+                      style: context.text.listTitle.copyWith(
+                        color: colors.textOnNavy,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${formatZmw(safePerDay)} a day for '
+                      '$daysLeft day${daysLeft == 1 ? '' : 's'}',
+                      style: muted,
+                    ),
+                  ],
                 ),
               ),
-              if (overCount > 0)
+              if (attentionCount > 0)
                 Text(
-                  '$overCount over limit',
-                  style: context.text.caption.copyWith(
-                    color: context.colors.textOnNavyMuted,
-                  ),
+                  '$attentionCount need${attentionCount == 1 ? 's' : ''} '
+                  'a look',
+                  style: muted,
                 ),
             ],
           ),

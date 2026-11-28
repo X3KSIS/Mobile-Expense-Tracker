@@ -8,19 +8,21 @@ import '../../core/themes/motion.dart';
 import '../../core/themes/theme.dart';
 import '../../core/ui/category_tile.dart';
 import '../../core/ui/expandable_section.dart';
-import '../../core/ui/progress_bar.dart';
 import '../../core/ui/stat_tile.dart';
 import '../../core/ui/status_badge.dart';
+import 'budget_bar.dart';
 
-/// One budget: category, amount spent of the limit, a progress bar, how
-/// much is left (or over) and a status badge.
+/// One budget: category, what is left (or over), a bar with a "today"
+/// marker, how spending compares with an even pace, and a status badge.
 ///
-/// Tapping the card expands it (350 ms, ease out) to show the daily
-/// allowance, the daily average and an edit button.
+/// Tapping the card expands it (350 ms, ease out) to show what can be
+/// spent per day, the daily average and an edit button.
 class BudgetCard extends StatefulWidget {
   const BudgetCard({
     super.key,
     required this.progress,
+    required this.planned,
+    required this.cycleFraction,
     required this.dailyAllowance,
     required this.dailyAverage,
     required this.onEdit,
@@ -28,10 +30,16 @@ class BudgetCard extends StatefulWidget {
 
   final BudgetProgress progress;
 
-  /// What can still be spent each day for the rest of the month.
+  /// What would have been spent by today at an even pace.
+  final double planned;
+
+  /// How far through the cycle today is, 0 to 1.
+  final double cycleFraction;
+
+  /// What can still be spent each day for the rest of the cycle.
   final double dailyAllowance;
 
-  /// Average spent per day so far this month.
+  /// Average spent per day so far this cycle.
   final double dailyAverage;
   final VoidCallback onEdit;
 
@@ -66,15 +74,21 @@ class _BudgetCardState extends State<BudgetCard> {
               children: [
                 _Header(progress: progress, expanded: _expanded),
                 const SizedBox(height: Dimens.gapM),
-                ProgressBar(
+                BudgetBar(
                   value: progress.percentUsed,
+                  planned: widget.cycleFraction,
                   color: progress.needsAttention
                       ? colors.accentStrong
                       : colors.accent,
-                  semanticLabel: '${progress.budget.categoryName} budget used',
+                  markerColor: colors.textPrimary,
+                  semanticLabel:
+                      '${progress.budget.categoryName}: '
+                      '${progress.percentRounded}% used, '
+                      '${(widget.cycleFraction * 100).round()}% of the '
+                      'cycle gone',
                 ),
-                const SizedBox(height: Dimens.gapM),
-                _StatusRow(progress: progress),
+                const SizedBox(height: Dimens.gapS),
+                _PaceRow(progress: progress, planned: widget.planned),
                 ExpandableSection(
                   expanded: _expanded,
                   child: _Details(
@@ -92,6 +106,8 @@ class _BudgetCardState extends State<BudgetCard> {
   }
 }
 
+/// Icon, name and "ZMW 3,200 of ZMW 3,300", with what is left on the
+/// right.
 class _Header extends StatelessWidget {
   const _Header({required this.progress, required this.expanded});
 
@@ -102,6 +118,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final budget = progress.budget;
+    final over = progress.isOverLimit;
     return Row(
       children: [
         CategoryTile(icon: budget.categoryIcon),
@@ -110,22 +127,36 @@ class _Header extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(budget.categoryName, style: context.text.listTitle),
+              Text(
+                budget.categoryName,
+                style: context.text.listTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: 2),
               Text(
-                '${formatZmw(progress.spent)} of ${formatZmw(budget.limit)}',
+                '$currencyCode ${formatWhole(progress.spent)} of '
+                '${formatWhole(budget.limit)}',
                 style: context.text.caption,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
-        Text(
-          '${progress.percentRounded}%',
-          style: context.text.statValue.copyWith(
-            color: progress.needsAttention
-                ? colors.accentText
-                : colors.textPrimary,
-          ),
+        const SizedBox(width: Dimens.gapS),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              formatZmw(over ? progress.overBy : progress.remaining),
+              style: context.text.listAmount.copyWith(
+                color: over ? colors.accentText : colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(over ? 'over' : 'left', style: context.text.caption),
+          ],
         ),
         const SizedBox(width: Dimens.gapXs),
         AnimatedRotation(
@@ -143,16 +174,31 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// "ZMW 100.00 left" and the status badge.
-class _StatusRow extends StatelessWidget {
-  const _StatusRow({required this.progress});
+/// How spending compares with an even pace by today, and the status badge.
+class _PaceRow extends StatelessWidget {
+  const _PaceRow({required this.progress, required this.planned});
 
   final BudgetProgress progress;
+  final double planned;
+
+  String _pace() {
+    final limit = progress.budget.limit;
+    final spent = progress.spent;
+    if (progress.status == BudgetStatus.notStarted) {
+      return 'Nothing spent yet';
+    }
+    if (progress.isOverLimit) {
+      return '${progress.percentRounded}% of the limit used';
+    }
+    final gap = spent - planned;
+    if (gap.abs() < limit * 0.05) return 'On pace for today';
+    return gap > 0
+        ? '$currencyCode ${formatWhole(gap)} over plan so far'
+        : '$currencyCode ${formatWhole(-gap)} under plan so far';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final over = progress.isOverLimit;
     final (tone, label) = switch (progress.status) {
       BudgetStatus.notStarted => (StatusTone.neutral, 'Not started'),
       BudgetStatus.onTrack => (StatusTone.success, 'On track'),
@@ -162,16 +208,9 @@ class _StatusRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            over
-                ? '${formatZmw(progress.overBy)} over'
-                : '${formatZmw(progress.remaining)} left',
-            style: context.text.caption.copyWith(
-              color: over ? colors.accentText : colors.textSecondary,
-              fontWeight: over ? FontWeight.w700 : FontWeight.w500,
-            ),
-          ),
+          child: Text(_pace(), style: context.text.caption, maxLines: 2),
         ),
+        const SizedBox(width: Dimens.gapS),
         StatusBadge(tone: tone, label: label),
       ],
     );

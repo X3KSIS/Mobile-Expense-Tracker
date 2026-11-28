@@ -7,6 +7,7 @@ import '../../../utils/dates.dart';
 import '../../core/themes/dimens.dart';
 import '../../core/themes/motion.dart';
 import '../../core/ui/empty_state.dart';
+import '../../core/ui/expandable_section.dart';
 import '../../core/ui/fade_switcher.dart';
 import '../../core/ui/header_icon_button.dart';
 import '../../core/ui/skeleton_screens.dart';
@@ -16,6 +17,7 @@ import '../view_models/budgets_view_model.dart';
 import 'budget_card.dart';
 import 'budget_sheet.dart';
 import 'budgets_summary_card.dart';
+import 'unbudgeted_section.dart';
 
 /// This month's budgets with how much of each has been spent. Cards expand
 /// on tap, and a long press lifts a card so it can be dragged into a new
@@ -60,7 +62,14 @@ class BudgetsScreen extends StatelessWidget {
                             Dimens.screenPadding,
                             Dimens.navBarClearance(context),
                           ),
-                          sliver: _BudgetList(viewModel: viewModel),
+                          sliver: SliverMainAxisGroup(
+                            slivers: [
+                              _BudgetList(viewModel: viewModel),
+                              SliverToBoxAdapter(
+                                child: _Suggestions(viewModel: viewModel),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -121,7 +130,10 @@ class _TopSection extends StatelessWidget {
         limit: viewModel.totalLimit,
         remaining: viewModel.totalRemaining,
         percentUsed: viewModel.totalPercentUsed,
-        overCount: viewModel.overCount,
+        cycleFraction: viewModel.cycleFraction,
+        safePerDay: viewModel.safePerDay,
+        daysLeft: viewModel.daysLeft,
+        attentionCount: viewModel.attentionCount,
       ),
     );
   }
@@ -150,6 +162,8 @@ class _BudgetList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: Dimens.gapM),
             child: BudgetCard(
               progress: progress,
+              planned: viewModel.plannedByToday(progress),
+              cycleFraction: viewModel.cycleFraction,
               dailyAllowance: viewModel.dailyAllowance(progress),
               dailyAverage: viewModel.dailyAverage(progress),
               onEdit: () => showBudgetSheet(
@@ -217,6 +231,37 @@ class _Header extends StatelessWidget {
         icon: Icons.add_rounded,
         tooltip: 'Add budget',
         onPressed: () => showBudgetSheet(context, viewModel: viewModel),
+      ),
+    );
+  }
+}
+
+/// Categories money goes to without a budget, with one-tap suggestions.
+/// Shown under the budgets, and only when there is something to suggest.
+class _Suggestions extends StatelessWidget {
+  const _Suggestions({required this.viewModel});
+
+  final BudgetsViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final suggestions = viewModel.hasError
+        ? const <BudgetSuggestion>[]
+        : viewModel.suggestions();
+    return ExpandableSection(
+      expanded: suggestions.isNotEmpty,
+      child: Padding(
+        padding: const EdgeInsets.only(top: Dimens.sectionGap - Dimens.gapM),
+        child: UnbudgetedSection(
+          total: viewModel.unbudgetedSpent,
+          suggestions: suggestions,
+          onSetBudget: (s) => showBudgetSheet(
+            context,
+            viewModel: viewModel,
+            category: s.category,
+            limit: s.suggested,
+          ),
+        ),
       ),
     );
   }

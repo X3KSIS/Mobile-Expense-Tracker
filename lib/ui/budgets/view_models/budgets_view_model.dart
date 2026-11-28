@@ -21,6 +21,14 @@ typedef BudgetInput = ({
   String limit,
 });
 
+/// A category without a budget that money goes to: what was spent on it
+/// this cycle and a suggested limit.
+typedef BudgetSuggestion = ({
+  TransactionCategory category,
+  double spent,
+  double suggested,
+});
+
 /// State for the Budgets tab: this pay cycle's progress for each budget
 /// (a calendar month when payday is the 1st), plus adding, editing,
 /// deleting and reordering budgets. Reloads when budgets, transactions or
@@ -58,6 +66,7 @@ class BudgetsViewModel extends ChangeNotifier {
 
   List<BudgetProgress> _progress = const [];
   List<TransactionCategory> _expenseCategories = const [];
+  List<Transaction> _transactions = const [];
   bool _loaded = false;
   bool _disposed = false;
 
@@ -88,6 +97,70 @@ class BudgetsViewModel extends ChangeNotifier {
   /// Average spent per day so far this cycle.
   double dailyAverage(BudgetProgress progress) =>
       progress.spent / cycle.daysElapsed(_clock());
+
+  /// How far through the pay cycle today is, from just above 0 to 1.
+  double get cycleFraction => cycle.daysElapsed(_clock()) / cycle.lengthInDays;
+
+  /// What [progress] would have spent by today at an even pace through
+  /// the cycle.
+  double plannedByToday(BudgetProgress progress) =>
+      progress.budget.limit * cycleFraction;
+
+  /// What can be spent each day across all budgets until payday.
+  double get safePerDay => totalRemaining / daysLeft;
+
+  /// Budgets near or over their limit.
+  int get attentionCount => _progress.where((p) => p.needsAttention).length;
+
+  /// Spent this cycle on categories without a budget.
+  double get unbudgetedSpent {
+    final budgeted = {for (final p in _progress) p.budget.categoryName};
+    final c = cycle;
+    return _transactions
+        .where(
+          (t) =>
+              !t.isIncome &&
+              c.contains(t.date) &&
+              !budgeted.contains(t.categoryName),
+        )
+        .fold(0, (sum, t) => sum + t.amount);
+  }
+
+  /// Up to [limit] categories without a budget that money goes to, most
+  /// first, each with a suggested limit: last cycle's spending (or this
+  /// cycle's so far), rounded up.
+  List<BudgetSuggestion> suggestions({int limit = 3}) {
+    final c = cycle;
+    final last = PayCycle.containing(
+      c.start.subtract(const Duration(days: 1)),
+      c.start.day,
+    );
+    final found = <BudgetSuggestion>[];
+    for (final category in availableCategories) {
+      var now = 0.0;
+      var before = 0.0;
+      for (final t in _transactions) {
+        if (t.isIncome || t.categoryName != category.name) continue;
+        if (c.contains(t.date)) now += t.amount;
+        if (last.contains(t.date)) before += t.amount;
+      }
+      if (now <= 0 && before <= 0) continue;
+      found.add((
+        category: category,
+        spent: now,
+        suggested: roundUpLimit(before > 0 ? before : now),
+      ));
+    }
+    found.sort((a, b) => b.spent.compareTo(a.spent));
+    return found.take(limit).toList(growable: false);
+  }
+
+  /// Rounds [amount] up to a tidy limit: the next 50 below 1,000, the next
+  /// 100 above.
+  static double roundUpLimit(double amount) {
+    final step = amount < 1000 ? 50 : 100;
+    return (amount / step).ceil() * step.toDouble();
+  }
 
   double get totalLimit => _progress.fold(0, (sum, p) => sum + p.budget.limit);
 
@@ -142,6 +215,7 @@ class BudgetsViewModel extends ChangeNotifier {
           alertAt: _settingsRepository.budgetAlertPercent / 100,
         );
         _expenseCategories = categories;
+        _transactions = transactions;
         _loaded = true;
         _notify();
         return const Result.ok(null);

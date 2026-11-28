@@ -1,4 +1,4 @@
-# Progress
+ # Progress
 
 Running log of what has been built and what comes next. Newest session first.
 
@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 304 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 306 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -78,6 +78,7 @@ This is where the next session starts.
 
 ### Done
 
+- **Budgets:** the summary is now "Spent on budgets" (it never counted unbudgeted spending) with what is left per day until payday and how many budgets need a look. Each bar has a "today" marker (an even pace through the cycle), cards say how spending compares ("ZMW 870 under plan so far"), show what is left on the right, and the caption uses whole kwacha. A new "Not budgeted yet" section lists the biggest categories without a budget with what went on them this cycle and a one-tap budget at a suggested amount (last cycle's spending, rounded up), which opens the sheet pre-filled.
 - **Reports money card:** one card, Spent first and largest, Income and Net in equal columns below, each with its change from the previous month.
 - **Sign in with a username:** sign-in takes an email or a username; a username is set in Personal details (unique, 3 to 20 lowercase letters, numbers, dots, underscores) through the `set_username` database function, so a clash is caught at once and never blocks sync (the profile push leaves `username` out; pulls bring it down). Username sign-in goes through the `sign-in-with-username` Edge Function, which looks the account up with the service role and returns only a refresh token (`auth.setSession`), so emails are never exposed and a wrong username fails like a wrong password. Note: Supabase's per-IP sign-in rate limit sees the function's address, not the user's.
 - **Month picker:** tap the month on Reports for a sheet with a year switcher and a grid of months, each showing what was spent; reaches back to the first month with data (no longer only 6). The trend chart's 6 months end at the selected month when it is older.

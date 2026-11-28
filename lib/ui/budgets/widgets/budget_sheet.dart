@@ -16,21 +16,40 @@ Future<void> showBudgetSheet(
   BuildContext context, {
   required BudgetsViewModel viewModel,
   Budget? budget,
+  TransactionCategory? category,
+  double? limit,
 }) {
   return showModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
     isScrollControlled: true,
-    builder: (_) => BudgetSheet(viewModel: viewModel, budget: budget),
+    builder: (_) => BudgetSheet(
+      viewModel: viewModel,
+      budget: budget,
+      initialCategory: category,
+      initialLimit: limit,
+    ),
   );
 }
 
 /// Form to set a category's monthly limit, and delete it when editing.
 class BudgetSheet extends StatefulWidget {
-  const BudgetSheet({super.key, required this.viewModel, this.budget});
+  const BudgetSheet({
+    super.key,
+    required this.viewModel,
+    this.budget,
+    this.initialCategory,
+    this.initialLimit,
+  });
 
   final BudgetsViewModel viewModel;
   final Budget? budget;
+
+  /// For a new budget: the category picked first, e.g. from a suggestion.
+  final TransactionCategory? initialCategory;
+
+  /// For a new budget: the limit filled in, e.g. a suggested one.
+  final double? initialLimit;
 
   @override
   State<BudgetSheet> createState() => _BudgetSheetState();
@@ -39,13 +58,19 @@ class BudgetSheet extends StatefulWidget {
 class _BudgetSheetState extends State<BudgetSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _limit = TextEditingController(
-    text: widget.budget == null ? '' : formatWhole(widget.budget!.limit),
+    text: switch ((widget.budget, widget.initialLimit)) {
+      (final budget?, _) => formatWhole(budget.limit),
+      (null, final limit?) => formatWhole(limit),
+      _ => '',
+    },
   );
   late final List<TransactionCategory> _categories =
       widget.viewModel.availableCategories;
-  late TransactionCategory? _category = _categories.isEmpty
-      ? null
-      : _categories.first;
+  late TransactionCategory? _category =
+      _categories
+          .where((c) => c.name == widget.initialCategory?.name)
+          .firstOrNull ??
+      _categories.firstOrNull;
 
   bool get _isEditing => widget.budget != null;
 

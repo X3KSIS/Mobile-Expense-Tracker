@@ -150,7 +150,7 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('Budgets'));
     await tester.pumpAndSettle();
-    expect(find.text('SPENT THIS MONTH'), findsOneWidget);
+    expect(find.text('SPENT ON BUDGETS'), findsOneWidget);
     // The active tab shows its label next to the icon.
     expect(
       find.descendant(
@@ -382,8 +382,8 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Budgets'));
     await tester.pumpAndSettle();
 
-    expect(find.text('ZMW 3,200.00 of ZMW 3,300.00'), findsOneWidget);
-    expect(find.text('ZMW 100.00 left'), findsOneWidget);
+    expect(find.text('ZMW 3,200 of 3,300'), findsOneWidget);
+    expect(find.text('ZMW 100.00'), findsOneWidget);
 
     // Add a Housing budget (ZMW 3,500 already spent this month).
     await tester.tap(find.byTooltip('Add budget'));
@@ -394,7 +394,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Budget added'), findsOneWidget);
     // New budgets join the end of the list.
-    final over = find.text('ZMW 500.00 over');
+    final over = find.text('ZMW 3,500 of 3,000');
     await tester.scrollUntilVisible(
       over,
       200,
@@ -416,7 +416,7 @@ void main() {
     await tester.enterText(field('Monthly limit (ZMW)'), '4000');
     await tester.tap(find.text('Save budget'));
     await tester.pumpAndSettle();
-    expect(find.text('ZMW 3,500.00 of ZMW 4,000.00'), findsOneWidget);
+    expect(find.text('ZMW 3,500 of 4,000'), findsOneWidget);
 
     // The card is still open; delete the budget.
     await tester.ensureVisible(edit);
@@ -428,7 +428,9 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Delete'));
     await tester.pumpAndSettle();
     expect(find.text('Budget deleted'), findsOneWidget);
-    expect(find.text('Housing'), findsNothing);
+    expect(find.text('ZMW 3,500 of 4,000'), findsNothing);
+    // Housing goes back to the suggestions, ready to budget again.
+    expect(find.textContaining('Set '), findsWidgets);
   });
 
   testWidgets('Home opens Wallets, where money moves between wallets', (

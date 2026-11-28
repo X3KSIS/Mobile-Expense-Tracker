@@ -181,5 +181,39 @@ void main() {
       expect(viewModel.validateLimit('0'), 'The limit must be more than zero');
       expect(viewModel.validateLimit('1,500'), isNull);
     });
+
+    test('pace, per-day allowance and suggestions', () async {
+      final (:viewModel, transactions: _) = build();
+      await viewModel.load.execute();
+
+      expect(viewModel.cycleFraction, closeTo(25 / 30, 0.001));
+      final groceries = viewModel.progress.firstWhere(
+        (p) => p.budget.categoryName == 'Groceries',
+      );
+      expect(
+        viewModel.plannedByToday(groceries),
+        closeTo(3300 * 25 / 30, 0.01),
+      );
+      expect(
+        viewModel.safePerDay,
+        closeTo(viewModel.totalRemaining / viewModel.daysLeft, 0.001),
+      );
+      expect(viewModel.attentionCount, greaterThanOrEqualTo(1));
+
+      final suggestions = viewModel.suggestions();
+      expect(suggestions.first.category.name, 'Housing');
+      expect(suggestions.first.spent, 3500);
+      expect(viewModel.unbudgetedSpent, greaterThanOrEqualTo(3500));
+      expect(
+        suggestions.map((s) => s.category.name),
+        isNot(contains('Groceries')),
+      );
+    });
+
+    test('suggested limits round up to tidy amounts', () {
+      expect(BudgetsViewModel.roundUpLimit(430), 450);
+      expect(BudgetsViewModel.roundUpLimit(450), 450);
+      expect(BudgetsViewModel.roundUpLimit(3420), 3500);
+    });
   });
 }
