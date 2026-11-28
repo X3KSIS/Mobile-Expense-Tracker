@@ -8,6 +8,8 @@ import '../data/repositories/app_lock/app_lock_repository.dart';
 import '../data/repositories/app_lock/app_lock_repository_device.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../data/repositories/auth/auth_repository_supabase.dart';
+import '../data/repositories/bill/bill_repository.dart';
+import '../data/repositories/bill/bill_repository_drift.dart';
 import '../data/repositories/budget/budget_repository.dart';
 import '../data/repositories/budget/budget_repository_drift.dart';
 import '../data/repositories/category/category_repository.dart';
@@ -62,9 +64,11 @@ Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
   final appLock = AppLockRepositoryDevice(settings);
 
   final transactions = TransactionRepositoryDrift(db);
+  final bills = BillRepositoryDrift(db);
   final reminders = ReminderRepositoryLocal(
     settings: settings,
     transactions: transactions,
+    bills: bills,
   );
 
   return [
@@ -74,6 +78,7 @@ Future<List<SingleChildWidget>> createProviders(SupabaseConfig config) async {
     ChangeNotifierProvider<SettingsRepository>.value(value: settings),
     ChangeNotifierProvider<AppLockRepository>.value(value: appLock),
     ChangeNotifierProvider<TransactionRepository>.value(value: transactions),
+    ChangeNotifierProvider<BillRepository>.value(value: bills),
     Provider<ReminderRepository>(
       create: (_) => reminders,
       dispose: (_, r) => r.dispose(),

@@ -1,3 +1,4 @@
+import 'bill.dart';
 import 'budget.dart';
 import 'detected_payment.dart';
 import 'recurring_payment.dart';
@@ -19,6 +20,12 @@ enum NotificationKind {
 
   /// Payments read from messages are waiting to be added.
   paymentsToReview,
+
+  /// A bill's due date passed without it being marked paid.
+  billOverdue,
+
+  /// A bill is due within 3 days.
+  billDue,
 }
 
 /// Something about the user's spending worth a look, worked out from
@@ -42,7 +49,8 @@ class AppNotification {
   final String id;
   final NotificationKind kind;
 
-  /// The budget's category, or the regular payment's title.
+  /// The budget's category, the regular payment's title or the bill's
+  /// name.
   final String subject;
   final DateTime at;
 
@@ -90,11 +98,20 @@ abstract final class SpendingNotifications {
     required List<DetectedPayment> toReview,
     required DateTime now,
     bool budgetAlerts = true,
+    List<Bill> bills = const [],
   }) {
+    // A regular payment the user tracks as a bill shows as the bill.
+    final billNames = {for (final b in bills) b.name.trim().toLowerCase()};
     final found = <AppNotification>[
       if (budgetAlerts)
         ..._budgets(budgets, transactions, cycleStart, cycleEnd, alertAt),
-      ..._payments(RecurringPayments.detect(transactions, now)),
+      ..._payments(
+        RecurringPayments.detect(
+          transactions,
+          now,
+        ).where((p) => !billNames.contains(p.title.trim().toLowerCase())),
+      ),
+      ..._bills(bills, now),
       ?_review(toReview),
     ];
     // Nothing from the future, e.g. a payment due later than "soon".
@@ -156,8 +173,38 @@ abstract final class SpendingNotifications {
     }
   }
 
+  static Iterable<AppNotification> _bills(
+    List<Bill> bills,
+    DateTime now,
+  ) sync* {
+    for (final b in bills) {
+      final days = b.daysUntil(now);
+      final due = b.nextDue;
+      final key = '${b.id}:${_day(due)}';
+      if (days < 0) {
+        yield AppNotification(
+          id: 'bill-late:$key',
+          kind: NotificationKind.billOverdue,
+          subject: b.name,
+          at: DateTime(due.year, due.month, due.day + 1),
+          amount: b.amount,
+          due: due,
+        );
+      } else if (days <= 3) {
+        yield AppNotification(
+          id: 'bill-due:$key',
+          kind: NotificationKind.billDue,
+          subject: b.name,
+          at: DateTime(due.year, due.month, due.day - 3),
+          amount: b.amount,
+          due: due,
+        );
+      }
+    }
+  }
+
   static Iterable<AppNotification> _payments(
-    List<RecurringPayment> payments,
+    Iterable<RecurringPayment> payments,
   ) sync* {
     for (final p in payments) {
       final due = p.nextDue;

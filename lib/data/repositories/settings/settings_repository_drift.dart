@@ -41,6 +41,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
   bool _dailyReminder = false;
   int _reminderMinutes = SettingsRepository.defaultReminderMinutes;
   bool _billReminders = false;
+  int _billReminderMinutes = SettingsRepository.defaultBillReminderMinutes;
   bool _budgetAlerts = true;
   DateTime? _notificationsSeenAt;
   bool _disposed = false;
@@ -62,6 +63,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
         row.dailyReminder != _dailyReminder ||
         row.reminderMinutes != _reminderMinutes ||
         row.billReminders != _billReminders ||
+        row.billReminderMinutes != _billReminderMinutes ||
         row.budgetAlerts != _budgetAlerts ||
         !_sameMoment(row.notificationsSeenAt, _notificationsSeenAt);
     final privacyChanged = row.privacyScreen != _privacyScreen;
@@ -76,6 +78,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
     _dailyReminder = row.dailyReminder;
     _reminderMinutes = row.reminderMinutes;
     _billReminders = row.billReminders;
+    _billReminderMinutes = row.billReminderMinutes;
     _budgetAlerts = row.budgetAlerts;
     _notificationsSeenAt = row.notificationsSeenAt;
     if (privacyChanged) await _privacy.setEnabled(_privacyScreen);
@@ -215,6 +218,20 @@ class SettingsRepositoryDrift extends SettingsRepository {
   });
 
   @override
+  int get billReminderMinutes => _billReminderMinutes;
+
+  @override
+  Future<Result<void>> setBillReminderMinutes(int minutes) => guard(() async {
+    if (minutes < 0 || minutes >= 24 * 60) {
+      throw Exception('Reminder time must be within the day');
+    }
+    if (minutes == _billReminderMinutes) return;
+    _billReminderMinutes = minutes;
+    notifyListeners();
+    await _write(ProfilesCompanion(billReminderMinutes: Value(minutes)));
+  });
+
+  @override
   bool get budgetAlerts => _budgetAlerts;
 
   @override
@@ -266,6 +283,7 @@ class SettingsRepositoryDrift extends SettingsRepository {
             dailyReminder: Value(_dailyReminder),
             reminderMinutes: Value(_reminderMinutes),
             billReminders: Value(_billReminders),
+            billReminderMinutes: Value(_billReminderMinutes),
             budgetAlerts: Value(_budgetAlerts),
             notificationsSeenAt: Value(_notificationsSeenAt),
             createdAt: now,

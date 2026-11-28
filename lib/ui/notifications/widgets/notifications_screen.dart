@@ -29,6 +29,7 @@ class NotificationsScreen extends StatelessWidget {
     NotificationKind.paymentLate ||
     NotificationKind.paymentDueSoon => Routes.recurring,
     NotificationKind.paymentsToReview => Routes.detectedPayments,
+    NotificationKind.billOverdue || NotificationKind.billDue => Routes.bills,
   };
 
   void _open(BuildContext context, AppNotification n) {

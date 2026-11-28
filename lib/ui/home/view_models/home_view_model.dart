@@ -1,3 +1,5 @@
+import '../../../domain/models/bill.dart';
+import '../../../data/repositories/bill/bill_repository.dart';
 import '../../../domain/models/cycle_spending.dart';
 import '../../../domain/models/app_notification.dart';
 
@@ -32,6 +34,7 @@ class HomeViewModel extends ChangeNotifier {
     required this._settingsRepository,
     required this._walletRepository,
     required this._detectedPaymentRepository,
+    this._billRepository,
     this.recentLimit = 5,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
@@ -41,6 +44,7 @@ class HomeViewModel extends ChangeNotifier {
     _transactionRepository.addListener(_onDataChanged);
     _budgetRepository.addListener(_onDataChanged);
     _walletRepository.addListener(_onDataChanged);
+    _billRepository?.addListener(_onDataChanged);
     load = Command0<void>(_load)..execute();
     delete = Command1<void, String>(_deleteTransaction);
     undoDelete = Command0<void>(_undoDelete);
@@ -54,6 +58,20 @@ class HomeViewModel extends ChangeNotifier {
   final SettingsRepository _settingsRepository;
   final WalletRepository _walletRepository;
   final DetectedPaymentRepository _detectedPaymentRepository;
+
+  /// For the overdue bills banner; none without it.
+  final BillRepository? _billRepository;
+
+  List<Bill> _bills = const [];
+
+  /// Bills past their due date and not marked paid.
+  List<Bill> get overdueBills => [
+    for (final b in _bills)
+      if (b.status(_clock()) == BillStatus.overdue) b,
+  ];
+
+  double get overdueBillTotal =>
+      overdueBills.fold(0, (sum, b) => sum + b.amount);
 
   /// How many recent transactions to show.
   final int recentLimit;
@@ -163,6 +181,7 @@ class HomeViewModel extends ChangeNotifier {
       toReview: _detectedPaymentRepository.pending,
       now: _clock(),
       budgetAlerts: _settingsRepository.budgetAlerts,
+      bills: _bills,
     );
   }
 
@@ -232,8 +251,22 @@ class HomeViewModel extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
+  bool _reloadAgain = false;
+
+  /// Reloads, or, when a load is already running (it may have read the
+  /// data before this change), loads once more after it.
   void _onDataChanged() {
-    if (!_disposed) load.execute();
+    if (_disposed) return;
+    if (load.running) {
+      _reloadAgain = true;
+      return;
+    }
+    load.execute().then((_) {
+      if (_reloadAgain && !_disposed) {
+        _reloadAgain = false;
+        _onDataChanged();
+      }
+    });
   }
 
   /// Shows or hides amounts on Home; remembered as a preference.
@@ -241,6 +274,8 @@ class HomeViewModel extends ChangeNotifier {
       _settingsRepository.setHideAmountsOnHome(!hideAmounts);
 
   Future<Result<void>> _load() async {
+    final bills = await _billRepository?.getBills();
+    if (bills case Ok(:final value)) _bills = value;
     try {
       final results = await (
         _transactionRepository.getMonthlySummary(),
@@ -288,6 +323,7 @@ class HomeViewModel extends ChangeNotifier {
     _transactionRepository.removeListener(_onDataChanged);
     _budgetRepository.removeListener(_onDataChanged);
     _walletRepository.removeListener(_onDataChanged);
+    _billRepository?.removeListener(_onDataChanged);
     load.dispose();
     delete.dispose();
     undoDelete.dispose();

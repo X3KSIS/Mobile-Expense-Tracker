@@ -1,7 +1,9 @@
+import 'package:flutter_expensetracker/data/repositories/bill/bill_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/reminder/reminder_repository_local.dart';
 import 'package:flutter_expensetracker/data/repositories/settings/settings_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/transaction/transaction_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/services/local_notification_service.dart';
+import 'package:flutter_expensetracker/domain/models/bill.dart';
 import 'package:flutter_expensetracker/domain/models/transaction.dart';
 import 'package:flutter_expensetracker/routing/routes.dart';
 import 'package:flutter_expensetracker/utils/result.dart';
@@ -71,10 +73,15 @@ void main() {
   late SettingsRepositoryLocalFake settings;
   late _FakeNotifications phone;
 
-  ReminderRepositoryLocal build(List<Transaction> transactions, DateTime now) {
+  ReminderRepositoryLocal build(
+    List<Transaction> transactions,
+    DateTime now, {
+    List<Bill> bills = const [],
+  }) {
     final repo = ReminderRepositoryLocal(
       settings: settings,
       transactions: _Transactions(transactions),
+      bills: BillRepositoryLocalFake(bills: bills),
       service: phone,
       clock: () => now,
       debounce: Duration.zero,
@@ -119,17 +126,65 @@ void main() {
     },
   );
 
-  test('a bill reminder comes the evening before it is due', () async {
-    await settings.setBillReminders(true);
-    await build([
-      for (final month in [8, 9, 10, 11])
-        _expense('d$month', 'DStv Compact', DateTime(2026, month, 3)),
-    ], DateTime(2026, 11, 28, 9)).reschedule();
+  Bill rent({required DateTime due}) => Bill(
+    id: 'rent',
+    name: 'Rent',
+    amount: 3500,
+    categoryName: 'Housing',
+    categoryIcon: 'housing',
+    categoryColor: 0,
+    walletId: 'w-cash',
+    cadence: BillCadence.monthly,
+    nextDue: due,
+    anchorDay: due.day,
+  );
 
-    final bill = phone.scheduled.single;
-    expect(bill.at, DateTime(2026, 12, 2, ReminderRepositoryLocal.billHour));
-    expect(bill.title, 'DStv Compact is due tomorrow');
-    expect(bill.payload, Routes.recurring);
+  test(
+    'a bill is reminded a week, 3 days and on the day, at its time',
+    () async {
+      await settings.setBillReminders(true);
+      await settings.setBillReminderMinutes(7 * 60 + 30);
+      await build(
+        const [],
+        DateTime(2026, 11, 20, 9),
+        bills: [rent(due: DateTime(2026, 12, 1))],
+      ).reschedule();
+
+      final reminders = phone.scheduled.where(
+        (s) => s.at.isBefore(DateTime(2026, 12, 1, 23)),
+      );
+      expect(
+        [for (final r in reminders) r.at],
+        [
+          DateTime(2026, 11, 24, 7, 30),
+          DateTime(2026, 11, 28, 7, 30),
+          DateTime(2026, 12, 1, 7, 30),
+        ],
+      );
+      expect(reminders.map((r) => r.title), [
+        'Rent is due in a week',
+        'Rent is due in 3 days',
+        'Rent is due today',
+      ]);
+      expect(reminders.first.payload, Routes.bills);
+      // Every morning after it is due, until it is marked paid.
+      final late = phone.scheduled.where((s) => s.title == 'Rent is overdue');
+      expect(late.first.at, DateTime(2026, 12, 2, 7, 30));
+      expect(late, hasLength(BillReminders.overdueDays));
+    },
+  );
+
+  test('an overdue bill reminds every morning from today', () async {
+    await settings.setBillReminders(true);
+    await build(
+      const [],
+      DateTime(2026, 11, 28, 6),
+      bills: [rent(due: DateTime(2026, 11, 25))],
+    ).reschedule();
+
+    expect(phone.scheduled.first.at, DateTime(2026, 11, 28, 8));
+    expect(phone.scheduled.first.title, 'Rent is overdue');
+    expect(phone.scheduled, hasLength(BillReminders.overdueDays));
   });
 
   test('changing a setting reschedules', () async {

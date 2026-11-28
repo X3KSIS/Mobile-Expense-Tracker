@@ -49,6 +49,7 @@ class SyncRepositoryDrift extends SyncRepository {
         'budgets',
         BudgetRow.fromJson,
       ),
+      _SyncTable<$BillsTable, BillRow>(_db.bills, 'bills', BillRow.fromJson),
       _SyncTable<$DetectedPaymentsTable, DetectedPaymentRow>(
         _db.detectedPayments,
         'detected_payments',
@@ -283,6 +284,7 @@ class SyncRepositoryDrift extends SyncRepository {
       'avatar_path': local.avatarPath,
       'privacy_screen': local.privacyScreen,
       'app_lock': local.appLock,
+      'bill_reminder_minutes': local.billReminderMinutes,
       'daily_reminder': local.dailyReminder,
       'reminder_minutes': local.reminderMinutes,
       'bill_reminders': local.billReminders,
@@ -320,6 +322,8 @@ class SyncRepositoryDrift extends SyncRepository {
     final avatarPath = remote['avatar_path'] as String?;
     final privacyScreen = remote['privacy_screen'] as bool? ?? false;
     final appLock = remote['app_lock'] as bool? ?? false;
+    final billMinutes =
+        (remote['bill_reminder_minutes'] as num?)?.toInt() ?? 8 * 60;
     final dailyReminder = remote['daily_reminder'] as bool? ?? false;
     final reminderMinutes =
         (remote['reminder_minutes'] as num?)?.toInt() ?? 20 * 60;
@@ -349,6 +353,7 @@ class SyncRepositoryDrift extends SyncRepository {
         !photoChanged &&
         local.privacyScreen == privacyScreen &&
         local.appLock == appLock &&
+        local.billReminderMinutes == billMinutes &&
         local.dailyReminder == dailyReminder &&
         local.reminderMinutes == reminderMinutes &&
         local.billReminders == billReminders &&
@@ -373,6 +378,7 @@ class SyncRepositoryDrift extends SyncRepository {
         hideAmounts: Value(hideAmounts),
         privacyScreen: Value(privacyScreen),
         appLock: Value(appLock),
+        billReminderMinutes: Value(billMinutes),
         dailyReminder: Value(dailyReminder),
         reminderMinutes: Value(reminderMinutes),
         billReminders: Value(billReminders),

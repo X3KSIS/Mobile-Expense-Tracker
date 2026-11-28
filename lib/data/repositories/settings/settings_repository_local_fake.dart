@@ -21,6 +21,7 @@ class SettingsRepositoryLocalFake extends SettingsRepository {
   bool _dailyReminder = false;
   int _reminderMinutes = SettingsRepository.defaultReminderMinutes;
   bool _billReminders = false;
+  int _billReminderMinutes = SettingsRepository.defaultBillReminderMinutes;
   bool _budgetAlerts = true;
   DateTime? _notificationsSeenAt;
 
@@ -58,6 +59,21 @@ class SettingsRepositoryLocalFake extends SettingsRepository {
   Future<Result<void>> setBillReminders(bool enabled) async {
     if (enabled != _billReminders) {
       _billReminders = enabled;
+      notifyListeners();
+    }
+    return const Result.ok(null);
+  }
+
+  @override
+  int get billReminderMinutes => _billReminderMinutes;
+
+  @override
+  Future<Result<void>> setBillReminderMinutes(int minutes) async {
+    if (minutes < 0 || minutes >= 24 * 60) {
+      return Result.error(Exception('Reminder time must be within the day'));
+    }
+    if (minutes != _billReminderMinutes) {
+      _billReminderMinutes = minutes;
       notifyListeners();
     }
     return const Result.ok(null);

@@ -67,6 +67,15 @@ abstract class SettingsRepository extends ChangeNotifier {
 
   Future<Result<void>> setBillReminders(bool enabled);
 
+  /// When bill reminders come (a week before, 3 days before, on the day
+  /// and every morning while overdue), in minutes after midnight.
+  int get billReminderMinutes;
+
+  Future<Result<void>> setBillReminderMinutes(int minutes);
+
+  /// The bill reminder time when none was chosen: 8 am.
+  static const int defaultBillReminderMinutes = 8 * 60;
+
   /// Whether budgets near or over their limit show in Notifications.
   bool get budgetAlerts;
 

@@ -55,6 +55,8 @@ import '../ui/notifications/view_models/notification_settings_view_model.dart';
 import '../ui/notifications/view_models/notifications_view_model.dart';
 import '../ui/notifications/widgets/notification_settings_screen.dart';
 import '../ui/notifications/widgets/notifications_screen.dart';
+import '../ui/bills/view_models/bills_view_model.dart';
+import '../ui/bills/widgets/bills_screen.dart';
 import 'routes.dart';
 
 /// Builds the app router. ViewModels are created here, in the route
@@ -249,11 +251,28 @@ GoRouter router(AuthRepository authRepository) {
             budgetRepository: context.read(),
             settingsRepository: context.read(),
             detectedPaymentRepository: context.read(),
+            billRepository: context.read(),
           ),
           child: Builder(
             builder: (context) => NotificationsScreen(
               viewModel: context.read<NotificationsViewModel>(),
             ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.bills,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => BillsViewModel(
+            billRepository: context.read(),
+            transactionRepository: context.read(),
+            categoryRepository: context.read(),
+            walletRepository: context.read(),
+          ),
+          child: Builder(
+            builder: (context) =>
+                BillsScreen(viewModel: context.read<BillsViewModel>()),
           ),
         ),
       ),
@@ -455,6 +474,7 @@ StatefulShellRoute _shell() => StatefulShellRoute(
               settingsRepository: context.read(),
               walletRepository: context.read(),
               detectedPaymentRepository: context.read(),
+              billRepository: context.read(),
             ),
             child: Builder(
               builder: (context) =>

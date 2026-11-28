@@ -1,27 +1,32 @@
 import 'dart:async';
 
-import '../../../domain/models/recurring_payment.dart';
+import '../../../domain/models/bill.dart';
 import '../../../domain/models/transaction.dart';
 import '../../../routing/routes.dart';
 import '../../../utils/currency.dart';
+import '../../../utils/dates.dart';
 import '../../../utils/result.dart';
 import '../../services/local_notification_service.dart';
+import '../bill/bill_repository.dart';
 import '../settings/settings_repository.dart';
 import '../transaction/transaction_repository.dart';
 import 'reminder_repository.dart';
 
 /// [ReminderRepository] scheduling notifications on the phone.
 ///
-/// Everything is rescheduled whenever the settings or transactions change:
+/// Everything is rescheduled whenever the settings, transactions or bills
+/// change, and when the app starts:
 ///
 /// * Daily reminder: one for each of the next [dailyDays] days at the
 ///   chosen time, skipping today once something was recorded today.
-/// * Bill reminders: at [billHour] the evening before each regular
-///   payment's next due date.
+/// * Bill reminders: for each bill, a week before, 3 days before and on
+///   the day, then every morning while it is overdue, at the bill
+///   reminder time (see [BillReminders]).
 class ReminderRepositoryLocal implements ReminderRepository {
   ReminderRepositoryLocal({
     required this._settings,
     required this._transactions,
+    required this._bills,
     LocalNotificationService? service,
     DateTime Function()? clock,
     this.debounce = const Duration(milliseconds: 500),
@@ -30,6 +35,7 @@ class ReminderRepositoryLocal implements ReminderRepository {
 
   final SettingsRepository _settings;
   final TransactionRepository _transactions;
+  final BillRepository _bills;
   final LocalNotificationService _service;
   final DateTime Function() _clock;
 
@@ -38,10 +44,12 @@ class ReminderRepositoryLocal implements ReminderRepository {
   final Duration debounce;
 
   static const int dailyDays = 7;
-  static const int billHour = 18;
-  static const int maxBills = 20;
+  static const int maxBills = 40;
   static const int _dailyId = 1;
-  static const int _billId = 100;
+  static const int _billId = 1000;
+
+  /// Notification ids set aside for each bill.
+  static const int _idsPerBill = 20;
 
   Timer? _timer;
   bool _started = false;
@@ -65,6 +73,7 @@ class ReminderRepositoryLocal implements ReminderRepository {
     await _service.initialize();
     _settings.addListener(_scheduleSoon);
     _transactions.addListener(_scheduleSoon);
+    _bills.addListener(_scheduleSoon);
     await reschedule();
   }
 
@@ -77,15 +86,15 @@ class ReminderRepositoryLocal implements ReminderRepository {
   /// and transactions.
   Future<void> reschedule() async {
     await _service.cancelPending();
-    final daily = _settings.dailyReminder;
-    final bills = _settings.billReminders;
-    if (!daily && !bills) return;
-    final result = await _transactions.getTransactions();
-    if (result case Error()) return;
-    final transactions = (result as Ok<List<Transaction>>).value;
     final now = _clock();
-    if (daily) await _scheduleDaily(transactions, now);
-    if (bills) await _scheduleBills(transactions, now);
+    if (_settings.dailyReminder) {
+      final result = await _transactions.getTransactions();
+      if (result case Ok(:final value)) await _scheduleDaily(value, now);
+    }
+    if (_settings.billReminders) {
+      final result = await _bills.getBills();
+      if (result case Ok(:final value)) await _scheduleBills(value, now);
+    }
   }
 
   Future<void> _scheduleDaily(List<Transaction> transactions, DateTime now) {
@@ -110,30 +119,47 @@ class ReminderRepositoryLocal implements ReminderRepository {
     ]);
   }
 
-  Future<void> _scheduleBills(List<Transaction> transactions, DateTime now) {
-    final payments = RecurringPayments.detect(
-      transactions,
-      now,
-    ).where((p) => p.status != RecurringStatus.late).take(maxBills).toList();
+  Future<void> _scheduleBills(List<Bill> bills, DateTime now) {
+    final minutes = _settings.billReminderMinutes;
     return Future.wait([
-      for (var i = 0; i < payments.length; i++)
-        if (_eveningBefore(payments[i].nextDue) case final at
-            when at.isAfter(now))
+      for (var i = 0; i < bills.length && i < maxBills; i++)
+        for (final (slot, r) in BillReminders.times(
+          bills[i],
+          now,
+          minutes,
+        ).take(_idsPerBill).indexed)
           _service.schedule(
-            id: _billId + i,
-            at: at,
+            id: _billId + i * _idsPerBill + slot,
+            at: r.at,
             channel: ReminderChannel.bills,
-            title: '${payments[i].title} is due tomorrow',
-            body: payments[i].fixedAmount
-                ? 'It is usually ${formatZmw(payments[i].amount)}.'
-                : 'It is usually about ${formatZmw(payments[i].amount)}.',
-            payload: Routes.recurring,
+            title: billReminderTitle(bills[i], r.daysLeft),
+            body: billReminderBody(bills[i], r.daysLeft),
+            payload: Routes.bills,
           ),
     ]);
   }
 
-  static DateTime _eveningBefore(DateTime due) =>
-      DateTime(due.year, due.month, due.day - 1, billHour);
+  /// e.g. "Rent is due in 3 days", "DStv is due today", "Rent is overdue".
+  static String billReminderTitle(Bill bill, int daysLeft) =>
+      switch (daysLeft) {
+        < 0 => '${bill.name} is overdue',
+        0 => '${bill.name} is due today',
+        1 => '${bill.name} is due tomorrow',
+        Bill.dueSoonDays => '${bill.name} is due in a week',
+        _ => '${bill.name} is due in $daysLeft days',
+      };
+
+  static String billReminderBody(Bill bill, int daysLeft) {
+    final amount = formatZmw(bill.amount);
+    final due = formatDayMonth(bill.nextDue);
+    if (daysLeft < 0) {
+      final late = -daysLeft;
+      return '$amount was due on $due ($late day${late == 1 ? '' : 's'} '
+          'ago). Tap to mark it paid.';
+    }
+    if (daysLeft == 0) return '$amount. Tap to mark it paid.';
+    return '$amount on $due.';
+  }
 
   static DateTime _nextDay(DateTime day) =>
       DateTime(day.year, day.month, day.day + 1);
@@ -144,6 +170,7 @@ class ReminderRepositoryLocal implements ReminderRepository {
     if (_started) {
       _settings.removeListener(_scheduleSoon);
       _transactions.removeListener(_scheduleSoon);
+      _bills.removeListener(_scheduleSoon);
     }
   }
 }

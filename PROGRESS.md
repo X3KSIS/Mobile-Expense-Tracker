@@ -12,7 +12,7 @@ This is where the next session starts.
 
 - **Everything is in a database.** Data is saved on the phone first (Drift, works offline) and synced to Supabase (Postgres with row-level security). Fake repositories exist for tests only.
 - **Real sign-in:** Supabase Auth, email and password, form validation on, email confirmation required. There is no demo sign-in in the app.
-- **Quality:** `flutter analyze` clean, 311 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
+- **Quality:** `flutter analyze` clean, 327 tests pass. Everything is committed and pushed to `origin/main` (GitHub `X3KSIS/Mobile-Expense-Tracker`).
 - **Runs on the phone** (TECNO KM7, `1519137578004351`) against Supabase. The features from the 28 Nov session have not been tried on the phone yet.
 
 ### What the app does
@@ -36,12 +36,13 @@ This is where the next session starts.
   5. `20261128030000_app_lock.sql`: `app_lock`.
   6. `20261129000000_notifications.sql`: reminder and alert settings, `notifications_seen_at`.
   7. `20261129010000_preferred_name.sql`: `preferred_name`.
-  8. `20261129020000_usernames.sql`: `username` (unique), `set_username` and `username_available`. **Not applied yet.**
-- **Edge Function** `sign-in-with-username` (`supabase/functions/`), deployed with Verify JWT off. **Not deployed yet.** Steps in `supabase/README.md`.
+  8. `20261129020000_usernames.sql`: `username` (unique), `set_username` and `username_available`.
+  9. `20261129030000_bills.sql`: the `bills` table (RLS, grants, sync_guard) and `bill_reminder_minutes`. **Not applied yet: apply it before running the bills build,** or sync fails on the unknown table and column.
+- **Edge Function** `sign-in-with-username` (`supabase/functions/`), deployed with Verify JWT off.
 - **New tables need explicit grants** (`grant select, insert, update ... to authenticated`): this project does not grant access by default.
 - **Config:** the project URL and publishable key are built into `SupabaseConfig`, so F5 or `flutter run` connects. `supabase.json` (gitignored) can point a build at another project. Never put the secret key in the app.
 - **Email:** Supabase's built-in sender only sends its default link email and is rate-limited. Templates can only be edited after custom SMTP is set up. Clicking the link does confirm the account, even though the page it opens shows "localhost".
-- **Device database:** Drift schema version 8 (profile columns were added in versions 2 to 8).
+- **Device database:** Drift schema version 9 (profile columns in versions 2 to 9; the `bills` table in 9).
 
 ### How to run and check
 
@@ -78,6 +79,7 @@ This is where the next session starts.
 
 ### Done
 
+- **Bills and reminders:** bills the user sets up (name, amount, category, wallet, weekly/monthly/yearly, next due; monthly ones keep their day) in a new synced `bills` table (`BillRepository` drift + fake, `domain/models/bill.dart`). `/bills` lists Overdue first, then Due this week, then Later, with a monthly total; tapping a bill offers Mark as paid (records the expense today and moves the bill to its next date), "Paid, and I already added it", Edit and Delete. "Spotted in your spending" offers detected subscriptions and bills as one-tap bills. Phone reminders (`BillReminders.times`): a week before, 3 days before and on the day, then every morning while overdue, at the bill reminder time (Notification settings, default 08:00, `bill_reminder_minutes`); these replace the old evening-before reminders from detected payments. Entry points: Home overdue banner, Profile → Bills, Notifications page (bill overdue / due in 3 days; detected payments tracked as bills are not shown twice), tapping a reminder. Fixed a reload race in Bills and Home (a change during a load now loads once more).
 - **Add transaction:** a visible "Paste a MoMo or bank SMS" bar under the type toggle (replaces the header icon); a Recent row of places recorded at least twice in 90 days (one tap fills title, category and wallet, plus the amount when it never changes; hidden when editing, repeating or filling from a message); When as Today / Yesterday / Other date chips (`DateField` removed). Shared `ChoicePill` in `core/ui`.
 - **Profile:** the card shows @username and three tracking stats (day streak, recorded this month, months tracked; `TrackingStats.compute` in `domain/models/tracking_stats.dart`) and opens Personal details when tapped. The menu is regrouped into Account, Tracking and App with shorter subtitles; Help is a real sheet of quick answers (was "coming soon"); About uses the name Expense Tracker; the read-only Currency row moved to the footer ("Amounts in ZMW").
 - **Budgets:** the summary is now "Spent on budgets" (it never counted unbudgeted spending) with what is left per day until payday and how many budgets need a look. Each bar has a "today" marker (an even pace through the cycle), cards say how spending compares ("ZMW 870 under plan so far"), show what is left on the right, and the caption uses whole kwacha. A new "Not budgeted yet" section lists the biggest categories without a budget with what went on them this cycle and a one-tap budget at a suggested amount (last cycle's spending, rounded up), which opens the sheet pre-filled.

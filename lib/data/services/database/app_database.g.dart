@@ -2998,6 +2998,779 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
   }
 }
 
+class $BillsTable extends Bills with TableInfo<$BillsTable, BillRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BillsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _modifiedAtMeta = const VerificationMeta(
+    'modifiedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> modifiedAt = GeneratedColumn<DateTime>(
+    'modified_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _dirtyMeta = const VerificationMeta('dirty');
+  @override
+  late final GeneratedColumn<bool> dirty = GeneratedColumn<bool>(
+    'dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryNameMeta = const VerificationMeta(
+    'categoryName',
+  );
+  @override
+  late final GeneratedColumn<String> categoryName = GeneratedColumn<String>(
+    'category_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryIconMeta = const VerificationMeta(
+    'categoryIcon',
+  );
+  @override
+  late final GeneratedColumn<String> categoryIcon = GeneratedColumn<String>(
+    'category_icon',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryColorMeta = const VerificationMeta(
+    'categoryColor',
+  );
+  @override
+  late final GeneratedColumn<int> categoryColor = GeneratedColumn<int>(
+    'category_color',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _walletIdMeta = const VerificationMeta(
+    'walletId',
+  );
+  @override
+  late final GeneratedColumn<String> walletId = GeneratedColumn<String>(
+    'wallet_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cadenceMeta = const VerificationMeta(
+    'cadence',
+  );
+  @override
+  late final GeneratedColumn<String> cadence = GeneratedColumn<String>(
+    'cadence',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nextDueMeta = const VerificationMeta(
+    'nextDue',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextDue = GeneratedColumn<DateTime>(
+    'next_due',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _anchorDayMeta = const VerificationMeta(
+    'anchorDay',
+  );
+  @override
+  late final GeneratedColumn<int> anchorDay = GeneratedColumn<int>(
+    'anchor_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    modifiedAt,
+    deleted,
+    dirty,
+    id,
+    name,
+    amount,
+    categoryName,
+    categoryIcon,
+    categoryColor,
+    walletId,
+    cadence,
+    nextDue,
+    anchorDay,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bills';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BillRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('modified_at')) {
+      context.handle(
+        _modifiedAtMeta,
+        modifiedAt.isAcceptableOrUnknown(data['modified_at']!, _modifiedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modifiedAtMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
+    if (data.containsKey('dirty')) {
+      context.handle(
+        _dirtyMeta,
+        dirty.isAcceptableOrUnknown(data['dirty']!, _dirtyMeta),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('category_name')) {
+      context.handle(
+        _categoryNameMeta,
+        categoryName.isAcceptableOrUnknown(
+          data['category_name']!,
+          _categoryNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryNameMeta);
+    }
+    if (data.containsKey('category_icon')) {
+      context.handle(
+        _categoryIconMeta,
+        categoryIcon.isAcceptableOrUnknown(
+          data['category_icon']!,
+          _categoryIconMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryIconMeta);
+    }
+    if (data.containsKey('category_color')) {
+      context.handle(
+        _categoryColorMeta,
+        categoryColor.isAcceptableOrUnknown(
+          data['category_color']!,
+          _categoryColorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryColorMeta);
+    }
+    if (data.containsKey('wallet_id')) {
+      context.handle(
+        _walletIdMeta,
+        walletId.isAcceptableOrUnknown(data['wallet_id']!, _walletIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_walletIdMeta);
+    }
+    if (data.containsKey('cadence')) {
+      context.handle(
+        _cadenceMeta,
+        cadence.isAcceptableOrUnknown(data['cadence']!, _cadenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cadenceMeta);
+    }
+    if (data.containsKey('next_due')) {
+      context.handle(
+        _nextDueMeta,
+        nextDue.isAcceptableOrUnknown(data['next_due']!, _nextDueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nextDueMeta);
+    }
+    if (data.containsKey('anchor_day')) {
+      context.handle(
+        _anchorDayMeta,
+        anchorDay.isAcceptableOrUnknown(data['anchor_day']!, _anchorDayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_anchorDayMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BillRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BillRow(
+      modifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}modified_at'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
+      dirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dirty'],
+      )!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+      categoryName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_name'],
+      )!,
+      categoryIcon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_icon'],
+      )!,
+      categoryColor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}category_color'],
+      )!,
+      walletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wallet_id'],
+      )!,
+      cadence: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cadence'],
+      )!,
+      nextDue: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_due'],
+      )!,
+      anchorDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}anchor_day'],
+      )!,
+    );
+  }
+
+  @override
+  $BillsTable createAlias(String alias) {
+    return $BillsTable(attachedDatabase, alias);
+  }
+}
+
+class BillRow extends DataClass implements Insertable<BillRow> {
+  /// When the user made the change. The later edit wins on sync.
+  final DateTime modifiedAt;
+
+  /// Deleted rows are kept, marked, until the deletion has synced.
+  final bool deleted;
+
+  /// Changed here and not yet sent to the server.
+  final bool dirty;
+  final String id;
+  final String name;
+  final double amount;
+  final String categoryName;
+  final String categoryIcon;
+  final int categoryColor;
+  final String walletId;
+
+  /// `weekly`, `monthly` or `yearly`.
+  final String cadence;
+  final DateTime nextDue;
+
+  /// The day of the month a monthly or yearly bill falls on.
+  final int anchorDay;
+  const BillRow({
+    required this.modifiedAt,
+    required this.deleted,
+    required this.dirty,
+    required this.id,
+    required this.name,
+    required this.amount,
+    required this.categoryName,
+    required this.categoryIcon,
+    required this.categoryColor,
+    required this.walletId,
+    required this.cadence,
+    required this.nextDue,
+    required this.anchorDay,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['modified_at'] = Variable<DateTime>(modifiedAt);
+    map['deleted'] = Variable<bool>(deleted);
+    map['dirty'] = Variable<bool>(dirty);
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['amount'] = Variable<double>(amount);
+    map['category_name'] = Variable<String>(categoryName);
+    map['category_icon'] = Variable<String>(categoryIcon);
+    map['category_color'] = Variable<int>(categoryColor);
+    map['wallet_id'] = Variable<String>(walletId);
+    map['cadence'] = Variable<String>(cadence);
+    map['next_due'] = Variable<DateTime>(nextDue);
+    map['anchor_day'] = Variable<int>(anchorDay);
+    return map;
+  }
+
+  BillsCompanion toCompanion(bool nullToAbsent) {
+    return BillsCompanion(
+      modifiedAt: Value(modifiedAt),
+      deleted: Value(deleted),
+      dirty: Value(dirty),
+      id: Value(id),
+      name: Value(name),
+      amount: Value(amount),
+      categoryName: Value(categoryName),
+      categoryIcon: Value(categoryIcon),
+      categoryColor: Value(categoryColor),
+      walletId: Value(walletId),
+      cadence: Value(cadence),
+      nextDue: Value(nextDue),
+      anchorDay: Value(anchorDay),
+    );
+  }
+
+  factory BillRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BillRow(
+      modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
+      dirty: serializer.fromJson<bool>(json['dirty']),
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      amount: serializer.fromJson<double>(json['amount']),
+      categoryName: serializer.fromJson<String>(json['categoryName']),
+      categoryIcon: serializer.fromJson<String>(json['categoryIcon']),
+      categoryColor: serializer.fromJson<int>(json['categoryColor']),
+      walletId: serializer.fromJson<String>(json['walletId']),
+      cadence: serializer.fromJson<String>(json['cadence']),
+      nextDue: serializer.fromJson<DateTime>(json['nextDue']),
+      anchorDay: serializer.fromJson<int>(json['anchorDay']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
+      'deleted': serializer.toJson<bool>(deleted),
+      'dirty': serializer.toJson<bool>(dirty),
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'amount': serializer.toJson<double>(amount),
+      'categoryName': serializer.toJson<String>(categoryName),
+      'categoryIcon': serializer.toJson<String>(categoryIcon),
+      'categoryColor': serializer.toJson<int>(categoryColor),
+      'walletId': serializer.toJson<String>(walletId),
+      'cadence': serializer.toJson<String>(cadence),
+      'nextDue': serializer.toJson<DateTime>(nextDue),
+      'anchorDay': serializer.toJson<int>(anchorDay),
+    };
+  }
+
+  BillRow copyWith({
+    DateTime? modifiedAt,
+    bool? deleted,
+    bool? dirty,
+    String? id,
+    String? name,
+    double? amount,
+    String? categoryName,
+    String? categoryIcon,
+    int? categoryColor,
+    String? walletId,
+    String? cadence,
+    DateTime? nextDue,
+    int? anchorDay,
+  }) => BillRow(
+    modifiedAt: modifiedAt ?? this.modifiedAt,
+    deleted: deleted ?? this.deleted,
+    dirty: dirty ?? this.dirty,
+    id: id ?? this.id,
+    name: name ?? this.name,
+    amount: amount ?? this.amount,
+    categoryName: categoryName ?? this.categoryName,
+    categoryIcon: categoryIcon ?? this.categoryIcon,
+    categoryColor: categoryColor ?? this.categoryColor,
+    walletId: walletId ?? this.walletId,
+    cadence: cadence ?? this.cadence,
+    nextDue: nextDue ?? this.nextDue,
+    anchorDay: anchorDay ?? this.anchorDay,
+  );
+  BillRow copyWithCompanion(BillsCompanion data) {
+    return BillRow(
+      modifiedAt: data.modifiedAt.present
+          ? data.modifiedAt.value
+          : this.modifiedAt,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
+      dirty: data.dirty.present ? data.dirty.value : this.dirty,
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      categoryName: data.categoryName.present
+          ? data.categoryName.value
+          : this.categoryName,
+      categoryIcon: data.categoryIcon.present
+          ? data.categoryIcon.value
+          : this.categoryIcon,
+      categoryColor: data.categoryColor.present
+          ? data.categoryColor.value
+          : this.categoryColor,
+      walletId: data.walletId.present ? data.walletId.value : this.walletId,
+      cadence: data.cadence.present ? data.cadence.value : this.cadence,
+      nextDue: data.nextDue.present ? data.nextDue.value : this.nextDue,
+      anchorDay: data.anchorDay.present ? data.anchorDay.value : this.anchorDay,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillRow(')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('deleted: $deleted, ')
+          ..write('dirty: $dirty, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('amount: $amount, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('categoryIcon: $categoryIcon, ')
+          ..write('categoryColor: $categoryColor, ')
+          ..write('walletId: $walletId, ')
+          ..write('cadence: $cadence, ')
+          ..write('nextDue: $nextDue, ')
+          ..write('anchorDay: $anchorDay')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    modifiedAt,
+    deleted,
+    dirty,
+    id,
+    name,
+    amount,
+    categoryName,
+    categoryIcon,
+    categoryColor,
+    walletId,
+    cadence,
+    nextDue,
+    anchorDay,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BillRow &&
+          other.modifiedAt == this.modifiedAt &&
+          other.deleted == this.deleted &&
+          other.dirty == this.dirty &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.amount == this.amount &&
+          other.categoryName == this.categoryName &&
+          other.categoryIcon == this.categoryIcon &&
+          other.categoryColor == this.categoryColor &&
+          other.walletId == this.walletId &&
+          other.cadence == this.cadence &&
+          other.nextDue == this.nextDue &&
+          other.anchorDay == this.anchorDay);
+}
+
+class BillsCompanion extends UpdateCompanion<BillRow> {
+  final Value<DateTime> modifiedAt;
+  final Value<bool> deleted;
+  final Value<bool> dirty;
+  final Value<String> id;
+  final Value<String> name;
+  final Value<double> amount;
+  final Value<String> categoryName;
+  final Value<String> categoryIcon;
+  final Value<int> categoryColor;
+  final Value<String> walletId;
+  final Value<String> cadence;
+  final Value<DateTime> nextDue;
+  final Value<int> anchorDay;
+  final Value<int> rowid;
+  const BillsCompanion({
+    this.modifiedAt = const Value.absent(),
+    this.deleted = const Value.absent(),
+    this.dirty = const Value.absent(),
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.categoryIcon = const Value.absent(),
+    this.categoryColor = const Value.absent(),
+    this.walletId = const Value.absent(),
+    this.cadence = const Value.absent(),
+    this.nextDue = const Value.absent(),
+    this.anchorDay = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BillsCompanion.insert({
+    required DateTime modifiedAt,
+    this.deleted = const Value.absent(),
+    this.dirty = const Value.absent(),
+    required String id,
+    required String name,
+    required double amount,
+    required String categoryName,
+    required String categoryIcon,
+    required int categoryColor,
+    required String walletId,
+    required String cadence,
+    required DateTime nextDue,
+    required int anchorDay,
+    this.rowid = const Value.absent(),
+  }) : modifiedAt = Value(modifiedAt),
+       id = Value(id),
+       name = Value(name),
+       amount = Value(amount),
+       categoryName = Value(categoryName),
+       categoryIcon = Value(categoryIcon),
+       categoryColor = Value(categoryColor),
+       walletId = Value(walletId),
+       cadence = Value(cadence),
+       nextDue = Value(nextDue),
+       anchorDay = Value(anchorDay);
+  static Insertable<BillRow> custom({
+    Expression<DateTime>? modifiedAt,
+    Expression<bool>? deleted,
+    Expression<bool>? dirty,
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<double>? amount,
+    Expression<String>? categoryName,
+    Expression<String>? categoryIcon,
+    Expression<int>? categoryColor,
+    Expression<String>? walletId,
+    Expression<String>? cadence,
+    Expression<DateTime>? nextDue,
+    Expression<int>? anchorDay,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (modifiedAt != null) 'modified_at': modifiedAt,
+      if (deleted != null) 'deleted': deleted,
+      if (dirty != null) 'dirty': dirty,
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (amount != null) 'amount': amount,
+      if (categoryName != null) 'category_name': categoryName,
+      if (categoryIcon != null) 'category_icon': categoryIcon,
+      if (categoryColor != null) 'category_color': categoryColor,
+      if (walletId != null) 'wallet_id': walletId,
+      if (cadence != null) 'cadence': cadence,
+      if (nextDue != null) 'next_due': nextDue,
+      if (anchorDay != null) 'anchor_day': anchorDay,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BillsCompanion copyWith({
+    Value<DateTime>? modifiedAt,
+    Value<bool>? deleted,
+    Value<bool>? dirty,
+    Value<String>? id,
+    Value<String>? name,
+    Value<double>? amount,
+    Value<String>? categoryName,
+    Value<String>? categoryIcon,
+    Value<int>? categoryColor,
+    Value<String>? walletId,
+    Value<String>? cadence,
+    Value<DateTime>? nextDue,
+    Value<int>? anchorDay,
+    Value<int>? rowid,
+  }) {
+    return BillsCompanion(
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+      deleted: deleted ?? this.deleted,
+      dirty: dirty ?? this.dirty,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      categoryName: categoryName ?? this.categoryName,
+      categoryIcon: categoryIcon ?? this.categoryIcon,
+      categoryColor: categoryColor ?? this.categoryColor,
+      walletId: walletId ?? this.walletId,
+      cadence: cadence ?? this.cadence,
+      nextDue: nextDue ?? this.nextDue,
+      anchorDay: anchorDay ?? this.anchorDay,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (modifiedAt.present) {
+      map['modified_at'] = Variable<DateTime>(modifiedAt.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
+    if (dirty.present) {
+      map['dirty'] = Variable<bool>(dirty.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (categoryName.present) {
+      map['category_name'] = Variable<String>(categoryName.value);
+    }
+    if (categoryIcon.present) {
+      map['category_icon'] = Variable<String>(categoryIcon.value);
+    }
+    if (categoryColor.present) {
+      map['category_color'] = Variable<int>(categoryColor.value);
+    }
+    if (walletId.present) {
+      map['wallet_id'] = Variable<String>(walletId.value);
+    }
+    if (cadence.present) {
+      map['cadence'] = Variable<String>(cadence.value);
+    }
+    if (nextDue.present) {
+      map['next_due'] = Variable<DateTime>(nextDue.value);
+    }
+    if (anchorDay.present) {
+      map['anchor_day'] = Variable<int>(anchorDay.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BillsCompanion(')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('deleted: $deleted, ')
+          ..write('dirty: $dirty, ')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('amount: $amount, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('categoryIcon: $categoryIcon, ')
+          ..write('categoryColor: $categoryColor, ')
+          ..write('walletId: $walletId, ')
+          ..write('cadence: $cadence, ')
+          ..write('nextDue: $nextDue, ')
+          ..write('anchorDay: $anchorDay, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $DetectedPaymentsTable extends DetectedPayments
     with TableInfo<$DetectedPaymentsTable, DetectedPaymentRow> {
   @override
@@ -4264,6 +5037,17 @@ class $ProfilesTable extends Profiles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _billReminderMinutesMeta =
+      const VerificationMeta('billReminderMinutes');
+  @override
+  late final GeneratedColumn<int> billReminderMinutes = GeneratedColumn<int>(
+    'bill_reminder_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(8 * 60),
+  );
   static const VerificationMeta _hideAmountsMeta = const VerificationMeta(
     'hideAmounts',
   );
@@ -4337,6 +5121,7 @@ class $ProfilesTable extends Profiles
     notificationsSeenAt,
     preferredName,
     username,
+    billReminderMinutes,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -4515,6 +5300,15 @@ class $ProfilesTable extends Profiles
         username.isAcceptableOrUnknown(data['username']!, _usernameMeta),
       );
     }
+    if (data.containsKey('bill_reminder_minutes')) {
+      context.handle(
+        _billReminderMinutesMeta,
+        billReminderMinutes.isAcceptableOrUnknown(
+          data['bill_reminder_minutes']!,
+          _billReminderMinutesMeta,
+        ),
+      );
+    }
     if (data.containsKey('hide_amounts')) {
       context.handle(
         _hideAmountsMeta,
@@ -4639,6 +5433,10 @@ class $ProfilesTable extends Profiles
         DriftSqlType.string,
         data['${effectivePrefix}username'],
       ),
+      billReminderMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bill_reminder_minutes'],
+      )!,
       hideAmounts: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hide_amounts'],
@@ -4722,6 +5520,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
   /// server (it must be unique), then pulled down; never pushed.
   final String? username;
 
+  /// When bill reminders come, in minutes after midnight.
+  final int billReminderMinutes;
+
   /// Whether Home hides money amounts until shown.
   final bool hideAmounts;
   final DateTime createdAt;
@@ -4749,6 +5550,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     this.notificationsSeenAt,
     this.preferredName,
     this.username,
+    required this.billReminderMinutes,
     required this.hideAmounts,
     required this.createdAt,
     required this.modifiedAt,
@@ -4792,6 +5594,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     if (!nullToAbsent || username != null) {
       map['username'] = Variable<String>(username);
     }
+    map['bill_reminder_minutes'] = Variable<int>(billReminderMinutes);
     map['hide_amounts'] = Variable<bool>(hideAmounts);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['modified_at'] = Variable<DateTime>(modifiedAt);
@@ -4836,6 +5639,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       username: username == null && nullToAbsent
           ? const Value.absent()
           : Value(username),
+      billReminderMinutes: Value(billReminderMinutes),
       hideAmounts: Value(hideAmounts),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
@@ -4872,6 +5676,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       ),
       preferredName: serializer.fromJson<String?>(json['preferredName']),
       username: serializer.fromJson<String?>(json['username']),
+      billReminderMinutes: serializer.fromJson<int>(
+        json['billReminderMinutes'],
+      ),
       hideAmounts: serializer.fromJson<bool>(json['hideAmounts']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
@@ -4903,6 +5710,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'notificationsSeenAt': serializer.toJson<DateTime?>(notificationsSeenAt),
       'preferredName': serializer.toJson<String?>(preferredName),
       'username': serializer.toJson<String?>(username),
+      'billReminderMinutes': serializer.toJson<int>(billReminderMinutes),
       'hideAmounts': serializer.toJson<bool>(hideAmounts),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
@@ -4932,6 +5740,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     Value<DateTime?> notificationsSeenAt = const Value.absent(),
     Value<String?> preferredName = const Value.absent(),
     Value<String?> username = const Value.absent(),
+    int? billReminderMinutes,
     bool? hideAmounts,
     DateTime? createdAt,
     DateTime? modifiedAt,
@@ -4964,6 +5773,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
         ? preferredName.value
         : this.preferredName,
     username: username.present ? username.value : this.username,
+    billReminderMinutes: billReminderMinutes ?? this.billReminderMinutes,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -5018,6 +5828,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ? data.preferredName.value
           : this.preferredName,
       username: data.username.present ? data.username.value : this.username,
+      billReminderMinutes: data.billReminderMinutes.present
+          ? data.billReminderMinutes.value
+          : this.billReminderMinutes,
       hideAmounts: data.hideAmounts.present
           ? data.hideAmounts.value
           : this.hideAmounts,
@@ -5053,6 +5866,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('notificationsSeenAt: $notificationsSeenAt, ')
           ..write('preferredName: $preferredName, ')
           ..write('username: $username, ')
+          ..write('billReminderMinutes: $billReminderMinutes, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -5084,6 +5898,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     notificationsSeenAt,
     preferredName,
     username,
+    billReminderMinutes,
     hideAmounts,
     createdAt,
     modifiedAt,
@@ -5114,6 +5929,7 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           other.notificationsSeenAt == this.notificationsSeenAt &&
           other.preferredName == this.preferredName &&
           other.username == this.username &&
+          other.billReminderMinutes == this.billReminderMinutes &&
           other.hideAmounts == this.hideAmounts &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt &&
@@ -5142,6 +5958,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<DateTime?> notificationsSeenAt;
   final Value<String?> preferredName;
   final Value<String?> username;
+  final Value<int> billReminderMinutes;
   final Value<bool> hideAmounts;
   final Value<DateTime> createdAt;
   final Value<DateTime> modifiedAt;
@@ -5169,6 +5986,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.notificationsSeenAt = const Value.absent(),
     this.preferredName = const Value.absent(),
     this.username = const Value.absent(),
+    this.billReminderMinutes = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
@@ -5197,6 +6015,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.notificationsSeenAt = const Value.absent(),
     this.preferredName = const Value.absent(),
     this.username = const Value.absent(),
+    this.billReminderMinutes = const Value.absent(),
     this.hideAmounts = const Value.absent(),
     required DateTime createdAt,
     required DateTime modifiedAt,
@@ -5227,6 +6046,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<DateTime>? notificationsSeenAt,
     Expression<String>? preferredName,
     Expression<String>? username,
+    Expression<int>? billReminderMinutes,
     Expression<bool>? hideAmounts,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? modifiedAt,
@@ -5257,6 +6077,8 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
         'notifications_seen_at': notificationsSeenAt,
       if (preferredName != null) 'preferred_name': preferredName,
       if (username != null) 'username': username,
+      if (billReminderMinutes != null)
+        'bill_reminder_minutes': billReminderMinutes,
       if (hideAmounts != null) 'hide_amounts': hideAmounts,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
@@ -5287,6 +6109,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<DateTime?>? notificationsSeenAt,
     Value<String?>? preferredName,
     Value<String?>? username,
+    Value<int>? billReminderMinutes,
     Value<bool>? hideAmounts,
     Value<DateTime>? createdAt,
     Value<DateTime>? modifiedAt,
@@ -5315,6 +6138,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       notificationsSeenAt: notificationsSeenAt ?? this.notificationsSeenAt,
       preferredName: preferredName ?? this.preferredName,
       username: username ?? this.username,
+      billReminderMinutes: billReminderMinutes ?? this.billReminderMinutes,
       hideAmounts: hideAmounts ?? this.hideAmounts,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -5391,6 +6215,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     if (username.present) {
       map['username'] = Variable<String>(username.value);
     }
+    if (billReminderMinutes.present) {
+      map['bill_reminder_minutes'] = Variable<int>(billReminderMinutes.value);
+    }
     if (hideAmounts.present) {
       map['hide_amounts'] = Variable<bool>(hideAmounts.value);
     }
@@ -5433,6 +6260,7 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('notificationsSeenAt: $notificationsSeenAt, ')
           ..write('preferredName: $preferredName, ')
           ..write('username: $username, ')
+          ..write('billReminderMinutes: $billReminderMinutes, ')
           ..write('hideAmounts: $hideAmounts, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
@@ -5676,6 +6504,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TransfersTable transfers = $TransfersTable(this);
   late final $TransactionsTable transactions = $TransactionsTable(this);
   late final $BudgetsTable budgets = $BudgetsTable(this);
+  late final $BillsTable bills = $BillsTable(this);
   late final $DetectedPaymentsTable detectedPayments = $DetectedPaymentsTable(
     this,
   );
@@ -5692,6 +6521,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     transfers,
     transactions,
     budgets,
+    bills,
     detectedPayments,
     accountLinks,
     profiles,
@@ -7194,6 +8024,366 @@ typedef $$BudgetsTableProcessedTableManager =
       BudgetRow,
       PrefetchHooks Function()
     >;
+typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
+  required DateTime modifiedAt,
+  Value<bool> deleted,
+  Value<bool> dirty,
+  required String id,
+  required String name,
+  required double amount,
+  required String categoryName,
+  required String categoryIcon,
+  required int categoryColor,
+  required String walletId,
+  required String cadence,
+  required DateTime nextDue,
+  required int anchorDay,
+  Value<int> rowid,
+});
+typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
+  Value<DateTime> modifiedAt,
+  Value<bool> deleted,
+  Value<bool> dirty,
+  Value<String> id,
+  Value<String> name,
+  Value<double> amount,
+  Value<String> categoryName,
+  Value<String> categoryIcon,
+  Value<int> categoryColor,
+  Value<String> walletId,
+  Value<String> cadence,
+  Value<DateTime> nextDue,
+  Value<int> anchorDay,
+  Value<int> rowid,
+});
+
+class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
+  $$BillsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<DateTime> get modifiedAt => $composableBuilder(
+    column: $table.modifiedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryName => $composableBuilder(
+    column: $table.categoryName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryIcon => $composableBuilder(
+    column: $table.categoryIcon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get categoryColor => $composableBuilder(
+    column: $table.categoryColor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get walletId => $composableBuilder(
+    column: $table.walletId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cadence => $composableBuilder(
+    column: $table.cadence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextDue => $composableBuilder(
+    column: $table.nextDue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get anchorDay => $composableBuilder(
+    column: $table.anchorDay,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BillsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BillsTable> {
+  $$BillsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<DateTime> get modifiedAt => $composableBuilder(
+    column: $table.modifiedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dirty => $composableBuilder(
+    column: $table.dirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryName => $composableBuilder(
+    column: $table.categoryName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryIcon => $composableBuilder(
+    column: $table.categoryIcon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get categoryColor => $composableBuilder(
+    column: $table.categoryColor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get walletId => $composableBuilder(
+    column: $table.walletId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cadence => $composableBuilder(
+    column: $table.cadence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextDue => $composableBuilder(
+    column: $table.nextDue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get anchorDay => $composableBuilder(
+    column: $table.anchorDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BillsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BillsTable> {
+  $$BillsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<DateTime> get modifiedAt => $composableBuilder(
+    column: $table.modifiedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
+
+  GeneratedColumn<bool> get dirty =>
+      $composableBuilder(column: $table.dirty, builder: (column) => column);
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryName => $composableBuilder(
+    column: $table.categoryName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get categoryIcon => $composableBuilder(
+    column: $table.categoryIcon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get categoryColor => $composableBuilder(
+    column: $table.categoryColor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get walletId =>
+      $composableBuilder(column: $table.walletId, builder: (column) => column);
+
+  GeneratedColumn<String> get cadence =>
+      $composableBuilder(column: $table.cadence, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nextDue =>
+      $composableBuilder(column: $table.nextDue, builder: (column) => column);
+
+  GeneratedColumn<int> get anchorDay =>
+      $composableBuilder(column: $table.anchorDay, builder: (column) => column);
+}
+
+class $$BillsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BillsTable,
+          BillRow,
+          $$BillsTableFilterComposer,
+          $$BillsTableOrderingComposer,
+          $$BillsTableAnnotationComposer,
+          $$BillsTableCreateCompanionBuilder,
+          $$BillsTableUpdateCompanionBuilder,
+          (BillRow, BaseReferences<_$AppDatabase, $BillsTable, BillRow>),
+          BillRow,
+          PrefetchHooks Function()
+        > {
+  $$BillsTableTableManager(_$AppDatabase db, $BillsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BillsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BillsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BillsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<DateTime> modifiedAt = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+                Value<String> categoryName = const Value.absent(),
+                Value<String> categoryIcon = const Value.absent(),
+                Value<int> categoryColor = const Value.absent(),
+                Value<String> walletId = const Value.absent(),
+                Value<String> cadence = const Value.absent(),
+                Value<DateTime> nextDue = const Value.absent(),
+                Value<int> anchorDay = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BillsCompanion(
+                modifiedAt: modifiedAt,
+                deleted: deleted,
+                dirty: dirty,
+                id: id,
+                name: name,
+                amount: amount,
+                categoryName: categoryName,
+                categoryIcon: categoryIcon,
+                categoryColor: categoryColor,
+                walletId: walletId,
+                cadence: cadence,
+                nextDue: nextDue,
+                anchorDay: anchorDay,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required DateTime modifiedAt,
+                Value<bool> deleted = const Value.absent(),
+                Value<bool> dirty = const Value.absent(),
+                required String id,
+                required String name,
+                required double amount,
+                required String categoryName,
+                required String categoryIcon,
+                required int categoryColor,
+                required String walletId,
+                required String cadence,
+                required DateTime nextDue,
+                required int anchorDay,
+                Value<int> rowid = const Value.absent(),
+              }) => BillsCompanion.insert(
+                modifiedAt: modifiedAt,
+                deleted: deleted,
+                dirty: dirty,
+                id: id,
+                name: name,
+                amount: amount,
+                categoryName: categoryName,
+                categoryIcon: categoryIcon,
+                categoryColor: categoryColor,
+                walletId: walletId,
+                cadence: cadence,
+                nextDue: nextDue,
+                anchorDay: anchorDay,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$BillsTable, BillRow>(table),
+                  BaseReferences<_$AppDatabase, $BillsTable, BillRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BillsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BillsTable,
+      BillRow,
+      $$BillsTableFilterComposer,
+      $$BillsTableOrderingComposer,
+      $$BillsTableAnnotationComposer,
+      $$BillsTableCreateCompanionBuilder,
+      $$BillsTableUpdateCompanionBuilder,
+      (BillRow, BaseReferences<_$AppDatabase, $BillsTable, BillRow>),
+      BillRow,
+      PrefetchHooks Function()
+    >;
 typedef $$DetectedPaymentsTableCreateCompanionBuilder =
     DetectedPaymentsCompanion Function({
       required DateTime modifiedAt,
@@ -7753,6 +8943,7 @@ typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
   Value<DateTime?> notificationsSeenAt,
   Value<String?> preferredName,
   Value<String?> username,
+  Value<int> billReminderMinutes,
   Value<bool> hideAmounts,
   required DateTime createdAt,
   required DateTime modifiedAt,
@@ -7781,6 +8972,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder = ProfilesCompanion Function({
   Value<DateTime?> notificationsSeenAt,
   Value<String?> preferredName,
   Value<String?> username,
+  Value<int> billReminderMinutes,
   Value<bool> hideAmounts,
   Value<DateTime> createdAt,
   Value<DateTime> modifiedAt,
@@ -7899,6 +9091,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<String> get username => $composableBuilder(
     column: $table.username,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get billReminderMinutes => $composableBuilder(
+    column: $table.billReminderMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8037,6 +9234,11 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get billReminderMinutes => $composableBuilder(
+    column: $table.billReminderMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => ColumnOrderings(column),
@@ -8156,6 +9358,11 @@ class $$ProfilesTableAnnotationComposer
   GeneratedColumn<String> get username =>
       $composableBuilder(column: $table.username, builder: (column) => column);
 
+  GeneratedColumn<int> get billReminderMinutes => $composableBuilder(
+    column: $table.billReminderMinutes,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get hideAmounts => $composableBuilder(
     column: $table.hideAmounts,
     builder: (column) => column,
@@ -8225,6 +9432,7 @@ class $$ProfilesTableTableManager
                 Value<DateTime?> notificationsSeenAt = const Value.absent(),
                 Value<String?> preferredName = const Value.absent(),
                 Value<String?> username = const Value.absent(),
+                Value<int> billReminderMinutes = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> modifiedAt = const Value.absent(),
@@ -8252,6 +9460,7 @@ class $$ProfilesTableTableManager
                 notificationsSeenAt: notificationsSeenAt,
                 preferredName: preferredName,
                 username: username,
+                billReminderMinutes: billReminderMinutes,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
@@ -8281,6 +9490,7 @@ class $$ProfilesTableTableManager
                 Value<DateTime?> notificationsSeenAt = const Value.absent(),
                 Value<String?> preferredName = const Value.absent(),
                 Value<String?> username = const Value.absent(),
+                Value<int> billReminderMinutes = const Value.absent(),
                 Value<bool> hideAmounts = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime modifiedAt,
@@ -8308,6 +9518,7 @@ class $$ProfilesTableTableManager
                 notificationsSeenAt: notificationsSeenAt,
                 preferredName: preferredName,
                 username: username,
+                billReminderMinutes: billReminderMinutes,
                 hideAmounts: hideAmounts,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
@@ -8515,6 +9726,8 @@ class $AppDatabaseManager {
       $$TransactionsTableTableManager(_db, _db.transactions);
   $$BudgetsTableTableManager get budgets =>
       $$BudgetsTableTableManager(_db, _db.budgets);
+  $$BillsTableTableManager get bills =>
+      $$BillsTableTableManager(_db, _db.bills);
   $$DetectedPaymentsTableTableManager get detectedPayments =>
       $$DetectedPaymentsTableTableManager(_db, _db.detectedPayments);
   $$AccountLinksTableTableManager get accountLinks =>

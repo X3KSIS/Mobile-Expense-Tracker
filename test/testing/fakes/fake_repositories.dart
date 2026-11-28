@@ -4,6 +4,8 @@ import 'package:flutter_expensetracker/data/repositories/app_lock/app_lock_repos
 import 'package:flutter_expensetracker/data/repositories/app_lock/app_lock_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/auth/auth_repository_local_fake.dart';
+import 'package:flutter_expensetracker/data/repositories/bill/bill_repository.dart';
+import 'package:flutter_expensetracker/data/repositories/bill/bill_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository_local_fake.dart';
 import 'package:flutter_expensetracker/data/repositories/category/category_repository.dart';
@@ -73,6 +75,9 @@ List<SingleChildWidget> instantAppProviders({bool signedIn = false}) => [
   ),
   ChangeNotifierProvider<AppLockRepository>(
     create: (_) => AppLockRepositoryLocalFake(),
+  ),
+  ChangeNotifierProvider<BillRepository>(
+    create: (_) => BillRepositoryLocalFake(),
   ),
   Provider<ReminderRepository>(
     create: (_) => ReminderRepositoryLocalFake(),

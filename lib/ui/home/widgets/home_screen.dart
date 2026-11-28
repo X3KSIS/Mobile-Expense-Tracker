@@ -15,6 +15,7 @@ import 'detected_payments_banner.dart';
 import 'habit_card.dart';
 import 'home_error_view.dart';
 import 'home_header.dart';
+import 'overdue_bills_banner.dart';
 import 'recent_activity.dart';
 import 'spending_hero_card.dart';
 import 'wallet_strip.dart';
@@ -121,6 +122,17 @@ class _HomeContent extends StatelessWidget {
             child: DetectedPaymentsBanner(
               count: viewModel.detectedPaymentCount,
               onReview: () => context.push(Routes.detectedPayments),
+            ),
+          ),
+        ),
+        ExpandableSection(
+          expanded: viewModel.overdueBills.isNotEmpty,
+          child: Padding(
+            padding: const EdgeInsets.only(top: Dimens.gapM),
+            child: OverdueBillsBanner(
+              count: viewModel.overdueBills.length,
+              total: viewModel.overdueBillTotal,
+              onOpen: () => context.push(Routes.bills),
             ),
           ),
         ),

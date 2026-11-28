@@ -89,6 +89,28 @@ class Budgets extends Table with SyncColumns {
   Set<Column> get primaryKey => {id};
 }
 
+/// Bills the user set up to be reminded about (rent, DStv, school fees).
+@DataClassName('BillRow')
+class Bills extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  RealColumn get amount => real()();
+  TextColumn get categoryName => text()();
+  TextColumn get categoryIcon => text()();
+  IntColumn get categoryColor => integer()();
+  TextColumn get walletId => text()();
+
+  /// `weekly`, `monthly` or `yearly`.
+  TextColumn get cadence => text()();
+  DateTimeColumn get nextDue => dateTime()();
+
+  /// The day of the month a monthly or yearly bill falls on.
+  IntColumn get anchorDay => integer()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('DetectedPaymentRow')
 class DetectedPayments extends Table with SyncColumns {
   TextColumn get id => text()();
@@ -182,6 +204,10 @@ class Profiles extends Table {
   /// server (it must be unique), then pulled down; never pushed.
   TextColumn get username => text().nullable()();
 
+  /// When bill reminders come, in minutes after midnight.
+  IntColumn get billReminderMinutes =>
+      integer().withDefault(const Constant(8 * 60))();
+
   /// Whether Home hides money amounts until shown.
   BoolColumn get hideAmounts => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
@@ -212,6 +238,7 @@ class SyncCursors extends Table {
     Transfers,
     Transactions,
     Budgets,
+    Bills,
     DetectedPayments,
     AccountLinks,
     Profiles,
@@ -223,7 +250,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'expense_tracker'));
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -258,6 +285,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 8) {
         await m.addColumn(profiles, profiles.username);
       }
+      if (from < 9) {
+        await m.createTable(bills);
+        await m.addColumn(profiles, profiles.billReminderMinutes);
+      }
     },
   );
 
@@ -273,6 +304,7 @@ class AppDatabase extends _$AppDatabase {
     transfers,
     transactions,
     budgets,
+    bills,
     detectedPayments,
     accountLinks,
   ];

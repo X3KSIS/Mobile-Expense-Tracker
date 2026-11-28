@@ -25,6 +25,18 @@ class NotificationSettingsScreen extends StatelessWidget {
     if (picked != null) viewModel.setReminderTime(picked.hour, picked.minute);
   }
 
+  Future<void> _pickBillTime(BuildContext context) async {
+    final minutes = viewModel.billReminderMinutes;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+      helpText: 'Remind me about bills at',
+    );
+    if (picked != null) {
+      viewModel.setBillReminderTime(picked.hour, picked.minute);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,8 +102,8 @@ class NotificationSettingsScreen extends StatelessWidget {
       PreferenceRow(
         title: 'Bill reminders',
         subtitle:
-            'The evening before a regular payment like DStv or rent '
-            'is due',
+            'A week before, 3 days before and on the day, then every '
+            'morning until marked paid',
         trailing: Switch(
           value: viewModel.billReminders,
           onChanged: viewModel.setBillReminders.running
@@ -99,6 +111,12 @@ class NotificationSettingsScreen extends StatelessWidget {
               : viewModel.setBillReminders.execute,
         ),
       ),
+      if (viewModel.billReminders)
+        PreferenceRow(
+          title: 'Bill reminder time',
+          subtitle: viewModel.billReminderTimeLabel,
+          onTap: () => _pickBillTime(context),
+        ),
     ],
   );
 

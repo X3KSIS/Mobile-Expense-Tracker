@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/bill/bill_repository.dart';
 import '../../../data/repositories/budget/budget_repository.dart';
 import '../../../data/repositories/detected_payment/detected_payment_repository.dart';
 import '../../../data/repositories/settings/settings_repository.dart';
 import '../../../data/repositories/transaction/transaction_repository.dart';
 import '../../../domain/models/app_notification.dart';
+import '../../../domain/models/bill.dart';
 import '../../../domain/models/pay_cycle.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
@@ -18,11 +20,13 @@ class NotificationsViewModel extends ChangeNotifier {
     required this._budgetRepository,
     required this._settingsRepository,
     required this._detectedPaymentRepository,
+    this._billRepository,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
     _transactionRepository.addListener(_reload);
     _budgetRepository.addListener(_reload);
     _detectedPaymentRepository.addListener(_reload);
+    _billRepository?.addListener(_reload);
     load = Command0<void>(_load)..execute();
   }
 
@@ -30,6 +34,7 @@ class NotificationsViewModel extends ChangeNotifier {
   final BudgetRepository _budgetRepository;
   final SettingsRepository _settingsRepository;
   final DetectedPaymentRepository _detectedPaymentRepository;
+  final BillRepository? _billRepository;
   final DateTime Function() _clock;
 
   late final Command0<void> load;
@@ -67,6 +72,10 @@ class NotificationsViewModel extends ChangeNotifier {
       _transactionRepository.getTransactions(),
       _budgetRepository.getBudgets(),
     ).wait;
+    final bills = switch (await _billRepository?.getBills()) {
+      Ok(:final value) => value,
+      _ => const <Bill>[],
+    };
     switch ((transactions, budgets)) {
       case (Ok(value: final all), Ok(value: final budgetList)):
         final now = _clock();
@@ -80,6 +89,7 @@ class NotificationsViewModel extends ChangeNotifier {
           toReview: _detectedPaymentRepository.pending,
           now: now,
           budgetAlerts: _settingsRepository.budgetAlerts,
+          bills: bills,
         );
         if (!_marked) {
           _marked = true;
@@ -108,6 +118,7 @@ class NotificationsViewModel extends ChangeNotifier {
     _transactionRepository.removeListener(_reload);
     _budgetRepository.removeListener(_reload);
     _detectedPaymentRepository.removeListener(_reload);
+    _billRepository?.removeListener(_reload);
     load.dispose();
     super.dispose();
   }

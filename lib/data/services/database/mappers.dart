@@ -1,3 +1,5 @@
+import '../../../domain/models/bill.dart';
+
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -190,6 +192,39 @@ extension AccountLinkToRow on AccountLink {
         providerName: providerName,
         accountRef: accountRef,
         lastSyncedAt: Value(lastSyncedAt),
+        modifiedAt: modifiedAt,
+        dirty: const Value(true),
+      );
+}
+
+extension BillRowMapping on BillRow {
+  Bill toDomain() => Bill(
+    id: id,
+    name: name,
+    amount: amount,
+    categoryName: categoryName,
+    categoryIcon: categoryIcon,
+    categoryColor: categoryColor,
+    walletId: walletId,
+    cadence: BillCadence.values.asNameMap()[cadence] ?? BillCadence.monthly,
+    nextDue: nextDue,
+    anchorDay: anchorDay,
+  );
+}
+
+extension BillToRow on Bill {
+  BillsCompanion toCompanion({required DateTime modifiedAt}) =>
+      BillsCompanion.insert(
+        id: id,
+        name: name,
+        amount: amount,
+        categoryName: categoryName,
+        categoryIcon: categoryIcon,
+        categoryColor: categoryColor,
+        walletId: walletId,
+        cadence: cadence.name,
+        nextDue: nextDue,
+        anchorDay: anchorDay,
         modifiedAt: modifiedAt,
         dirty: const Value(true),
       );

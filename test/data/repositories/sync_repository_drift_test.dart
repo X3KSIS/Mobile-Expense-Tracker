@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
+import 'package:flutter_expensetracker/data/repositories/bill/bill_repository_drift.dart';
 import 'package:flutter_expensetracker/data/repositories/budget/budget_repository_drift.dart';
 import 'package:flutter_expensetracker/data/repositories/category/default_categories.dart';
 import 'package:flutter_expensetracker/data/repositories/detected_payment/detected_payment_repository_notifications.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_expensetracker/data/repositories/transaction/transaction
 import 'package:flutter_expensetracker/data/services/database/app_database.dart';
 import 'package:flutter_expensetracker/data/services/notification_listener_client.dart';
 import 'package:flutter_expensetracker/data/services/privacy_screen_service.dart';
+import 'package:flutter_expensetracker/domain/models/bill.dart';
 import 'package:flutter_expensetracker/domain/models/budget.dart';
 import 'package:flutter_expensetracker/domain/models/money_message.dart';
 import 'package:flutter_expensetracker/domain/models/transaction.dart';
@@ -138,6 +140,36 @@ void main() {
     expect(onTablet.title, 'Shoprite');
     expect(onTablet.date, DateTime(2026, 11, 26, 18));
     expect(phone.sync.status, SyncStatus.idle);
+  });
+
+  test('bills reach the server and another device', () async {
+    final phoneBills = BillRepositoryDrift(phone.db, clock: () => clock.now);
+    final tabletBills = BillRepositoryDrift(tablet.db, clock: () => clock.now);
+    addTearDown(phoneBills.dispose);
+    addTearDown(tabletBills.dispose);
+    await phoneBills.saveBill(
+      Bill(
+        id: '',
+        name: 'Rent',
+        amount: 3500,
+        categoryName: 'Housing',
+        categoryIcon: 'housing',
+        categoryColor: 0,
+        walletId: 'w-cash',
+        cadence: BillCadence.monthly,
+        nextDue: DateTime(2026, 12, 31),
+        anchorDay: 31,
+      ),
+    );
+    await phone.sync.sync();
+    expect(remote.tables['bills'], hasLength(1));
+    expect(remote.tables['bills']!.values.single['next_due'], isNotNull);
+
+    await tablet.sync.sync();
+    final onTablet = (await tabletBills.getBills() as Ok<List<Bill>>).value;
+    expect(onTablet.single.name, 'Rent');
+    expect(onTablet.single.cadence, BillCadence.monthly);
+    expect(onTablet.single.nextDue, DateTime(2026, 12, 31));
   });
 
   test('nothing is sent twice', () async {

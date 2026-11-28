@@ -33,6 +33,16 @@ import '../../core/ui/status_badge.dart';
     title: '${n.subject} is due ${_dueWhen(n.due!, now)}',
     body: 'Usually ${formatZmw(n.amount)}. Keep it aside.',
   ),
+  NotificationKind.billOverdue => (
+    title: '${n.subject} is overdue',
+    body:
+        '${formatZmw(n.amount)} was due ${formatDayMonth(n.due!)}. '
+        'Mark it paid in Bills.',
+  ),
+  NotificationKind.billDue => (
+    title: '${n.subject} is due ${_dueWhen(n.due!, now)}',
+    body: '${formatZmw(n.amount)}. Mark it paid once done.',
+  ),
   NotificationKind.paymentsToReview => (
     title: n.count == 1
         ? '1 payment to review'
@@ -53,9 +63,11 @@ String _dueWhen(DateTime due, DateTime now) {
 /// How urgent [kind] is, shown with its status mark.
 StatusTone notificationTone(NotificationKind kind) => switch (kind) {
   NotificationKind.overBudget ||
-  NotificationKind.paymentLate => StatusTone.danger,
+  NotificationKind.paymentLate ||
+  NotificationKind.billOverdue => StatusTone.danger,
   NotificationKind.nearBudget ||
-  NotificationKind.paymentDueSoon => StatusTone.warning,
+  NotificationKind.paymentDueSoon ||
+  NotificationKind.billDue => StatusTone.warning,
   NotificationKind.paymentsToReview => StatusTone.neutral,
 };
 
@@ -63,7 +75,9 @@ IconData _icon(NotificationKind kind) => switch (kind) {
   NotificationKind.overBudget ||
   NotificationKind.nearBudget => Icons.donut_large_rounded,
   NotificationKind.paymentLate ||
-  NotificationKind.paymentDueSoon => Icons.event_repeat_rounded,
+  NotificationKind.paymentDueSoon ||
+  NotificationKind.billOverdue ||
+  NotificationKind.billDue => Icons.event_repeat_rounded,
   NotificationKind.paymentsToReview => Icons.sms_outlined,
 };
 

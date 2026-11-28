@@ -57,6 +57,16 @@ class NotificationSettingsViewModel extends ChangeNotifier {
       _message ??
       ((dailyReminder || billReminders) && !_allowed ? blockedMessage : null);
 
+  int get billReminderMinutes => _settingsRepository.billReminderMinutes;
+
+  /// e.g. "08:00".
+  String get billReminderTimeLabel => DateFormat.Hm().format(
+    DateTime(2000, 1, 1, billReminderMinutes ~/ 60, billReminderMinutes % 60),
+  );
+
+  void setBillReminderTime(int hour, int minute) =>
+      _settingsRepository.setBillReminderMinutes(hour * 60 + minute);
+
   void setReminderTime(int hour, int minute) =>
       _settingsRepository.setReminderMinutes(hour * 60 + minute);
 

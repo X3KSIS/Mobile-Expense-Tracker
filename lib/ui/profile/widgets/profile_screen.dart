@@ -159,6 +159,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: 'Tracking',
       items: [
         ProfileMenuItem(
+          icon: Icons.event_repeat_rounded,
+          title: 'Bills',
+          subtitle: 'Rent, subscriptions and reminders',
+          onTap: () => context.push(Routes.bills),
+        ),
+        ProfileMenuItem(
           icon: Icons.category_outlined,
           title: 'Categories',
           subtitle: 'Add, rename and reorder',
